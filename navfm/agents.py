@@ -273,6 +273,10 @@ class RWMPlannerAgent(WMPlannerAgent):
     @torch.no_grad()
     def initial_state(self, obs):
         e = self.model.embed(_t(W.pano_tensor(obs)))
+        if self.WINDOW is None:  # carry the state through the whole episode
+            h = self.model.init_state(1) if self.h is None else self.model.step(self.h, _t(self.prev).float())
+            self.h = self.model.posterior(h, e)
+            return self.h
         self.hist.append((e, _t(self.prev).float()))
         self.hist = self.hist[-self.WINDOW :]
         # re-filter the last WINDOW steps from a fresh state, as in training
@@ -283,6 +287,12 @@ class RWMPlannerAgent(WMPlannerAgent):
             h = self.model.posterior(h, ei)
         self.h = h
         return h
+
+
+class RWMEpisodeAgent(RWMPlannerAgent):
+    """Recurrent WM trained on whole episodes: the state is carried through the episode."""
+
+    WINDOW = None
 
 
 # ------------------------------------------------------------------ WAM
@@ -313,7 +323,7 @@ class WAMAgent(Agent):
 
 def load_agent(kind: str, ckpt_dir: str = "checkpoints"):
     cls = {"vlm": (M.GroundingVLM, VLMPlannerAgent), "vla": (M.VLA, VLAAgent), "wm": (M.WorldModel, WMPlannerAgent),
-           "wam": (M.WAM, WAMAgent), "rwm": (M.RecurrentWorldModel, RWMPlannerAgent)}[kind]
+           "wam": (M.WAM, WAMAgent), "rwm": (M.RecurrentWorldModel, RWMPlannerAgent), "rwm_ep": (M.RecurrentWorldModel, RWMEpisodeAgent)}[kind]
     model = cls[0]()
     model.load_state_dict(torch.load(f"{ckpt_dir}/{kind}.pt", weights_only=True))
     return cls[1](model)

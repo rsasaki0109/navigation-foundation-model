@@ -260,3 +260,97 @@ def train_rwm(d, epochs=6, seq=24, observed=16, seed=0, model=None, lr=1e-3, str
             tot.append(loss.item())
         _log("rwm", ep, np.mean(tot), t0)
     return m
+
+
+def episode_spans(ep):
+    """(start, length) of each contiguous episode id run."""
+    cut = np.flatnonzero(np.diff(ep) != 0) + 1
+    starts = np.r_[0, cut]
+    ends = np.r_[cut, len(ep)]
+    return np.stack([starts, ends - starts], 1)
+
+
+def train_rwm_episodes(d, epochs=6, seed=0, model=None, lr=1e-3, batch=24, max_len=160, branch_every=4,
+                       horizon=8):
+    """Train the recurrent world model on whole episodes, from the episode start as at deployment.
+
+    The state is filtered through every observation; every `branch_every` steps an imagined
+    `horizon`-step branch (actions only) is decoded and scored against what really happened.
+    """
+    torch.manual_seed(seed)
+    rng = np.random.default_rng(seed)
+    m = model or M.RecurrentWorldModel()
+    opt = torch.optim.AdamW(m.parameters(), lr, weight_decay=1e-4)
+    pano, tok = torch.tensor(d["pano"]), torch.tensor(d["tok"])
+    act = torch.tensor(d["act"]).float()
+    expert = torch.tensor(d["expert"]).float()
+    dist = torch.tensor(np.minimum(d["dist"], 12.0)).float()
+    coll = torch.tensor(d["coll"]).float()
+    spans = episode_spans(d["ep"])
+    spans[:, 1] = np.minimum(spans[:, 1], max_len)
+    order = np.argsort(spans[:, 1])
+    groups = [order[i : i + batch] for i in range(0, len(order), batch)]  # length-bucketed batches
+    sched = torch.optim.lr_scheduler.OneCycleLR(opt, lr, total_steps=epochs * len(groups))
+    t0 = time.time()
+    pw = torch.tensor(4.0)
+    for ep in range(epochs):
+        tot = []
+        for gi in rng.permutation(len(groups)):
+            sp = spans[groups[gi]]
+            B, L = len(sp), int(sp[:, 1].max())
+            ks = torch.arange(L)
+            idx = torch.tensor(sp[:, 0])[:, None] + torch.minimum(ks[None], torch.tensor(sp[:, 1] - 1)[:, None])
+            mask = (ks[None] < torch.tensor(sp[:, 1])[:, None]).float()
+            obs = pano[idx].float()  # (B, L, 5, 128)
+            e_all = m.embed(obs.flatten(0, 1)).view(B, L, -1)
+            t = m.text(tok[idx[:, 0]])
+
+            def mmean(x, mk):
+                return (x * mk).sum() / mk.sum().clamp(min=1)
+
+            h = m.init_state(B)
+            loss = 0.0
+            hs = []
+            for k in range(L):
+                mk = mask[:, k]
+                if k > 0:
+                    a_prev = act[idx[:, k - 1]]
+                    loss = loss + 0.5 * mmean(F.binary_cross_entropy_with_logits(
+                        m.collision(h, a_prev), coll[idx[:, k - 1]], pos_weight=pw, reduction="none"), mk) / L
+                    h = m.step(h, a_prev)
+                    loss = loss + 0.5 * (
+                        mmean(((m.decode(h) - obs[:, k]) ** 2).mean((1, 2)), mk)
+                        + mmean(F.smooth_l1_loss(m.goal_dist(h, t), dist[idx[:, k]], reduction="none"), mk)) / L
+                h = m.posterior(h, e_all[:, k])
+                loss = loss + (
+                    mmean(((m.decode(h) - obs[:, k]) ** 2).mean((1, 2)), mk)
+                    + mmean(F.smooth_l1_loss(m.goal_dist(h, t), dist[idx[:, k]], reduction="none"), mk)
+                    + 0.5 * mmean(F.smooth_l1_loss(m.prior(h, t), expert[idx[:, k]], beta=0.1, reduction="none").mean(-1), mk)
+                ) / L
+                hs.append(h)
+            # imagined branches from the filtered state, scored against the real continuation
+            bks = list(range(0, L - 1, branch_every))
+            if bks:
+                hb = torch.cat([hs[k] for k in bks])
+                kb = torch.tensor(bks).repeat_interleave(B)
+                rows = torch.arange(B).repeat(len(bks))
+                tb = t.repeat(len(bks), 1)
+                bl = 0.0
+                for j in range(1, horizon + 1):
+                    kk = (kb + j).clamp(max=L - 1)
+                    valid = mask[rows, kk] * (kb + j < L).float()
+                    a = act[idx[rows, kk - 1]]
+                    bl = bl + 0.5 * mmean(F.binary_cross_entropy_with_logits(
+                        m.collision(hb, a), coll[idx[rows, kk - 1]], pos_weight=pw, reduction="none"), valid)
+                    hb = m.step(hb, a)
+                    bl = bl + mmean(((m.decode(hb) - obs[rows, kk]) ** 2).mean((1, 2)), valid) + mmean(
+                        F.smooth_l1_loss(m.goal_dist(hb, tb), dist[idx[rows, kk]], reduction="none"), valid)
+                loss = loss + 1.5 * bl / horizon
+            opt.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
+            opt.step()
+            sched.step()
+            tot.append(loss.item())
+        _log("rwm-ep", ep, np.mean(tot), t0)
+    return m

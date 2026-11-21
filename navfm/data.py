@@ -101,7 +101,7 @@ def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int, prefix
     env = W.NavEnv(seed)
     out = []
     n = len(base["pose"])
-    choices = np.arange(prefix, n) if n > prefix else np.arange(n)
+    choices = np.arange(max(prefix, 0), n) if n > prefix else np.arange(n)
     for k, idx in enumerate(rng.choice(choices, size=min(n_starts, len(choices)), replace=False)):
         env.pose = base["pose"][idx].copy()
         env.t, env.done, env.success, env.collisions, env.path = 0, False, False, 0, [env.pose.copy()]
@@ -125,7 +125,11 @@ def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int, prefix
             rec["act"].append(a)
             rec["coll"].append(collided)
         o = {k2: np.array(v) for k2, v in rec.items()}
-        if prefix and idx >= prefix:
+        if prefix < 0:  # full history from the episode start
+            sl = slice(0, idx)
+            for k2 in o:
+                o[k2] = np.concatenate([base[k2][sl], o[k2]])
+        elif prefix and idx >= prefix:
             sl = slice(idx - prefix, idx)
             for k2 in o:
                 o[k2] = np.concatenate([base[k2][sl], o[k2]])
