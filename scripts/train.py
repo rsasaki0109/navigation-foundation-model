@@ -72,12 +72,18 @@ if __name__ == "__main__":
             m = T.train_wm(cat([base] + [{k: e[k] for k in base} for e in extra]), epochs=2, model=m, lr=5e-4)
             torch.save(m.state_dict(), f"{CK}/wm.pt")
     if "vla" in which:
-        m = T.train_vla(base)
-        torch.save(m.state_dict(), f"{CK}/vla.pt")
+        if "--finetune" in sys.argv:
+            from navfm.models import VLA
+
+            m = VLA()
+            m.load_state_dict(torch.load(f"{CK}/vla.pt", weights_only=True))
+        else:
+            m = T.train_vla(base)
+            torch.save(m.state_dict(), f"{CK}/vla.pt")
         extra = []
-        for r, beta in enumerate([0.3, 0.0, 0.0]):
-            extra += dagger("vla", [beta], 400, 10_000 * r)
-            m = T.train_vla(cat([base] + [{k: e[k] for k in base} for e in extra]), epochs=4, model=m)
+        for r, beta in enumerate([0.0, 0.0]):
+            extra += dagger("vla", [beta], 300, 10_000 * r)
+            m = T.train_vla(cat([base] + [{k: e[k] for k in base} for e in extra]), epochs=2, model=m)
             torch.save(m.state_dict(), f"{CK}/vla.pt")
     if "wam" in which:
         with Pool(4) as p:
