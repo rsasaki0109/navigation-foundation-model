@@ -65,6 +65,7 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 | Expert aimed 0.6 m ahead along the distance field | It cut corners, so DAgger taught the imitators to keep pushing into furniture | Aim at the farthest waypoint in line of sight; turn in place before a collision |
 | Expert's turn-in-place direction flipped sign between neighbouring states | WAM's regression head averaged left and right into "drive straight" | Always turn toward increasing clearance |
 | Blocked moves froze the robot | Corner deadlocks: 100+ collisions in an episode | Slide along obstacles like Habitat's `allow_sliding` (still counted as a collision) |
+| *Tried, did not help:* WM failures that remain (20 of 100: 4 stall just short of the object, 3 trust a hallucinated "almost there", 4 never see the target, 9 run out of time otherwise) | — | A 5-head bootstrap ensemble of distance heads on the frozen model, plus a target-proximity head. Used as the mean, success fell to 0.70; as a disagreement penalty on the original head, it stayed at 0.80 on 40 episodes. Off by default (`WMPlannerAgent.USE_ENS`). Memory or a better-calibrated value probably matter more |
 
 ## The simulator
 
