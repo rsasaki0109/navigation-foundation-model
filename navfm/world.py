@@ -212,7 +212,10 @@ def pano_tensor(obs: Obs) -> np.ndarray:
 
 
 class NavEnv:
-    """Object-goal navigation episode: reach within 0.5 m of the instructed object."""
+    """Object-goal navigation episode: reach within 0.5 m of the instructed object.
+
+    A blocked move slides along the obstacle (Habitat-style) and counts as a collision.
+    """
 
     def __init__(self, seed: int):
         self.seed = seed
@@ -263,9 +266,13 @@ class NavEnv:
         if self.free(nx, ny):
             self.pose = np.array([nx, ny, nth])
         else:
-            self.pose = np.array([x, y, nth])
+            # slide along the obstacle (like Habitat's allow_sliding): keep the larger free axis component
             collided = True
             self.collisions += 1
+            cands = [(abs(nx - x), nx, y), (abs(ny - y), x, ny)]
+            cands = [c for c in sorted(cands, reverse=True) if self.free(c[1], c[2])]
+            sx, sy = (cands[0][1], cands[0][2]) if cands else (x, y)
+            self.pose = np.array([sx, sy, nth])
         self.t += 1
         self.path.append(self.pose.copy())
         if self.target_distance() <= SUCCESS_DIST_M:
