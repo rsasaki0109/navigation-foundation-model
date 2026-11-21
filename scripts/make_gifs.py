@@ -35,7 +35,7 @@ def status_line(kind, agent, env):
     if kind == "vla":
         return f"token #{v.get('token', 0)}  p={v.get('token_prob', np.zeros(1)).max():.2f}"
     if kind == "wm":
-        return f"CEM {agent.N} samples x {agent.ITERS} iters, horizon {agent.H}"
+        return f"CEM {agent.N} samples x {agent.ITERS} iters (+ policy prior), H={agent.H}"
     return f"chunk of {len(v.get('chunk', []))} actions, execute {agent.EXEC}, re-plan"
 
 

@@ -1,30 +1,30 @@
 {
  "vlm": {
-  "seed": 78,
+  "seed": 35,
   "success": true,
-  "steps": 45,
+  "steps": 34,
   "collisions": 0,
-  "instruction": "where is the green plant"
+  "instruction": "head over to the chair"
  },
  "vla": {
-  "seed": 78,
+  "seed": 35,
   "success": true,
-  "steps": 41,
+  "steps": 32,
   "collisions": 0,
-  "instruction": "where is the green plant"
+  "instruction": "head over to the chair"
  },
  "wm": {
-  "seed": 78,
+  "seed": 35,
   "success": true,
-  "steps": 43,
+  "steps": 33,
   "collisions": 0,
-  "instruction": "where is the green plant"
+  "instruction": "head over to the chair"
  },
  "wam": {
-  "seed": 78,
+  "seed": 35,
   "success": true,
-  "steps": 42,
+  "steps": 33,
   "collisions": 0,
-  "instruction": "where is the green plant"
+  "instruction": "head over to the chair"
  }
 }

@@ -1,10 +1,10 @@
 # Navigation Foundation Model
 
-**Four ways to turn "where is the green plant" into motion, side by side in one simulator.**
+**Four ways to turn "head over to the chair" into motion, side by side in one simulator.**
 
 <p align="center">
   <img src="docs/media/hero.gif" alt="Four navigation paradigms (VLM + planning, VLA, WM + planning, WAM) solving the same instruction in the same apartment, each with a top-down map, an egocentric camera and a view of the model's internals" width="100%">
-  <br><sub>Same episode (held-out seed 78), same instruction, four paradigms. Every frame is rendered from the live simulation; the right column of each panel shows what each model is thinking.</sub>
+  <br><sub>Same episode (held-out seed 35), same instruction, four paradigms. Every frame is rendered from the live simulation; the right column of each panel shows what each model is thinking.</sub>
 </p>
 
 <table>
@@ -24,7 +24,7 @@
     <td width="50%" align="center">
       <img src="docs/media/wm.gif" alt="WM + planning: CEM samples action sequences, rolls them out in a learned latent world model and executes the lowest-cost plan" width="100%"><br>
       <b>WM + planning (world model + MPC)</b><br>
-      <sub>A latent world model (encoder, action-conditioned dynamics, decoder, goal-distance and collision heads) is searched with CEM: 192 imagined action sequences × 4 iterations every step. The map shows the sampled plans; the strips are decoded imagined futures.</sub>
+      <sub>A latent world model (encoder, action-conditioned dynamics, decoder, goal-distance and collision heads) is searched with CEM: 192 imagined action sequences × 4 iterations every step, seeded by a latent policy prior (TD-MPC style). The map shows the sampled plans; the strips are decoded imagined futures.</sub>
     </td>
     <td width="50%" align="center">
       <img src="docs/media/wam.gif" alt="WAM: one model predicts an 8-step action chunk together with the future panoramas it expects to see" width="100%"><br>
@@ -41,8 +41,9 @@ Held-out evaluation on 100 episodes (seeds 0–99; training uses seeds ≥ 100 0
 | Paradigm | Success | SPL | Steps to goal (successes) | Collisions / episode | Params |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | VLM + planning | **0.96** | 0.88 | 50.1 | 4.4 | 0.11 M (+ classical planner) |
-| VLA | 0.92 | **0.90** | **37.9** | **4.1** | 0.69 M |
-| WM + planning | 0.39 | 0.24 | 76.1 | 4.8 | 0.65 M (+ CEM) |
+| VLA | 0.92 | **0.90** | **37.9** | 4.1 | 0.69 M |
+| WM + planning | 0.79 | 0.63 | 59.6 | **1.4** | 0.73 M (+ CEM) |
+| ↳ policy prior only (no planning) | 0.82 | — | — | 14.6 | same network |
 | WAM | 0.92 | **0.90** | 38.5 | 10.2 | 2.56 M |
 
 `docs/results.json` has per-episode numbers (`python scripts/evaluate.py 100`).
@@ -50,8 +51,16 @@ Held-out evaluation on 100 episodes (seeds 0–99; training uses seeds ≥ 100 0
 What the numbers say, in this toy setting:
 
 - **VLM + planning** is the most robust because it is the only method with memory: a map, plus frontier exploration when the target is hidden behind a wall. It is also slower, since exploration costs steps.
-- **VLA** and **WAM** are reactive and fast. They take near-optimal paths whenever the target is visible in the panorama. They fail when it is occluded, because they have no memory.
-- **WM + planning** is the hardest to get right. The planner actively searches for states where the learned goal-distance head is wrong and drives toward them, which is the classic model-exploitation failure. Fine-tuning on the planner's own rollouts raised success from about 0.2 to 0.39. Better value learning, model ensembles or memory are the obvious next steps.
+- **VLA** and **WAM** are reactive and fast. They take near-optimal paths whenever the target is visible in the panorama. Most of their failures happen when the target starts out occluded (success 0.97–1.00 when it is visible at the start, 0.88–0.90 when it is not), because they have no memory.
+- **WM + planning** collides the least by a wide margin. The ablation shows what the planning step buys: driving the policy prior alone reaches the goal about as often but hits furniture 10× more. Imagining the collision head 10 steps ahead is what keeps the robot clear. It is also the method that was hardest to get right:
+
+  | WM training data | Success | Collisions |
+  | --- | ---: | ---: |
+  | expert demos only | ~0.2 (10 eps) | — |
+  | + rollouts of the planner itself | 0.39 | 4.8 |
+  | + planner-style counterfactual rollouts in the true sim, + policy prior for CEM | **0.79** | **1.4** |
+
+  With expert data alone, CEM finds action sequences whose imagined outcome the model gets wrong and drives straight into them (model exploitation). The fix is to execute the kind of sequences the planner proposes in the real simulator and train on what actually happens.
 
 ## The simulator
 
@@ -71,7 +80,7 @@ The first-person view in the GIFs is a pseudo-3D ray-cast render of the same wor
 pip install -r requirements.txt          # numpy, scipy, pillow, torch (CPU is fine)
 
 python scripts/evaluate.py 20            # evaluate the shipped checkpoints
-python scripts/make_gifs.py 78           # re-render docs/media/*.gif for seed 78
+python scripts/make_gifs.py 35           # re-render docs/media/*.gif for seed 35
 
 # retrain everything from scratch (CPU, ~1-2 h total)
 python scripts/collect.py 2500 data/expert.npz
