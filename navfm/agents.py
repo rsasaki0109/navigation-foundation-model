@@ -176,7 +176,7 @@ class WMPlannerAgent(Agent):
     name = "WM + planning"
     H, N, ITERS, ELITE = 10, 192, 4, 16
     TERM, GAMMA = 10.0, 1.0
-    USE_ENS, KAPPA = True, 1.0
+    USE_ENS, KAPPA, USE_NEAR, MEAN_ORIG = False, 1.0, False, True  # ensemble did not help (see README)
 
     def __init__(self, model: M.WorldModel, seed: int = 0):
         self.model = model.eval()
@@ -204,8 +204,9 @@ class WMPlannerAgent(Agent):
             if ens:
                 e = self.model.goal_dist_ens(z, t)
                 # pessimism: penalise plans whose outcome the ensemble disagrees on
-                d = e.mean(0) + self.KAPPA * e.std(0)
-                near = self.model.target_dist(z, t) < W.SUCCESS_DIST_M - 0.05
+                base = self.model.goal_dist(z, t) if self.MEAN_ORIG else e.mean(0)
+                d = base + self.KAPPA * e.std(0)
+                near = (self.model.target_dist(z, t) < W.SUCCESS_DIST_M - 0.05) & self.USE_NEAR
                 d = torch.where(reached | near, torch.zeros_like(d), d)
                 reached = reached | near
             else:

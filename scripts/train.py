@@ -66,13 +66,17 @@ if __name__ == "__main__":
 
         m = WorldModel()
         print(m.load_state_dict(torch.load(f"{CK}/wm.pt", weights_only=True), strict=False).missing_keys, flush=True)
-        torch.save(m.state_dict(), f"{CK}/wm.pt")  # new heads untrained (has_ens=0): planner unchanged
+        resumed = bool(m.has_ens)
+        if not resumed:
+            torch.save(m.state_dict(), f"{CK}/wm.pt")  # new heads untrained (has_ens=0): planner unchanged
         with Pool(4) as p:
             cf = merge(p.map(_cf_job, range(402_000, 403_000), chunksize=8))
-        on = dagger("wm", [0.3], 200, 90_000)[0]
+        parts = [base, cf]
+        if not resumed:
+            parts.append(dagger("wm", [0.3], 200, 90_000)[0])
         keys = list(cf)
-        d = {k: np.concatenate([base[k], cf[k], on[k]]) for k in keys}
-        m = T.train_wm_heads(m, d)
+        d = {k: np.concatenate([x[k] for x in parts]) for k in keys}
+        m = T.train_wm_heads(m, d, epochs=12 if resumed else 3)
         torch.save(m.state_dict(), f"{CK}/wm.pt")
     if "wm" in which:
         import os
