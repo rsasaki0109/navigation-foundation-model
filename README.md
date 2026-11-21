@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="docs/media/hero.gif" alt="Four navigation paradigms (VLM + planning, VLA, WM + planning, WAM) solving the same instruction in the same apartment, each with a top-down map, an egocentric camera and a view of the model's internals" width="100%">
-  <br><sub>Same episode (held-out seed 35), same instruction, four paradigms. Every frame is rendered from the live simulation; the right column of each panel shows what each model is thinking.</sub>
+  <br><sub>Same episode (held-out seed 35), same instruction, four paradigms. The 3D views are rendered by [Robot Native Engine](https://github.com/rsasaki0109/RobotNativeEngine)'s wgpu PBR renderer from the live simulation state. The inset is the top-down map, and the right column of each panel shows what each model is thinking.</sub>
 </p>
 
 <table>
@@ -76,7 +76,9 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 - **Success:** the robot comes within 0.5 m of the instructed object within 160 steps.
 - **Expert:** a privileged expert (geodesic distance field + line-of-sight pure pursuit) produces demonstrations and DAgger labels. It succeeds in 100% of episodes with zero collisions.
 
-The first-person view in the GIFs is a pseudo-3D ray-cast render of the same world, for humans. The models only ever see the 128-column panorama strip shown under it.
+The 3D views in the GIFs are for humans. The overview shows the plans as glowing dots: the A* path, the CEM samples and the best plan, or the WAM action chunk. The models only ever see the 128-column panorama strip shown under the egocentric camera.
+
+**Rendering.** `navfm/rne_scene.py` exports every frame as a primitive scene, with furniture built from boxes, cylinders and spheres. Robot Native Engine's [`examples/149_scene_replay_render`](https://github.com/rsasaki0109/RobotNativeEngine/tree/main/examples/149_scene_replay_render) renders each frame with wgpu. No GPU is needed: Mesa's llvmpipe software Vulkan driver renders a frame in about 50 ms. If the RNE binary is not found, `make_gifs.py` falls back to a built-in ray caster.
 
 ## Quickstart
 
@@ -84,7 +86,9 @@ The first-person view in the GIFs is a pseudo-3D ray-cast render of the same wor
 pip install -r requirements.txt          # numpy, scipy, pillow, torch (CPU is fine)
 
 python scripts/evaluate.py 20            # evaluate the shipped checkpoints
-python scripts/make_gifs.py 35           # re-render docs/media/*.gif for seed 35
+# GIFs with RNE rendering (sibling checkout of RobotNativeEngine; on a GPU-less box: apt install mesa-vulkan-drivers)
+(cd ../RobotNativeEngine && cargo build --release -p scene_replay_render --example 149_scene_replay_render)
+python scripts/make_gifs.py 35           # or RNE_REPLAY_BIN=/path/to/149_scene_replay_render; --raycast for no RNE
 
 # retrain everything from scratch (CPU, ~1-2 h total)
 python scripts/collect.py 2500 data/expert.npz
@@ -100,7 +104,7 @@ python scripts/train.py vlm wm vla wam
 | `navfm/models.py` | the four networks (shared circular-conv panorama encoder + text encoder) |
 | `navfm/agents.py` | deployable agents: grounding + A*, token policy, CEM-MPC, chunked WAM |
 | `navfm/train.py`, `scripts/train.py` | training loops, DAgger / on-policy fine-tuning |
-| `navfm/render.py`, `scripts/make_gifs.py` | hero GIF renderer |
+| `navfm/render.py`, `navfm/rne_scene.py`, `scripts/make_gifs.py` | hero GIF panels; RNE scene export |
 | `checkpoints/` | trained weights used for the GIFs and the table |
 
 ## Scope

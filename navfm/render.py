@@ -117,17 +117,6 @@ def fpv(lay: W.Layout, pose, highlight_cols=None) -> np.ndarray:
     floor = (np.array([92, 84, 76]) + tile * np.array([18, 16, 14])) / (1 + 0.18 * corr[..., None])
     img = np.where(below[..., None], floor, img)
 
-    def slab(depth, height, colour):
-        z = depth * np.cos(rel)
-        top = hor - (height - CAM_H) * f / z
-        bot = hor + CAM_H * f / z
-        m = (rows >= top[None]) & (rows <= bot[None]) & np.isfinite(depth)[None]
-        shade = 1.0 / (1.0 + 0.16 * depth)
-        # subtle vertical gradient for depth cues
-        grad = 0.85 + 0.15 * np.clip((rows - top[None]) / np.maximum(bot - top, 1)[None], 0, 1)
-        col = colour[None] * (shade[None, :, None] * grad[..., None])
-        return m, col
-
     layers = [
         (dw, np.full(Wd, WALL_H), np.broadcast_to(np.array(W.WALL_RGB, np.float32), (Wd, 3))),
         (do, np.array([OBJ_HEIGHT.get(int(l) - W.OBJ0, 0.6) for l in lo]), W.LABEL_RGB[lo]),
@@ -186,7 +175,9 @@ def draw_robot(d, pose, colour, r_px=None):
         d.line([cx, cy, cx + np.cos(a) * 34, cy - np.sin(a) * 34], fill=colour + (110,), width=1)
 
 
-def render_panel(env: W.NavEnv, agent, obs, pose, base: Image.Image, status: str = "") -> Image.Image:
+def render_panel(env, agent, obs, pose, base: Image.Image, status: str = "", ov_img=None, fpv_img=None) -> Image.Image:
+    """Compose one panel.  `ov_img` / `fpv_img` are RNE-rendered views; without them a 2D map and a
+    ray-cast first-person view are drawn instead."""
     name = agent.name
     acc = ACCENT[name]
     img = Image.new("RGB", (PW, PH), BG)
@@ -251,6 +242,15 @@ def render_panel(env: W.NavEnv, agent, obs, pose, base: Image.Image, status: str
     if len(trail) > 1:
         d.line(trail, fill=(255, 255, 255, 150), width=2)
     draw_robot(d, pose, acc)
+    if ov_img is not None:
+        inset = img.crop((MAP_X, MAP_Y, MAP_X + MAP_W, MAP_Y + MAP_H)).resize((112, 84), Image.LANCZOS)
+        img.paste(ov_img, (MAP_X, MAP_Y))
+        d = ImageDraw.Draw(img, "RGBA")
+        d.rectangle([MAP_X + 3, MAP_Y + 3, MAP_X + 3 + 113, MAP_Y + 3 + 85], fill=(0, 0, 0, 120))
+        img.paste(inset, (MAP_X + 4, MAP_Y + 4))
+        d = ImageDraw.Draw(img, "RGBA")
+        d.rectangle([MAP_X + 4, MAP_Y + 4, MAP_X + 4 + 111, MAP_Y + 4 + 83], outline=acc + (200,))
+        d.text((MAP_X + MAP_W - 5, MAP_Y + MAP_H - 5), "rendered by RNE (wgpu)", fill=(230, 230, 235, 190), font=F10, anchor="rd")
 
     # status line under map
     sy = MAP_Y + MAP_H + 6
@@ -261,11 +261,12 @@ def render_panel(env: W.NavEnv, agent, obs, pose, base: Image.Image, status: str
         d.text((MAP_X + MAP_W - 47, sy + 11), "REACHED", fill=(255, 255, 255), font=F11B, anchor="mm")
 
     # first-person view
-    fp = fpv(env.layout, pose)
-    img.paste(Image.fromarray(fp), (FPV_X, FPV_Y))
+    fp = fpv_img if fpv_img is not None else Image.fromarray(fpv(env.layout, pose))
+    img.paste(fp, (FPV_X, FPV_Y))
     d = ImageDraw.Draw(img, "RGBA")
     d.rectangle([FPV_X, FPV_Y, FPV_X + FPV_W - 1, FPV_Y + FPV_H - 1], outline=(70, 75, 90))
-    d.text((FPV_X + 5, FPV_Y + 3), "egocentric camera (rendered for you)", fill=(230, 230, 235, 200), font=F10)
+    d.rectangle([FPV_X + 1, FPV_Y + 1, FPV_X + 196, FPV_Y + 15], fill=(0, 0, 0, 110))
+    d.text((FPV_X + 5, FPV_Y + 3), "egocentric camera (for humans)", fill=(230, 230, 235, 220), font=F10)
 
     # panorama input strip
     py0 = FPV_Y + FPV_H + 16
