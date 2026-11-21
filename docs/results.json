@@ -709,10 +709,10 @@
  },
  "n_episodes": 100,
  "vla": {
-  "success": 0.92,
-  "spl": 0.9036242630107781,
-  "steps": 37.92391304347826,
-  "collisions": 4.11,
+  "success": 0.93,
+  "spl": 0.9140318046710213,
+  "steps": 37.064516129032256,
+  "collisions": 3.39,
   "episodes": [
    {
     "seed": 0,
@@ -723,9 +723,9 @@
    },
    {
     "seed": 1,
-    "success": true,
-    "spl": 1.0,
-    "steps": 46,
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
     "collisions": 0
    },
    {
@@ -739,20 +739,20 @@
     "seed": 3,
     "success": true,
     "spl": 1.0,
-    "steps": 48,
+    "steps": 47,
     "collisions": 0
    },
    {
     "seed": 4,
     "success": true,
-    "spl": 0.9468624669266101,
-    "steps": 40,
+    "spl": 1.0,
+    "steps": 36,
     "collisions": 0
    },
    {
     "seed": 5,
     "success": true,
-    "spl": 0.8042629453060594,
+    "spl": 0.7928692429499811,
     "steps": 39,
     "collisions": 0
    },
@@ -781,35 +781,35 @@
     "seed": 9,
     "success": true,
     "spl": 1.0,
-    "steps": 27,
+    "steps": 28,
     "collisions": 0
    },
    {
     "seed": 10,
     "success": true,
-    "spl": 0.9303828973646207,
-    "steps": 36,
+    "spl": 1.0,
+    "steps": 27,
     "collisions": 0
    },
    {
     "seed": 11,
     "success": true,
     "spl": 1.0,
-    "steps": 22,
+    "steps": 23,
     "collisions": 0
    },
    {
     "seed": 12,
     "success": true,
     "spl": 1.0,
-    "steps": 51,
+    "steps": 55,
     "collisions": 0
    },
    {
     "seed": 13,
     "success": true,
-    "spl": 1.0,
-    "steps": 24,
+    "spl": 0.7830780738343042,
+    "steps": 38,
     "collisions": 0
    },
    {
@@ -823,7 +823,7 @@
     "seed": 15,
     "success": true,
     "spl": 1.0,
-    "steps": 46,
+    "steps": 45,
     "collisions": 0
    },
    {
@@ -837,7 +837,7 @@
     "seed": 17,
     "success": true,
     "spl": 1.0,
-    "steps": 22,
+    "steps": 28,
     "collisions": 0
    },
    {
@@ -872,15 +872,15 @@
     "seed": 22,
     "success": true,
     "spl": 1.0,
-    "steps": 45,
+    "steps": 44,
     "collisions": 0
    },
    {
     "seed": 23,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 149
+    "success": true,
+    "spl": 1.0,
+    "steps": 28,
+    "collisions": 0
    },
    {
     "seed": 24,
@@ -892,9 +892,9 @@
    {
     "seed": 25,
     "success": true,
-    "spl": 0.6355297707169806,
-    "steps": 99,
-    "collisions": 1
+    "spl": 1.0,
+    "steps": 51,
+    "collisions": 0
    },
    {
     "seed": 26,
@@ -921,42 +921,42 @@
     "seed": 29,
     "success": true,
     "spl": 1.0,
-    "steps": 42,
+    "steps": 43,
     "collisions": 0
    },
    {
     "seed": 30,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
+    "success": true,
+    "spl": 0.8498478452143283,
+    "steps": 36,
     "collisions": 0
    },
    {
     "seed": 31,
     "success": true,
     "spl": 1.0,
-    "steps": 35,
+    "steps": 28,
     "collisions": 0
    },
    {
     "seed": 32,
     "success": true,
-    "spl": 0.9923016952263293,
-    "steps": 41,
+    "spl": 1.0,
+    "steps": 27,
     "collisions": 0
    },
    {
     "seed": 33,
     "success": true,
     "spl": 1.0,
-    "steps": 38,
+    "steps": 26,
     "collisions": 0
    },
    {
     "seed": 34,
     "success": true,
     "spl": 1.0,
-    "steps": 25,
+    "steps": 24,
     "collisions": 0
    },
    {
@@ -970,14 +970,14 @@
     "seed": 36,
     "success": true,
     "spl": 1.0,
-    "steps": 42,
+    "steps": 41,
     "collisions": 0
    },
    {
     "seed": 37,
     "success": true,
     "spl": 1.0,
-    "steps": 25,
+    "steps": 24,
     "collisions": 0
    },
    {
@@ -998,34 +998,34 @@
     "seed": 40,
     "success": true,
     "spl": 1.0,
-    "steps": 32,
+    "steps": 31,
     "collisions": 0
    },
    {
     "seed": 41,
     "success": true,
     "spl": 1.0,
-    "steps": 31,
+    "steps": 29,
     "collisions": 0
    },
    {
     "seed": 42,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 126
+    "success": true,
+    "spl": 1.0,
+    "steps": 55,
+    "collisions": 0
    },
    {
     "seed": 43,
     "success": true,
     "spl": 1.0,
-    "steps": 30,
+    "steps": 29,
     "collisions": 0
    },
    {
     "seed": 44,
     "success": true,
-    "spl": 0.8900587326065612,
+    "spl": 0.8980537841030464,
     "steps": 62,
     "collisions": 0
    },
@@ -1040,7 +1040,7 @@
     "seed": 46,
     "success": true,
     "spl": 1.0,
-    "steps": 31,
+    "steps": 32,
     "collisions": 0
    },
    {
@@ -1067,15 +1067,15 @@
    {
     "seed": 50,
     "success": true,
-    "spl": 1.0,
-    "steps": 41,
+    "spl": 0.7601673902175239,
+    "steps": 51,
     "collisions": 0
    },
    {
     "seed": 51,
     "success": true,
-    "spl": 0.9962811190310835,
-    "steps": 47,
+    "spl": 1.0,
+    "steps": 48,
     "collisions": 0
    },
    {
@@ -1083,21 +1083,21 @@
     "success": false,
     "spl": 0.0,
     "steps": 160,
-    "collisions": 0
+    "collisions": 125
    },
    {
     "seed": 53,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
+    "success": true,
+    "spl": 1.0,
+    "steps": 45,
     "collisions": 0
    },
    {
     "seed": 54,
-    "success": true,
-    "spl": 0.8862295835670067,
-    "steps": 55,
-    "collisions": 0
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 71
    },
    {
     "seed": 55,
@@ -1110,35 +1110,35 @@
     "seed": 56,
     "success": true,
     "spl": 1.0,
-    "steps": 37,
+    "steps": 36,
     "collisions": 0
    },
    {
     "seed": 57,
     "success": true,
     "spl": 1.0,
-    "steps": 34,
+    "steps": 35,
     "collisions": 0
    },
    {
     "seed": 58,
     "success": true,
-    "spl": 0.9968366092641506,
-    "steps": 49,
+    "spl": 1.0,
+    "steps": 48,
     "collisions": 0
    },
    {
     "seed": 59,
-    "success": true,
-    "spl": 0.7788183955595271,
-    "steps": 61,
-    "collisions": 0
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 143
    },
    {
     "seed": 60,
-    "success": true,
-    "spl": 1.0,
-    "steps": 30,
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
     "collisions": 0
    },
    {
@@ -1152,21 +1152,21 @@
     "seed": 62,
     "success": true,
     "spl": 1.0,
-    "steps": 43,
+    "steps": 44,
     "collisions": 0
    },
    {
     "seed": 63,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 135
+    "success": true,
+    "spl": 1.0,
+    "steps": 30,
+    "collisions": 0
    },
    {
     "seed": 64,
     "success": true,
     "spl": 1.0,
-    "steps": 47,
+    "steps": 48,
     "collisions": 0
    },
    {
@@ -1179,14 +1179,14 @@
    {
     "seed": 66,
     "success": true,
-    "spl": 0.8630758954563108,
+    "spl": 0.8631064537421751,
     "steps": 65,
     "collisions": 0
    },
    {
     "seed": 67,
     "success": true,
-    "spl": 0.8645830399438686,
+    "spl": 0.8645933167003629,
     "steps": 40,
     "collisions": 0
    },
@@ -1194,7 +1194,7 @@
     "seed": 68,
     "success": true,
     "spl": 1.0,
-    "steps": 57,
+    "steps": 60,
     "collisions": 0
    },
    {
@@ -1222,7 +1222,7 @@
     "seed": 72,
     "success": true,
     "spl": 1.0,
-    "steps": 29,
+    "steps": 28,
     "collisions": 0
    },
    {
@@ -1234,37 +1234,37 @@
    },
    {
     "seed": 74,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
+    "success": true,
+    "spl": 0.9577674550608509,
+    "steps": 62,
     "collisions": 0
    },
    {
     "seed": 75,
     "success": true,
     "spl": 1.0,
-    "steps": 60,
+    "steps": 55,
     "collisions": 0
    },
    {
     "seed": 76,
     "success": true,
-    "spl": 0.8189650297567689,
-    "steps": 45,
+    "spl": 1.0,
+    "steps": 30,
     "collisions": 0
    },
    {
     "seed": 77,
     "success": true,
     "spl": 1.0,
-    "steps": 44,
+    "steps": 40,
     "collisions": 0
    },
    {
     "seed": 78,
     "success": true,
     "spl": 1.0,
-    "steps": 41,
+    "steps": 40,
     "collisions": 0
    },
    {
@@ -1278,7 +1278,7 @@
     "seed": 80,
     "success": true,
     "spl": 1.0,
-    "steps": 23,
+    "steps": 24,
     "collisions": 0
    },
    {
@@ -1291,28 +1291,28 @@
    {
     "seed": 82,
     "success": true,
-    "spl": 0.9933095332869849,
+    "spl": 0.9932803131254773,
     "steps": 30,
     "collisions": 0
    },
    {
     "seed": 83,
     "success": true,
-    "spl": 1.0,
-    "steps": 38,
+    "spl": 0.824093582375038,
+    "steps": 45,
     "collisions": 0
    },
    {
     "seed": 84,
     "success": true,
     "spl": 1.0,
-    "steps": 47,
+    "steps": 41,
     "collisions": 0
    },
    {
     "seed": 85,
     "success": true,
-    "spl": 0.9649285870649441,
+    "spl": 0.9494263477657922,
     "steps": 69,
     "collisions": 0
    },
@@ -1327,7 +1327,7 @@
     "seed": 87,
     "success": true,
     "spl": 1.0,
-    "steps": 51,
+    "steps": 49,
     "collisions": 0
    },
    {
@@ -1340,15 +1340,15 @@
    {
     "seed": 89,
     "success": true,
-    "spl": 1.0,
-    "steps": 34,
+    "spl": 0.947573749901011,
+    "steps": 41,
     "collisions": 0
    },
    {
     "seed": 90,
-    "success": true,
-    "spl": 1.0,
-    "steps": 39,
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
     "collisions": 0
    },
    {
@@ -1383,7 +1383,7 @@
     "seed": 95,
     "success": true,
     "spl": 1.0,
-    "steps": 39,
+    "steps": 36,
     "collisions": 0
    },
    {
@@ -1397,30 +1397,30 @@
     "seed": 97,
     "success": true,
     "spl": 1.0,
-    "steps": 34,
+    "steps": 37,
     "collisions": 0
    },
    {
     "seed": 98,
     "success": true,
-    "spl": 1.0,
-    "steps": 32,
+    "spl": 0.9193229121122363,
+    "steps": 44,
     "collisions": 0
    },
    {
     "seed": 99,
     "success": true,
     "spl": 1.0,
-    "steps": 38,
+    "steps": 39,
     "collisions": 0
    }
   ]
  },
  "wam": {
   "success": 0.92,
-  "spl": 0.9009495142424655,
-  "steps": 38.54347826086956,
-  "collisions": 10.21,
+  "spl": 0.9071023984345604,
+  "steps": 38.84782608695652,
+  "collisions": 10.01,
   "episodes": [
    {
     "seed": 0,
@@ -1433,7 +1433,7 @@
     "seed": 1,
     "success": true,
     "spl": 1.0,
-    "steps": 46,
+    "steps": 47,
     "collisions": 0
    },
    {
@@ -1447,22 +1447,22 @@
     "seed": 3,
     "success": true,
     "spl": 1.0,
-    "steps": 51,
+    "steps": 50,
     "collisions": 0
    },
    {
     "seed": 4,
     "success": true,
     "spl": 1.0,
-    "steps": 43,
+    "steps": 38,
     "collisions": 0
    },
    {
     "seed": 5,
-    "success": true,
-    "spl": 0.8305796171120352,
-    "steps": 40,
-    "collisions": 0
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 140
    },
    {
     "seed": 6,
@@ -1475,7 +1475,7 @@
     "seed": 7,
     "success": true,
     "spl": 1.0,
-    "steps": 26,
+    "steps": 25,
     "collisions": 0
    },
    {
@@ -1489,56 +1489,56 @@
     "seed": 9,
     "success": true,
     "spl": 1.0,
-    "steps": 27,
+    "steps": 28,
     "collisions": 0
    },
    {
     "seed": 10,
     "success": true,
     "spl": 1.0,
-    "steps": 29,
+    "steps": 33,
     "collisions": 0
    },
    {
     "seed": 11,
     "success": true,
-    "spl": 0.9662276653220817,
-    "steps": 27,
+    "spl": 0.8775603771514718,
+    "steps": 31,
     "collisions": 0
    },
    {
     "seed": 12,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 100
+    "success": true,
+    "spl": 1.0,
+    "steps": 58,
+    "collisions": 0
    },
    {
     "seed": 13,
     "success": true,
-    "spl": 0.5301437344940382,
-    "steps": 52,
+    "spl": 0.7156378900026213,
+    "steps": 41,
     "collisions": 0
    },
    {
     "seed": 14,
     "success": true,
-    "spl": 0.9834394089555016,
-    "steps": 40,
+    "spl": 1.0,
+    "steps": 36,
     "collisions": 0
    },
    {
     "seed": 15,
     "success": true,
     "spl": 1.0,
-    "steps": 47,
+    "steps": 42,
     "collisions": 0
    },
    {
     "seed": 16,
     "success": true,
     "spl": 1.0,
-    "steps": 54,
+    "steps": 49,
     "collisions": 0
    },
    {
@@ -1552,42 +1552,42 @@
     "seed": 18,
     "success": true,
     "spl": 1.0,
-    "steps": 45,
+    "steps": 46,
     "collisions": 0
    },
    {
     "seed": 19,
     "success": true,
     "spl": 1.0,
-    "steps": 26,
+    "steps": 25,
     "collisions": 0
    },
    {
     "seed": 20,
-    "success": true,
-    "spl": 0.9645470290589653,
-    "steps": 54,
-    "collisions": 0
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 142
    },
    {
     "seed": 21,
     "success": true,
     "spl": 1.0,
-    "steps": 30,
+    "steps": 31,
     "collisions": 0
    },
    {
     "seed": 22,
     "success": true,
-    "spl": 0.9720921855025153,
-    "steps": 54,
+    "spl": 0.9778550920733146,
+    "steps": 53,
     "collisions": 0
    },
    {
     "seed": 23,
     "success": true,
     "spl": 1.0,
-    "steps": 30,
+    "steps": 31,
     "collisions": 0
    },
    {
@@ -1600,15 +1600,15 @@
    {
     "seed": 25,
     "success": true,
-    "spl": 0.9586723812331727,
-    "steps": 59,
+    "spl": 0.9740453010596425,
+    "steps": 58,
     "collisions": 0
    },
    {
     "seed": 26,
     "success": true,
     "spl": 1.0,
-    "steps": 28,
+    "steps": 29,
     "collisions": 0
    },
    {
@@ -1629,42 +1629,42 @@
     "seed": 29,
     "success": true,
     "spl": 1.0,
-    "steps": 45,
+    "steps": 49,
     "collisions": 0
    },
    {
     "seed": 30,
     "success": true,
-    "spl": 0.7836433503315243,
-    "steps": 46,
+    "spl": 0.7976247152806584,
+    "steps": 42,
     "collisions": 0
    },
    {
     "seed": 31,
     "success": true,
     "spl": 1.0,
-    "steps": 29,
+    "steps": 30,
     "collisions": 0
    },
    {
     "seed": 32,
     "success": true,
     "spl": 1.0,
-    "steps": 29,
+    "steps": 31,
     "collisions": 0
    },
    {
     "seed": 33,
-    "success": true,
-    "spl": 1.0,
-    "steps": 28,
-    "collisions": 2
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 149
    },
    {
     "seed": 34,
     "success": true,
     "spl": 1.0,
-    "steps": 25,
+    "steps": 26,
     "collisions": 0
    },
    {
@@ -1699,14 +1699,14 @@
     "seed": 39,
     "success": true,
     "spl": 1.0,
-    "steps": 56,
+    "steps": 57,
     "collisions": 0
    },
    {
     "seed": 40,
     "success": true,
     "spl": 1.0,
-    "steps": 32,
+    "steps": 38,
     "collisions": 0
    },
    {
@@ -1718,10 +1718,10 @@
    },
    {
     "seed": 42,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 121
+    "success": true,
+    "spl": 1.0,
+    "steps": 58,
+    "collisions": 0
    },
    {
     "seed": 43,
@@ -1762,7 +1762,7 @@
     "seed": 48,
     "success": true,
     "spl": 1.0,
-    "steps": 27,
+    "steps": 28,
     "collisions": 0
    },
    {
@@ -1775,8 +1775,8 @@
    {
     "seed": 50,
     "success": true,
-    "spl": 0.7568872984950308,
-    "steps": 62,
+    "spl": 0.8767149552152108,
+    "steps": 55,
     "collisions": 0
    },
    {
@@ -1791,7 +1791,7 @@
     "success": false,
     "spl": 0.0,
     "steps": 160,
-    "collisions": 149
+    "collisions": 138
    },
    {
     "seed": 53,
@@ -1803,28 +1803,28 @@
    {
     "seed": 54,
     "success": true,
-    "spl": 0.9581158050156615,
-    "steps": 42,
+    "spl": 0.8943474074904433,
+    "steps": 45,
     "collisions": 0
    },
    {
     "seed": 55,
     "success": true,
     "spl": 1.0,
-    "steps": 26,
+    "steps": 27,
     "collisions": 0
    },
    {
     "seed": 56,
     "success": true,
     "spl": 1.0,
-    "steps": 38,
+    "steps": 37,
     "collisions": 0
    },
    {
     "seed": 57,
     "success": true,
-    "spl": 0.9938086171339883,
+    "spl": 1.0,
     "steps": 39,
     "collisions": 0
    },
@@ -1832,21 +1832,21 @@
     "seed": 58,
     "success": true,
     "spl": 1.0,
-    "steps": 47,
+    "steps": 46,
     "collisions": 0
    },
    {
     "seed": 59,
     "success": true,
-    "spl": 0.8105509643723119,
-    "steps": 58,
-    "collisions": 0
+    "spl": 0.7717464524086847,
+    "steps": 70,
+    "collisions": 4
    },
    {
     "seed": 60,
     "success": true,
-    "spl": 1.0,
-    "steps": 33,
+    "spl": 0.895540354900223,
+    "steps": 35,
     "collisions": 0
    },
    {
@@ -1858,23 +1858,23 @@
    },
    {
     "seed": 62,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 149
+    "success": true,
+    "spl": 1.0,
+    "steps": 46,
+    "collisions": 0
    },
    {
     "seed": 63,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 106
+    "success": true,
+    "spl": 1.0,
+    "steps": 36,
+    "collisions": 0
    },
    {
     "seed": 64,
     "success": true,
     "spl": 1.0,
-    "steps": 50,
+    "steps": 49,
     "collisions": 0
    },
    {
@@ -1887,43 +1887,43 @@
    {
     "seed": 66,
     "success": true,
-    "spl": 0.8588226136053183,
-    "steps": 70,
+    "spl": 1.0,
+    "steps": 63,
     "collisions": 0
    },
    {
     "seed": 67,
-    "success": true,
-    "spl": 0.8534427389428886,
-    "steps": 44,
-    "collisions": 0
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 142
    },
    {
     "seed": 68,
     "success": true,
     "spl": 1.0,
-    "steps": 60,
+    "steps": 59,
     "collisions": 0
    },
    {
     "seed": 69,
     "success": true,
     "spl": 1.0,
-    "steps": 44,
+    "steps": 42,
     "collisions": 0
    },
    {
     "seed": 70,
-    "success": true,
-    "spl": 1.0,
-    "steps": 52,
-    "collisions": 0
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 147
    },
    {
     "seed": 71,
     "success": true,
     "spl": 1.0,
-    "steps": 28,
+    "steps": 27,
     "collisions": 0
    },
    {
@@ -1937,22 +1937,22 @@
     "seed": 73,
     "success": true,
     "spl": 1.0,
-    "steps": 31,
+    "steps": 34,
     "collisions": 0
    },
    {
     "seed": 74,
     "success": true,
-    "spl": 0.9762359074473609,
-    "steps": 71,
-    "collisions": 0
+    "spl": 0.9417690012668488,
+    "steps": 79,
+    "collisions": 5
    },
    {
     "seed": 75,
-    "success": true,
-    "spl": 1.0,
-    "steps": 48,
-    "collisions": 3
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 134
    },
    {
     "seed": 76,
@@ -1965,7 +1965,7 @@
     "seed": 77,
     "success": true,
     "spl": 1.0,
-    "steps": 49,
+    "steps": 46,
     "collisions": 0
    },
    {
@@ -1999,8 +1999,8 @@
    {
     "seed": 82,
     "success": true,
-    "spl": 1.0,
-    "steps": 30,
+    "spl": 0.9873982966069154,
+    "steps": 31,
     "collisions": 0
    },
    {
@@ -2014,7 +2014,7 @@
     "seed": 84,
     "success": true,
     "spl": 1.0,
-    "steps": 51,
+    "steps": 50,
     "collisions": 0
    },
    {
@@ -2022,7 +2022,7 @@
     "success": false,
     "spl": 0.0,
     "steps": 160,
-    "collisions": 149
+    "collisions": 0
    },
    {
     "seed": 86,
@@ -2035,7 +2035,7 @@
     "seed": 87,
     "success": true,
     "spl": 1.0,
-    "steps": 57,
+    "steps": 56,
     "collisions": 0
    },
    {
@@ -2047,10 +2047,10 @@
    },
    {
     "seed": 89,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 153
+    "success": true,
+    "spl": 1.0,
+    "steps": 37,
+    "collisions": 0
    },
    {
     "seed": 90,
@@ -2062,22 +2062,22 @@
    {
     "seed": 91,
     "success": true,
-    "spl": 0.8977421072241538,
-    "steps": 38,
+    "spl": 1.0,
+    "steps": 32,
     "collisions": 0
    },
    {
     "seed": 92,
     "success": true,
     "spl": 1.0,
-    "steps": 45,
+    "steps": 49,
     "collisions": 0
    },
    {
     "seed": 93,
     "success": true,
     "spl": 1.0,
-    "steps": 36,
+    "steps": 37,
     "collisions": 0
    },
    {
@@ -2091,21 +2091,21 @@
     "seed": 95,
     "success": true,
     "spl": 1.0,
-    "steps": 34,
+    "steps": 35,
     "collisions": 0
    },
    {
     "seed": 96,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 89
+    "success": true,
+    "spl": 1.0,
+    "steps": 61,
+    "collisions": 0
    },
    {
     "seed": 97,
     "success": true,
     "spl": 1.0,
-    "steps": 36,
+    "steps": 38,
     "collisions": 0
    },
    {
@@ -2119,16 +2119,16 @@
     "seed": 99,
     "success": true,
     "spl": 1.0,
-    "steps": 39,
+    "steps": 40,
     "collisions": 0
    }
   ]
  },
  "vlm": {
-  "success": 0.96,
-  "spl": 0.875262293581282,
-  "steps": 50.072916666666664,
-  "collisions": 4.43,
+  "success": 0.98,
+  "spl": 0.89741646506314,
+  "steps": 47.94897959183673,
+  "collisions": 0.0,
   "episodes": [
    {
     "seed": 0,
@@ -2141,7 +2141,7 @@
     "seed": 1,
     "success": true,
     "spl": 1.0,
-    "steps": 52,
+    "steps": 51,
     "collisions": 0
    },
    {
@@ -2182,9 +2182,9 @@
    {
     "seed": 7,
     "success": true,
-    "spl": 0.7665038651412172,
-    "steps": 59,
-    "collisions": 4
+    "spl": 0.7781764816685459,
+    "steps": 42,
+    "collisions": 0
    },
    {
     "seed": 8,
@@ -2211,20 +2211,20 @@
     "seed": 11,
     "success": true,
     "spl": 1.0,
-    "steps": 22,
+    "steps": 23,
     "collisions": 0
    },
    {
     "seed": 12,
     "success": true,
-    "spl": 0.79009068806124,
-    "steps": 97,
-    "collisions": 3
+    "spl": 0.7920343338020133,
+    "steps": 80,
+    "collisions": 0
    },
    {
     "seed": 13,
     "success": true,
-    "spl": 0.7955932518379404,
+    "spl": 0.7945787429658088,
     "steps": 36,
     "collisions": 0
    },
@@ -2273,22 +2273,22 @@
    {
     "seed": 20,
     "success": true,
-    "spl": 0.7017443381917294,
-    "steps": 89,
-    "collisions": 2
+    "spl": 0.9015752272661733,
+    "steps": 59,
+    "collisions": 0
    },
    {
     "seed": 21,
-    "success": true,
-    "spl": 0.3526324515655493,
-    "steps": 125,
-    "collisions": 3
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 0
    },
    {
     "seed": 22,
     "success": true,
-    "spl": 0.986069134950936,
-    "steps": 56,
+    "spl": 0.958225191298107,
+    "steps": 59,
     "collisions": 0
    },
    {
@@ -2308,9 +2308,9 @@
    {
     "seed": 25,
     "success": true,
-    "spl": 0.9230989975439877,
-    "steps": 83,
-    "collisions": 3
+    "spl": 1.0,
+    "steps": 52,
+    "collisions": 0
    },
    {
     "seed": 26,
@@ -2336,8 +2336,8 @@
    {
     "seed": 29,
     "success": true,
-    "spl": 0.5721755595686863,
-    "steps": 100,
+    "spl": 0.5633153027468485,
+    "steps": 101,
     "collisions": 0
    },
    {
@@ -2365,14 +2365,14 @@
     "seed": 33,
     "success": true,
     "spl": 1.0,
-    "steps": 45,
-    "collisions": 3
+    "steps": 41,
+    "collisions": 0
    },
    {
     "seed": 34,
     "success": true,
-    "spl": 0.47247394654126434,
-    "steps": 77,
+    "spl": 0.4917682384893435,
+    "steps": 74,
     "collisions": 0
    },
    {
@@ -2385,21 +2385,21 @@
    {
     "seed": 36,
     "success": true,
-    "spl": 0.7405966691700315,
-    "steps": 79,
+    "spl": 0.7388311776866322,
+    "steps": 81,
     "collisions": 0
    },
    {
     "seed": 37,
     "success": true,
     "spl": 1.0,
-    "steps": 26,
-    "collisions": 1
+    "steps": 25,
+    "collisions": 0
    },
    {
     "seed": 38,
     "success": true,
-    "spl": 0.4385800984142529,
+    "spl": 0.43920084502153806,
     "steps": 99,
     "collisions": 0
    },
@@ -2407,7 +2407,7 @@
     "seed": 39,
     "success": true,
     "spl": 1.0,
-    "steps": 56,
+    "steps": 57,
     "collisions": 0
    },
    {
@@ -2420,7 +2420,7 @@
    {
     "seed": 41,
     "success": true,
-    "spl": 0.7015382958800549,
+    "spl": 0.7006388212430396,
     "steps": 58,
     "collisions": 0
    },
@@ -2428,8 +2428,8 @@
     "seed": 42,
     "success": true,
     "spl": 1.0,
-    "steps": 62,
-    "collisions": 1
+    "steps": 57,
+    "collisions": 0
    },
    {
     "seed": 43,
@@ -2477,29 +2477,29 @@
     "seed": 49,
     "success": true,
     "spl": 1.0,
-    "steps": 34,
-    "collisions": 2
+    "steps": 29,
+    "collisions": 0
    },
    {
     "seed": 50,
     "success": true,
-    "spl": 0.6281127350318122,
+    "spl": 0.6286321234471489,
     "steps": 98,
     "collisions": 0
    },
    {
     "seed": 51,
     "success": true,
-    "spl": 0.6443225058196002,
-    "steps": 80,
+    "spl": 0.6394486649368789,
+    "steps": 81,
     "collisions": 0
    },
    {
     "seed": 52,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 136
+    "success": true,
+    "spl": 1.0,
+    "steps": 47,
+    "collisions": 0
    },
    {
     "seed": 53,
@@ -2512,21 +2512,21 @@
     "seed": 54,
     "success": true,
     "spl": 1.0,
-    "steps": 40,
+    "steps": 39,
     "collisions": 0
    },
    {
     "seed": 55,
     "success": true,
     "spl": 1.0,
-    "steps": 27,
+    "steps": 28,
     "collisions": 0
    },
    {
     "seed": 56,
     "success": true,
-    "spl": 0.6749694042582532,
-    "steps": 63,
+    "spl": 0.6622096922936819,
+    "steps": 64,
     "collisions": 0
    },
    {
@@ -2539,16 +2539,16 @@
    {
     "seed": 58,
     "success": true,
-    "spl": 0.6464229664867874,
-    "steps": 85,
+    "spl": 0.5878479341269123,
+    "steps": 103,
     "collisions": 0
    },
    {
     "seed": 59,
     "success": true,
-    "spl": 0.8001634365942429,
-    "steps": 78,
-    "collisions": 2
+    "spl": 0.7990109851939455,
+    "steps": 76,
+    "collisions": 0
    },
    {
     "seed": 60,
@@ -2567,51 +2567,51 @@
    {
     "seed": 62,
     "success": true,
-    "spl": 0.941356263208966,
-    "steps": 59,
+    "spl": 0.9532558683766894,
+    "steps": 57,
     "collisions": 0
    },
    {
     "seed": 63,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 2
+    "success": true,
+    "spl": 0.561152653688015,
+    "steps": 94,
+    "collisions": 0
    },
    {
     "seed": 64,
     "success": true,
-    "spl": 0.6670328342077462,
-    "steps": 113,
-    "collisions": 3
+    "spl": 0.7142118654656192,
+    "steps": 71,
+    "collisions": 0
    },
    {
     "seed": 65,
-    "success": true,
-    "spl": 0.840499874848719,
-    "steps": 83,
-    "collisions": 1
+    "success": false,
+    "spl": 0.0,
+    "steps": 160,
+    "collisions": 0
    },
    {
     "seed": 66,
     "success": true,
-    "spl": 0.8611195444663458,
-    "steps": 73,
-    "collisions": 2
+    "spl": 0.8562629194398605,
+    "steps": 71,
+    "collisions": 0
    },
    {
     "seed": 67,
     "success": true,
     "spl": 1.0,
-    "steps": 33,
+    "steps": 34,
     "collisions": 0
    },
    {
     "seed": 68,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 137
+    "success": true,
+    "spl": 0.8697608336575627,
+    "steps": 74,
+    "collisions": 0
    },
    {
     "seed": 69,
@@ -2622,24 +2622,24 @@
    },
    {
     "seed": 70,
-    "success": false,
-    "spl": 0.0,
-    "steps": 160,
-    "collisions": 124
+    "success": true,
+    "spl": 0.6714961917790937,
+    "steps": 81,
+    "collisions": 0
    },
    {
     "seed": 71,
     "success": true,
     "spl": 1.0,
-    "steps": 27,
+    "steps": 28,
     "collisions": 0
    },
    {
     "seed": 72,
     "success": true,
-    "spl": 0.46078342485122864,
-    "steps": 94,
-    "collisions": 1
+    "spl": 0.46518773516164774,
+    "steps": 91,
+    "collisions": 0
    },
    {
     "seed": 73,
@@ -2651,16 +2651,16 @@
    {
     "seed": 74,
     "success": true,
-    "spl": 0.7008871491676348,
-    "steps": 118,
+    "spl": 0.7732493684637683,
+    "steps": 112,
     "collisions": 0
    },
    {
     "seed": 75,
     "success": true,
-    "spl": 0.6841956702344048,
-    "steps": 116,
-    "collisions": 5
+    "spl": 0.6739982530182305,
+    "steps": 99,
+    "collisions": 0
    },
    {
     "seed": 76,
@@ -2673,14 +2673,14 @@
     "seed": 77,
     "success": true,
     "spl": 1.0,
-    "steps": 49,
+    "steps": 47,
     "collisions": 0
    },
    {
     "seed": 78,
     "success": true,
     "spl": 1.0,
-    "steps": 45,
+    "steps": 46,
     "collisions": 0
    },
    {
@@ -2714,9 +2714,9 @@
    {
     "seed": 83,
     "success": true,
-    "spl": 0.7454667416866017,
-    "steps": 68,
-    "collisions": 6
+    "spl": 0.6661879000072034,
+    "steps": 58,
+    "collisions": 0
    },
    {
     "seed": 84,
@@ -2728,9 +2728,9 @@
    {
     "seed": 85,
     "success": true,
-    "spl": 0.80078523668275,
-    "steps": 115,
-    "collisions": 2
+    "spl": 0.8040139651946865,
+    "steps": 101,
+    "collisions": 0
    },
    {
     "seed": 86,
@@ -2784,7 +2784,7 @@
    {
     "seed": 93,
     "success": true,
-    "spl": 0.8280117643099169,
+    "spl": 0.8208963674680283,
     "steps": 47,
     "collisions": 0
    },
@@ -2798,15 +2798,15 @@
    {
     "seed": 95,
     "success": true,
-    "spl": 0.7715148738132499,
-    "steps": 63,
+    "spl": 0.7243832354207592,
+    "steps": 66,
     "collisions": 0
    },
    {
     "seed": 96,
     "success": true,
-    "spl": 0.6256594169837443,
-    "steps": 96,
+    "spl": 0.7482673683768943,
+    "steps": 80,
     "collisions": 0
    },
    {
