@@ -80,6 +80,29 @@ def pursue(pose, point, v_max=0.55):
     return np.array([v, w], np.float32)
 
 
+def line_free(blocked: np.ndarray, x0, y0, x1, y1, step=0.025) -> bool:
+    """True if the straight segment stays out of `blocked` (a configuration-space grid)."""
+    n = max(2, int(np.hypot(x1 - x0, y1 - y0) / step))
+    xs, ys = np.linspace(x0, x1, n), np.linspace(y0, y1, n)
+    i, j = W.to_cell(np.clip(xs, 0, W.WIDTH_M - 1e-6), np.clip(ys, 0, W.HEIGHT_M - 1e-6))
+    return not blocked[i, j].any()
+
+
+def safe_pursue(pose, pts, blocked, v_max=0.55):
+    """Pursue the farthest waypoint in line of sight; turn in place if the next step would collide."""
+    x, y, th = pose
+    target = pts[0]
+    for p in pts[1:]:
+        if not line_free(blocked, x, y, p[0], p[1]):
+            break
+        target = p
+    a = pursue(pose, target, v_max)
+    nx, ny, _ = W.unicycle(x, y, th, float(a[0]), float(a[1]))
+    if a[0] > 0 and not line_free(blocked, x, y, nx, ny, 0.01):
+        a = np.array([0.0, a[1] if abs(a[1]) > 0.3 else np.sign(a[1] + 1e-6) * 1.2], np.float32)
+    return a
+
+
 def expert_action(env: W.NavEnv) -> np.ndarray:
     x, y, th = env.pose
     pts = follow_field(env.field, x, y)
@@ -87,4 +110,4 @@ def expert_action(env: W.NavEnv) -> np.ndarray:
         # inside the goal region or stuck: face the object centre
         b = env.layout.obj_boxes[env.target]
         return pursue(env.pose, ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2), 0.25)
-    return pursue(env.pose, pts[-1])
+    return safe_pursue(env.pose, pts, env.layout.cspace)

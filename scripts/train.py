@@ -97,7 +97,7 @@ if __name__ == "__main__":
             torch.save(m.state_dict(), f"{CK}/vla.pt")
         extra = []
         for r, beta in enumerate([0.0, 0.0]):
-            extra += dagger("vla", [beta], 300, 10_000 * r)
+            extra += dagger("vla", [beta], 300, 30_000 + 10_000 * r)
             m = T.train_vla(cat([base] + [{k: e[k] for k in base} for e in extra]), epochs=2, model=m)
             torch.save(m.state_dict(), f"{CK}/vla.pt")
     if "wam" in which:
@@ -105,10 +105,15 @@ if __name__ == "__main__":
             eps = p.map(_chunk_job, range(300_000, 301_200), chunksize=8)
         cdata = merge(eps)
         keys = list(cdata)
-        m = T.train_wam(cdata)
+        if "--finetune" in sys.argv:
+            m = WAM()
+            m.load_state_dict(torch.load(f"{CK}/wam.pt", weights_only=True))
+            m = T.train_wam(cdata, epochs=3, model=m)
+        else:
+            m = T.train_wam(cdata)
         torch.save(m.state_dict(), f"{CK}/wam.pt")
         extra = []
         for r, beta in enumerate([0.3, 0.0]):
-            extra += dagger("wam", [beta], 300, 100_000 + 10_000 * r)
+            extra += dagger("wam", [beta], 300, 120_000 + 10_000 * r)
             m = T.train_wam(cat([cdata] + [{k: e[k] for k in keys} for e in extra]), epochs=3, model=m)
             torch.save(m.state_dict(), f"{CK}/wam.pt")

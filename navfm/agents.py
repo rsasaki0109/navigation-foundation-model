@@ -8,7 +8,7 @@ from scipy import ndimage
 
 from . import models as M
 from . import world as W
-from .expert import dijkstra, follow_field, pursue
+from .expert import dijkstra, follow_field, pursue, safe_pursue
 from .text import tokenize
 
 
@@ -105,6 +105,7 @@ class VLMPlannerAgent(Agent):
         if self.k % 2 == 0 or self.field is None or (self.goal is not None and self.mode == "explore"):
             occ = self.occ == 2
             clear = ndimage.distance_transform_edt(~occ) * W.RES_M
+            self.blocked = clear < W.ROBOT_RADIUS_M + 0.01
             free = clear >= W.ROBOT_RADIUS_M + 0.06
             cost = 1.0 + 1.5 * np.clip(0.45 - clear, 0, None) / 0.45
             if self.goal is not None:
@@ -139,7 +140,7 @@ class VLMPlannerAgent(Agent):
         elif len(path) < 2:
             a = np.array([0.0, 1.2], np.float32)
         else:
-            a = pursue(obs.pose, path[min(11, len(path) - 1)])
+            a = safe_pursue(obs.pose, path[:12], self.blocked)
         self.viz["mode"] = self.mode
         self.viz["conf"] = conf
         self.viz["occ"] = self.occ
