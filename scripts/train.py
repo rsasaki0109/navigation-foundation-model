@@ -93,7 +93,7 @@ if __name__ == "__main__":
         m = T.train_wam(cdata)
         torch.save(m.state_dict(), f"{CK}/wam.pt")
         extra = []
-        for r, beta in enumerate([0.3, 0.0, 0.0]):
-            extra += dagger("wam", [beta], 400, 100_000 + 10_000 * r)
-            m = T.train_wam(cat([cdata] + [{k: e[k] for k in keys} for e in extra]), epochs=4, model=m)
+        for r, beta in enumerate([0.3, 0.0]):
+            extra += dagger("wam", [beta], 300, 100_000 + 10_000 * r)
+            m = T.train_wam(cat([cdata] + [{k: e[k] for k in keys} for e in extra]), epochs=3, model=m)
             torch.save(m.state_dict(), f"{CK}/wam.pt")

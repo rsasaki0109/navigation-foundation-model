@@ -173,6 +173,7 @@ class WMPlannerAgent(Agent):
 
     name = "WM + planning"
     H, N, ITERS, ELITE = 10, 192, 4, 16
+    TERM, GAMMA = 10.0, 1.0
 
     def __init__(self, model: M.WorldModel, seed: int = 0):
         self.model = model.eval()
@@ -181,6 +182,7 @@ class WMPlannerAgent(Agent):
     def reset(self, env):
         super().reset(env)
         self.mean = torch.tensor([[0.3, 0.0]]).repeat(self.H, 1)
+        self.rng.manual_seed(env.seed)
         with torch.no_grad():
             self.text_feat = self.model.text(self.tok)
 
@@ -195,10 +197,10 @@ class WMPlannerAgent(Agent):
             c = torch.sigmoid(self.model.collision(z, acts[:, k]))
             z = self.model.step(z, acts[:, k])
             d = self.model.goal_dist(z, t)
-            cost += (0.92**k) * d + 3.0 * c
+            cost += (self.GAMMA**k) * d + 3.0 * c
             zs.append(z)
             ds.append(d)
-        cost += 2.0 * ds[-1]
+        cost += self.TERM * ds[-1]
         return cost, zs, torch.stack(ds, 1)
 
     @torch.no_grad()
@@ -217,7 +219,7 @@ class WMPlannerAgent(Agent):
         cost, zs, ds = self._rollout(z0, acts)
         order = cost.argsort()
         best = acts[order[0]]
-        imag = [self.model.decode(zs[k][order[0] : order[0] + 1])[0].numpy() for k in (1, 3, 5, 7)]
+        imag = [self.model.decode(zs[k][order[0] : order[0] + 1])[0].numpy() for k in (1, 3, 5, 7) if k < len(zs)]
         self.viz = {
             "samples": acts[order[:: max(1, self.N // 48)]].numpy(),
             "sample_cost": cost[order[:: max(1, self.N // 48)]].numpy(),
