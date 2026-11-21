@@ -196,7 +196,7 @@ class WMPlannerAgent(Agent):
         t = self.text_feat.expand(n, -1)
         cost = torch.zeros(n)
         zs, ds = [], []
-        ens = bool(self.model.has_ens) and self.USE_ENS
+        ens = self.USE_ENS and bool(getattr(self.model, 'has_ens', 0))
         reached = torch.zeros(n, dtype=torch.bool)
         for k in range(self.H):
             c = torch.sigmoid(self.model.collision(z, acts[:, k]))
@@ -217,9 +217,12 @@ class WMPlannerAgent(Agent):
         cost += self.TERM * ds[-1]
         return cost, zs, torch.stack(ds, 1)
 
+    def initial_state(self, obs):
+        return self.model.encode(_t(W.pano_tensor(obs)))
+
     @torch.no_grad()
     def act(self, obs):
-        z0 = self.model.encode(_t(W.pano_tensor(obs)))
+        z0 = self.initial_state(obs)
         lo = torch.tensor([W.V_RANGE[0], W.W_RANGE[0]])
         hi = torch.tensor([W.V_RANGE[1], W.W_RANGE[1]])
         # unroll the policy prior in imagination: a proposal the planner then refines
@@ -255,6 +258,23 @@ class WMPlannerAgent(Agent):
         return a
 
 
+class RWMPlannerAgent(WMPlannerAgent):
+    """CEM planning in a recurrent world model: the state h remembers what was seen earlier."""
+
+    name = "WM + planning"
+
+    def reset(self, env):
+        super().reset(env)
+        self.h = None
+
+    @torch.no_grad()
+    def initial_state(self, obs):
+        e = self.model.embed(_t(W.pano_tensor(obs)))
+        h = self.model.init_state(1) if self.h is None else self.model.step(self.h, _t(self.prev))
+        self.h = self.model.posterior(h, e)
+        return self.h
+
+
 # ------------------------------------------------------------------ WAM
 class WAMAgent(Agent):
     """World-action model: predicts an 8-step action chunk + the future it expects; executes the chunk head."""
@@ -283,7 +303,7 @@ class WAMAgent(Agent):
 
 def load_agent(kind: str, ckpt_dir: str = "checkpoints"):
     cls = {"vlm": (M.GroundingVLM, VLMPlannerAgent), "vla": (M.VLA, VLAAgent), "wm": (M.WorldModel, WMPlannerAgent),
-           "wam": (M.WAM, WAMAgent)}[kind]
+           "wam": (M.WAM, WAMAgent), "rwm": (M.RecurrentWorldModel, RWMPlannerAgent)}[kind]
     model = cls[0]()
     model.load_state_dict(torch.load(f"{ckpt_dir}/{kind}.pt", weights_only=True))
     return cls[1](model)

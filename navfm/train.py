@@ -203,3 +203,60 @@ def train_wm_heads(m, d, epochs=3, horizon=8, seed=0):
     for p in m.parameters():
         p.requires_grad_(True)
     return m
+
+
+def train_rwm(d, epochs=6, seq=24, observed=16, seed=0, model=None, lr=1e-3, stride=1):
+    """Train the recurrent world model on sequences: observe `observed` steps, then imagine the rest."""
+    torch.manual_seed(seed)
+    rng = np.random.default_rng(seed)
+    m = model or M.RecurrentWorldModel()
+    opt = torch.optim.AdamW(m.parameters(), lr, weight_decay=1e-4)
+    pano, tok = torch.tensor(d["pano"]).float(), torch.tensor(d["tok"])
+    act = torch.tensor(d["act"]).float()
+    expert = torch.tensor(d["expert"]).float()
+    dist = torch.tensor(np.minimum(d["dist"], 12.0)).float()
+    coll = torch.tensor(d["coll"]).float()
+    starts = wm_windows(d, seq - 1)
+    starts = starts[starts % stride == 0]
+    steps = epochs * (len(starts) // 64)
+    sched = torch.optim.lr_scheduler.OneCycleLR(opt, lr, total_steps=steps)
+    ks = torch.arange(seq)
+    t0 = time.time()
+    for ep in range(epochs):
+        tot = []
+        for bi in _batches(len(starts), 64, rng):
+            s = torch.tensor(starts[bi])
+            idx = s[:, None] + ks[None]
+            B = len(s)
+            # variable observed prefix so the model also learns to imagine from short histories
+            n_obs = int(rng.integers(4, observed + 1))
+            e_all = m.embed(pano[idx[:, :n_obs]].flatten(0, 1)).view(B, n_obs, -1)
+            t = m.text(tok[s])
+            h = m.init_state(B)
+            loss = 0.0
+            for k in range(seq):
+                if k > 0:
+                    a_prev = act[idx[:, k - 1]]
+                    loss = loss + 0.5 * F.binary_cross_entropy_with_logits(
+                        m.collision(h, a_prev), coll[idx[:, k - 1]], pos_weight=torch.tensor(4.0)) / seq
+                    h = m.step(h, a_prev)
+                if k < n_obs:
+                    # prior prediction loss before folding in the observation sharpens imagination
+                    if k > 0:
+                        loss = loss + 0.5 * (F.mse_loss(m.decode(h), pano[idx[:, k]])
+                                             + F.smooth_l1_loss(m.goal_dist(h, t), dist[idx[:, k]])) / seq
+                    h = m.posterior(h, e_all[:, k])
+                w = 1.0 if k < n_obs else 1.5
+                loss = loss + w * (
+                    F.mse_loss(m.decode(h), pano[idx[:, k]])
+                    + F.smooth_l1_loss(m.goal_dist(h, t), dist[idx[:, k]])
+                    + 0.5 * F.smooth_l1_loss(m.prior(h, t), expert[idx[:, k]], beta=0.1)
+                ) / seq
+            opt.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
+            opt.step()
+            sched.step()
+            tot.append(loss.item())
+        _log("rwm", ep, np.mean(tot), t0)
+    return m

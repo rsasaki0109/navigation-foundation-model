@@ -86,20 +86,23 @@ def merge(eps):
     return {k: np.concatenate([e[k] for e in eps]) for k in keys}
 
 
-def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int):
+def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int, prefix: int = 0):
     """Planner-style rollouts in the true simulator from states an expert visits.
 
     From `n_starts` states along a noisy expert episode, execute action sequences of the kind
     CEM proposes (smooth random sequences or perturbed expert actions) and record what really
     happens.  Training the world model on these teaches it the consequences of the very action
-    sequences the planner will search over, instead of only those of the expert.
+    sequences the planner will search over, instead of only those of the expert.  With `prefix`,
+    each sequence starts with the `prefix` real steps that led to the branch point (memory context).
     """
     rng = np.random.default_rng(rng_seed)
     base = rollout(seed, noise=1.0, rng_seed=rng_seed)
     tok = tokenize(W.NavEnv(seed).instruction)
     env = W.NavEnv(seed)
     out = []
-    for k, idx in enumerate(rng.choice(len(base["pose"]), size=min(n_starts, len(base["pose"])), replace=False)):
+    n = len(base["pose"])
+    choices = np.arange(prefix, n) if n > prefix else np.arange(n)
+    for k, idx in enumerate(rng.choice(choices, size=min(n_starts, len(choices)), replace=False)):
         env.pose = base["pose"][idx].copy()
         env.t, env.done, env.success, env.collisions, env.path = 0, False, False, 0, [env.pose.copy()]
         mode = rng.random()
@@ -122,7 +125,12 @@ def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int):
             rec["act"].append(a)
             rec["coll"].append(collided)
         o = {k2: np.array(v) for k2, v in rec.items()}
-        o["tok"] = np.repeat(tok[None], horizon + 1, 0)
-        o["ep"] = np.full(horizon + 1, seed * 1000 + k)
+        if prefix and idx >= prefix:
+            sl = slice(idx - prefix, idx)
+            for k2 in o:
+                o[k2] = np.concatenate([base[k2][sl], o[k2]])
+        L = len(o["act"])
+        o["tok"] = np.repeat(tok[None], L, 0)
+        o["ep"] = np.full(L, seed * 1000 + k)
         out.append(o)
     return out

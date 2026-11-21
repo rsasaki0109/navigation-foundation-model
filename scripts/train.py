@@ -35,6 +35,12 @@ def _cf_job(seed):
     return merge(counterfactual(seed, 12, 10, seed + 17))
 
 
+def _cf_prefix_job(seed):
+    from navfm.data import counterfactual
+
+    return merge(counterfactual(seed, 12, 10, seed + 23, prefix=13))
+
+
 def _chunk_job(seed):
     return rollout(seed, noise=1.0 if seed % 4 else 0.0, chunk=CHUNK)
 
@@ -60,6 +66,21 @@ if __name__ == "__main__":
     base = load("data/expert.npz")
     if "vlm" in which:
         torch.save(T.train_vlm(base).state_dict(), f"{CK}/vlm.pt")
+    if "rwm" in which:
+        # recurrent world model: expert data + counterfactual branches with real history + on-policy rounds
+        with Pool(4) as p:
+            cf = merge(p.map(_cf_prefix_job, range(404_000, 405_200), chunksize=8))
+        keys = list(cf)
+        d = {k: np.concatenate([base[k], cf[k]]) for k in keys}
+        print("[rwm] samples", len(d["act"]), flush=True)
+        m = T.train_rwm(d, epochs=6)
+        torch.save(m.state_dict(), f"{CK}/rwm.pt")
+        extra = []
+        for r in range(2):
+            extra += dagger("rwm", [0.3], 200, 70_000 + 10_000 * r)
+            dd = {k: np.concatenate([d[k]] + [e[k] for e in extra]) for k in keys}
+            m = T.train_rwm(dd, epochs=2, model=m, lr=5e-4)
+            torch.save(m.state_dict(), f"{CK}/rwm.pt")
     if "wm-heads" in which:
         from navfm.data import counterfactual
         from navfm.models import WorldModel

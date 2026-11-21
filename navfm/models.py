@@ -192,3 +192,54 @@ class WAM(nn.Module):
         acts = self.act(h).view(-1, self.CHUNK, 2)
         fut = self.fut(h).view(-1, len(self.FUTURE), C_IN, W.PANO_RAYS)
         return acts, fut
+
+
+# ---------------------------------------------------------------- WM with memory (RSSM-style)
+class RecurrentWorldModel(nn.Module):
+    """World model with a recurrent (deterministic RSSM-style) state.
+
+    h carries memory across steps: `prior(h, a)` imagines the next state from an action alone and
+    `posterior(h_prior, pano)` folds in a new observation.  Heads read h, so a target seen a few
+    seconds ago still informs the goal-distance estimate after it goes out of view.
+    """
+
+    H = 192
+
+    def __init__(self):
+        super().__init__()
+        self.enc = PanoEncoder(text_cond=False)
+        self.obs_in = nn.Sequential(nn.Linear(D * 32, 256), nn.GELU())
+        self.post_cell = nn.GRUCell(256, self.H)
+        self.act_in = nn.Sequential(nn.Linear(2, 64), nn.GELU())
+        self.prior_cell = nn.GRUCell(64, self.H)
+        self.dec = nn.Sequential(nn.Linear(self.H, 256), nn.GELU(), nn.Linear(256, C_IN * W.PANO_RAYS))
+        self.text = TextEncoder()
+        self.dist = nn.Sequential(nn.Linear(self.H + D, 256), nn.GELU(), nn.Linear(256, 128), nn.GELU(), nn.Linear(128, 1))
+        self.coll = nn.Sequential(nn.Linear(self.H + 2, 128), nn.GELU(), nn.Linear(128, 1))
+        self.pi = nn.Sequential(nn.Linear(self.H + D, 256), nn.GELU(), nn.Linear(256, 128), nn.GELU(), nn.Linear(128, 2))
+
+    def init_state(self, batch):
+        return torch.zeros(batch, self.H)
+
+    def embed(self, pano):
+        return self.obs_in(self.enc(pano).flatten(1))
+
+    def posterior(self, h, e):
+        return self.post_cell(e, h)
+
+    def step(self, h, a):
+        return self.prior_cell(self.act_in(a), h)
+
+    def decode(self, h):
+        return self.dec(h).view(-1, C_IN, W.PANO_RAYS)
+
+    def goal_dist(self, h, t):
+        return F.softplus(self.dist(torch.cat([h, t], -1))).squeeze(-1)
+
+    def collision(self, h, a):
+        return self.coll(torch.cat([h, a], -1)).squeeze(-1)
+
+    def prior(self, h, t):
+        lo = torch.tensor([W.V_RANGE[0], W.W_RANGE[0]])
+        hi = torch.tensor([W.V_RANGE[1], W.W_RANGE[1]])
+        return lo + (hi - lo) * torch.sigmoid(self.pi(torch.cat([h, t], -1)))
