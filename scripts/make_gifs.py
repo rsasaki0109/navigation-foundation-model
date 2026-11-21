@@ -3,7 +3,7 @@
 Usage: python scripts/make_gifs.py [SEED] [--raycast]
 
 By default the 3D views are rendered by Robot Native Engine's wgpu renderer
-(`examples/149_scene_replay_render`; set RNE_REPLAY_BIN to the built binary).  With
+(`examples/150_scene_replay_render`; set RNE_REPLAY_BIN to the built binary).  With
 --raycast, or when the binary is missing, a built-in pseudo-3D ray caster is used.
 """
 
@@ -130,7 +130,7 @@ def main():
     save_gif(grid, f"{OUT}/hero.gif", hold=25)
     grid[len(grid) // 2].save(f"{OUT}/hero.png")
     meta = {k: dict(seed=seed, success=bool(e.success), steps=e.t, collisions=e.collisions, instruction=e.instruction,
-                    renderer="RNE wgpu (examples/149_scene_replay_render)" if use_rne else "built-in ray caster")
+                    renderer="RNE wgpu (examples/150_scene_replay_render)" if use_rne else "built-in ray caster")
             for k, (_f, e) in runs.items()}
     json.dump(meta, open(f"{OUT}/hero.json", "w"), indent=1)
 

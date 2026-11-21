@@ -1,6 +1,6 @@
 """Export episodes to Robot Native Engine (RNE) replay scripts for wgpu-rendered GIF frames.
 
-The simulator stays in Python; RNE's `149_scene_replay_render` example renders the scene. The
+The simulator stays in Python; RNE's `150_scene_replay_render` example renders the scene. The
 world is mapped to RNE's Y-up frame as X = x - 4, Y = height, Z = 3 - y (metres), so a
 simulator heading theta becomes a rotation of theta about +Y.
 """
@@ -18,7 +18,7 @@ from . import models as M
 from . import world as W
 
 RNE_BIN_ENV = "RNE_REPLAY_BIN"
-DEFAULT_BIN = Path(__file__).resolve().parents[2] / "RobotNativeEngine/target/release/examples/149_scene_replay_render"
+DEFAULT_BIN = Path(__file__).resolve().parents[2] / "RobotNativeEngine/target/release/examples/150_scene_replay_render"
 
 WALL_H = 1.0
 LOW_H = 0.42

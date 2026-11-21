@@ -79,7 +79,7 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 
 The 3D views in the GIFs are for humans. The overview shows the plans as glowing dots: the A* path, the CEM samples and the best plan, or the WAM action chunk. The models only ever see the 128-column panorama strip shown under the egocentric camera.
 
-**Rendering.** `navfm/rne_scene.py` exports every frame as a primitive scene, with furniture built from boxes, cylinders and spheres. Robot Native Engine's [`examples/149_scene_replay_render`](https://github.com/rsasaki0109/RobotNativeEngine/tree/main/examples/149_scene_replay_render) renders each frame with wgpu. No GPU is needed: Mesa's llvmpipe software Vulkan driver renders a frame in about 50 ms. If the RNE binary is not found, `make_gifs.py` falls back to a built-in ray caster.
+**Rendering.** `navfm/rne_scene.py` exports every frame as a primitive scene, with furniture built from boxes, cylinders and spheres. Robot Native Engine's [`examples/150_scene_replay_render`](https://github.com/rsasaki0109/RobotNativeEngine/tree/main/examples/150_scene_replay_render) renders each frame with wgpu. No GPU is needed: Mesa's llvmpipe software Vulkan driver renders a frame in about 50 ms. If the RNE binary is not found, `make_gifs.py` falls back to a built-in ray caster.
 
 ## Quickstart
 
@@ -88,8 +88,8 @@ pip install -r requirements.txt          # numpy, scipy, pillow, torch (CPU is f
 
 python scripts/evaluate.py 20            # evaluate the shipped checkpoints
 # GIFs with RNE rendering (sibling checkout of RobotNativeEngine; on a GPU-less box: apt install mesa-vulkan-drivers)
-(cd ../RobotNativeEngine && cargo build --release -p scene_replay_render --example 149_scene_replay_render)
-python scripts/make_gifs.py 35           # or RNE_REPLAY_BIN=/path/to/149_scene_replay_render; --raycast for no RNE
+(cd ../RobotNativeEngine && cargo build --release -p scene_replay_render --example 150_scene_replay_render)
+python scripts/make_gifs.py 35           # or RNE_REPLAY_BIN=/path/to/150_scene_replay_render; --raycast for no RNE
 
 # retrain everything from scratch (CPU, ~1-2 h total)
 python scripts/collect.py 2500 data/expert.npz

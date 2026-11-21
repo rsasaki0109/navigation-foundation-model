@@ -5,7 +5,7 @@
   "steps": 34,
   "collisions": 0,
   "instruction": "head over to the chair",
-  "renderer": "RNE wgpu (examples/149_scene_replay_render)"
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)"
  },
  "vla": {
   "seed": 35,
@@ -13,7 +13,7 @@
   "steps": 32,
   "collisions": 0,
   "instruction": "head over to the chair",
-  "renderer": "RNE wgpu (examples/149_scene_replay_render)"
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)"
  },
  "wm": {
   "seed": 35,
@@ -21,7 +21,7 @@
   "steps": 33,
   "collisions": 0,
   "instruction": "head over to the chair",
-  "renderer": "RNE wgpu (examples/149_scene_replay_render)"
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)"
  },
  "wam": {
   "seed": 35,
@@ -29,6 +29,6 @@
   "steps": 33,
   "collisions": 0,
   "instruction": "head over to the chair",
-  "renderer": "RNE wgpu (examples/149_scene_replay_render)"
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)"
  }
 }
