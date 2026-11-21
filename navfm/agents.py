@@ -106,6 +106,7 @@ class VLMPlannerAgent(Agent):
             occ = self.occ == 2
             clear = ndimage.distance_transform_edt(~occ) * W.RES_M
             self.blocked = clear < W.ROBOT_RADIUS_M + 0.01
+            self.clear = clear
             free = clear >= W.ROBOT_RADIUS_M + 0.06
             cost = 1.0 + 1.5 * np.clip(0.45 - clear, 0, None) / 0.45
             if self.goal is not None:
@@ -140,7 +141,7 @@ class VLMPlannerAgent(Agent):
         elif len(path) < 2:
             a = np.array([0.0, 1.2], np.float32)
         else:
-            a = safe_pursue(obs.pose, path[:12], self.blocked)
+            a = safe_pursue(obs.pose, path[:12], self.blocked, self.clear)
         self.viz["mode"] = self.mode
         self.viz["conf"] = conf
         self.viz["occ"] = self.occ

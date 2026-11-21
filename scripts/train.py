@@ -97,7 +97,7 @@ if __name__ == "__main__":
             torch.save(m.state_dict(), f"{CK}/vla.pt")
         extra = []
         for r, beta in enumerate([0.0, 0.0]):
-            extra += dagger("vla", [beta], 300, 30_000 + 10_000 * r)
+            extra += dagger("vla", [beta], 300, 50_000 + 10_000 * r)
             m = T.train_vla(cat([base] + [{k: e[k] for k in base} for e in extra]), epochs=2, model=m)
             torch.save(m.state_dict(), f"{CK}/vla.pt")
     if "wam" in which:
@@ -114,6 +114,6 @@ if __name__ == "__main__":
         torch.save(m.state_dict(), f"{CK}/wam.pt")
         extra = []
         for r, beta in enumerate([0.3, 0.0]):
-            extra += dagger("wam", [beta], 300, 120_000 + 10_000 * r)
+            extra += dagger("wam", [beta], 300, 140_000 + 10_000 * r)
             m = T.train_wam(cat([cdata] + [{k: e[k] for k in keys} for e in extra]), epochs=3, model=m)
             torch.save(m.state_dict(), f"{CK}/wam.pt")

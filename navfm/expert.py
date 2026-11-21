@@ -88,8 +88,12 @@ def line_free(blocked: np.ndarray, x0, y0, x1, y1, step=0.025) -> bool:
     return not blocked[i, j].any()
 
 
-def safe_pursue(pose, pts, blocked, v_max=0.55):
-    """Pursue the farthest waypoint in line of sight; turn in place if the next step would collide."""
+def safe_pursue(pose, pts, blocked, clearance=None, v_max=0.55):
+    """Pursue the farthest waypoint in line of sight; turn in place if the next step would collide.
+
+    When blocked, the turn direction is chosen consistently (toward increasing clearance) so that a
+    policy imitating it does not average a left and a right turn into driving straight on.
+    """
     x, y, th = pose
     target = pts[0]
     for p in pts[1:]:
@@ -99,7 +103,15 @@ def safe_pursue(pose, pts, blocked, v_max=0.55):
     a = pursue(pose, target, v_max)
     nx, ny, _ = W.unicycle(x, y, th, float(a[0]), float(a[1]))
     if a[0] > 0 and not line_free(blocked, x, y, nx, ny, 0.01):
-        a = np.array([0.0, a[1] if abs(a[1]) > 0.3 else np.sign(a[1] + 1e-6) * 1.2], np.float32)
+        turn = a[1]
+        if clearance is not None:
+            i, j = W.to_cell(np.clip(x, 0, W.WIDTH_M - 1e-6), np.clip(y, 0, W.HEIGHT_M - 1e-6))
+            i, j = int(np.clip(i, 1, W.NX - 2)), int(np.clip(j, 1, W.NY - 2))
+            gx = clearance[i + 1, j] - clearance[i - 1, j]
+            gy = clearance[i, j + 1] - clearance[i, j - 1]
+            err = (np.arctan2(gy, gx) - th + np.pi) % (2 * np.pi) - np.pi
+            turn = err if abs(err) > 0.05 else 1.0
+        a = np.array([0.0, np.sign(turn) * 1.2], np.float32)
     return a
 
 
@@ -110,4 +122,4 @@ def expert_action(env: W.NavEnv) -> np.ndarray:
         # inside the goal region or stuck: face the object centre
         b = env.layout.obj_boxes[env.target]
         return pursue(env.pose, ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2), 0.25)
-    return safe_pursue(env.pose, pts, env.layout.cspace)
+    return safe_pursue(env.pose, pts, env.layout.cspace, env.layout.clearance)
