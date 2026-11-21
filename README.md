@@ -40,37 +40,41 @@ Held-out evaluation on 100 episodes (seeds 0–99; training uses seeds ≥ 100 0
 
 | Paradigm | Success | SPL | Steps to goal (successes) | Collisions / episode | Params |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| VLM + planning | **0.96** | 0.88 | 50.1 | 4.4 | 0.11 M (+ classical planner) |
-| VLA | 0.92 | **0.90** | **37.9** | 4.1 | 0.69 M |
-| WM + planning | 0.79 | 0.63 | 59.6 | **1.4** | 0.73 M (+ CEM) |
-| ↳ policy prior only (no planning) | 0.82 | — | — | 14.6 | same network |
-| WAM | 0.92 | **0.90** | 38.5 | 10.2 | 2.56 M |
+| VLM + planning | **0.99** | 0.90 | 48.8 | **0.00** | 0.11 M (+ classical planner) |
+| VLA | 0.94 | 0.92 | **38.3** | 0.06 | 0.69 M |
+| WM + planning | 0.80 | 0.63 | 60.6 | 0.35 | 0.73 M (+ CEM) |
+| ↳ policy prior only (no planning) | 0.87 | — | — | 6.76 | same network |
+| WAM | **0.99** | **0.96** | 41.0 | 0.40 | 2.56 M |
 
 `docs/results.json` has per-episode numbers (`python scripts/evaluate.py 100`).
 
 What the numbers say, in this toy setting:
 
-- **VLM + planning** is the most robust because it is the only method with memory: a map, plus frontier exploration when the target is hidden behind a wall. It is also slower, since exploration costs steps.
-- **VLA** and **WAM** are reactive and fast. They take near-optimal paths whenever the target is visible in the panorama. Most of their failures happen when the target starts out occluded (success 0.97–1.00 when it is visible at the start, 0.88–0.90 when it is not), because they have no memory.
-- **WM + planning** collides the least by a wide margin. The ablation shows what the planning step buys: driving the policy prior alone reaches the goal about as often but hits furniture 10× more. Imagining the collision head 10 steps ahead is what keeps the robot clear. It is also the method that was hardest to get right:
+- **VLM + planning** is the most robust and never touches furniture. It is the only method with memory: a map built from depth, plus frontier exploration when the target is hidden behind a wall. The price is speed, because exploring costs steps.
+- **WAM** matches it on success and takes the most efficient paths (best SPL). It is a reactive policy like the VLA. Predicting the future panoramas along with an 8-step action chunk acts as an auxiliary task that shapes its representation.
+- **VLA** is the fastest per episode but fails more often (6 of 100). Its discrete action tokens are coarse, and it has no memory or look-ahead.
+- **WM + planning** shows what planning buys and what it costs. The same network's policy prior alone reaches the goal slightly more often (0.87) but bumps into furniture about 20× more (6.8 vs 0.35 collisions per episode). Searching 10 imagined steps ahead with the collision head keeps it clear. The cost is success: when the learned goal-distance head is wrong, CEM optimises toward the error.
 
-  | WM training data | Success | Collisions |
-  | --- | ---: | ---: |
-  | expert demos only | ~0.2 (10 eps) | — |
-  | + rollouts of the planner itself | 0.39 | 4.8 |
-  | + planner-style counterfactual rollouts in the true sim, + policy prior for CEM | **0.79** | **1.4** |
+## Engineering notes
 
-  With expert data alone, CEM finds action sequences whose imagined outcome the model gets wrong and drives straight into them (model exploitation). The fix is to execute the kind of sequences the planner proposes in the real simulator and train on what actually happens.
+Getting four learners to work on one simulator mostly meant fixing the data rather than the models:
+
+| Problem | Symptom | Fix |
+| --- | --- | --- |
+| World model trained on expert demos only | CEM drives into states whose imagined outcome is wrong (model exploitation). Success ~0.2. | Train on the planner's own rollouts (0.39), then on planner-style *counterfactual* action sequences executed in the true simulator, and seed CEM with a latent policy prior (0.79) |
+| Expert aimed 0.6 m ahead along the distance field | It cut corners, so DAgger taught the imitators to keep pushing into furniture | Aim at the farthest waypoint in line of sight; turn in place before a collision |
+| Expert's turn-in-place direction flipped sign between neighbouring states | WAM's regression head averaged left and right into "drive straight" | Always turn toward increasing clearance |
+| Blocked moves froze the robot | Corner deadlocks: 100+ collisions in an episode | Slide along obstacles like Habitat's `allow_sliding` (still counted as a collision) |
 
 ## The simulator
 
 `navfm/world.py` is a small, deterministic object-goal navigation world:
 
 - **Apartment:** randomly generated, 8 m × 6 m. It has tall partial walls that block sight, low furniture that blocks motion but not sight, and six coloured target objects (chair, sofa, plant, fridge, bed, tv).
-- **Robot:** a unicycle-model robot with radius 0.18 m and 0.25 s control steps, commanded by velocity (v, ω).
+- **Robot:** a unicycle-model robot with radius 0.18 m and 0.25 s control steps, commanded by velocity (v, ω). A blocked move slides along the obstacle and counts as a collision.
 - **Observation:** a 360° ray-cast panorama of 128 columns × (RGB + two depth layers), plus odometry and a free-form instruction such as *"take me to the red chair"* or *"find the fridge"*.
 - **Success:** the robot comes within 0.5 m of the instructed object within 160 steps.
-- **Expert:** a privileged expert (geodesic distance field + pure pursuit) produces demonstrations and DAgger labels.
+- **Expert:** a privileged expert (geodesic distance field + line-of-sight pure pursuit) produces demonstrations and DAgger labels. It succeeds in 100% of episodes with zero collisions.
 
 The first-person view in the GIFs is a pseudo-3D ray-cast render of the same world, for humans. The models only ever see the 128-column panorama strip shown under it.
 
