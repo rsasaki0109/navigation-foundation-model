@@ -208,11 +208,19 @@ class WMPlannerAgent(Agent):
         z0 = self.model.encode(_t(W.pano_tensor(obs)))
         lo = torch.tensor([W.V_RANGE[0], W.W_RANGE[0]])
         hi = torch.tensor([W.V_RANGE[1], W.W_RANGE[1]])
-        mean, std = self.mean.clone(), torch.tensor([[0.25, 0.9]]).repeat(self.H, 1)
-        for _ in range(self.ITERS):
+        # unroll the policy prior in imagination: a proposal the planner then refines
+        prior, z = [], z0
+        for _k in range(self.H):
+            a = self.model.prior(z, self.text_feat)
+            prior.append(a[0])
+            z = self.model.step(z, a)
+        prior = torch.stack(prior)
+        mean, std = 0.5 * (self.mean + prior), torch.tensor([[0.25, 0.9]]).repeat(self.H, 1)
+        for it in range(self.ITERS):
             eps = torch.randn(self.N, self.H, 2, generator=self.rng)
             acts = torch.max(torch.min(mean + std * eps, hi), lo)
             acts[0] = mean
+            acts[1] = prior
             cost, _, _ = self._rollout(z0, acts)
             elite = acts[cost.argsort()[: self.ELITE]]
             mean, std = elite.mean(0), elite.std(0) + 0.03

@@ -29,6 +29,12 @@ def _dagger_job(args):
     return rollout(seed, policy=agent, beta=beta, chunk=CHUNK if kind == "wam" else None)
 
 
+def _cf_job(seed):
+    from navfm.data import counterfactual
+
+    return merge(counterfactual(seed, 12, 10, seed + 17))
+
+
 def _chunk_job(seed):
     return rollout(seed, noise=1.0 if seed % 4 else 0.0, chunk=CHUNK)
 
@@ -61,14 +67,23 @@ if __name__ == "__main__":
             from navfm.models import WorldModel
 
             m = WorldModel()
-            m.load_state_dict(torch.load(f"{CK}/wm.pt", weights_only=True))
+            missing = m.load_state_dict(torch.load(f"{CK}/wm.pt", weights_only=True), strict=False)
+            print("[wm] resumed; newly initialised:", missing.missing_keys, flush=True)
         else:
             m = T.train_wm(base)
             torch.save(m.state_dict(), f"{CK}/wm.pt")
+        # planner-style counterfactual rollouts in the true simulator
+        with Pool(4) as p:
+            cf = merge(p.map(_cf_job, range(400_000, 401_000), chunksize=8))
+        print("[wm] counterfactual samples", len(cf["act"]), flush=True)
+        keys = list(cf)
+        base = {k: np.concatenate([base[k], cf[k]]) for k in keys}
+        m = T.train_wm(base, epochs=3, model=m, lr=7e-4)
+        torch.save(m.state_dict(), f"{CK}/wm.pt")
         # on-policy data: the planner visits states the expert never does (and exploits model errors there)
         extra = []
         for r in range(2):
-            extra += dagger("wm", [0.3], 200, 50_000 + 10_000 * r)
+            extra += dagger("wm", [0.3], 200, 60_000 + 10_000 * r)
             m = T.train_wm(cat([base] + [{k: e[k] for k in base} for e in extra]), epochs=2, model=m, lr=5e-4)
             torch.save(m.state_dict(), f"{CK}/wm.pt")
     if "vla" in which:

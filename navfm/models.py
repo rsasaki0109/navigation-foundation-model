@@ -130,6 +130,13 @@ class WorldModel(nn.Module):
         self.text = TextEncoder()
         self.dist = nn.Sequential(nn.Linear(self.Z + D, 256), nn.GELU(), nn.Linear(256, 128), nn.GELU(), nn.Linear(128, 1))
         self.coll = nn.Sequential(nn.Linear(self.Z + 2, 128), nn.GELU(), nn.Linear(128, 1))
+        # policy prior (TD-MPC style): proposes action sequences for the planner to refine
+        self.pi = nn.Sequential(nn.Linear(self.Z + D, 256), nn.GELU(), nn.Linear(256, 128), nn.GELU(), nn.Linear(128, 2))
+
+    def prior(self, z, t):
+        lo = torch.tensor([W.V_RANGE[0], W.W_RANGE[0]])
+        hi = torch.tensor([W.V_RANGE[1], W.W_RANGE[1]])
+        return lo + (hi - lo) * torch.sigmoid(self.pi(torch.cat([z, t], -1)))
 
     def encode(self, pano):
         return torch.tanh(self.to_z(self.enc(pano).flatten(1)))

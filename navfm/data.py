@@ -83,3 +83,44 @@ def rollout(seed: int, policy=None, beta: float = 1.0, noise: float = 0.0, rng_s
 def merge(eps):
     keys = [k for k in eps[0] if k != "success"]
     return {k: np.concatenate([e[k] for e in eps]) for k in keys}
+
+
+def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int):
+    """Planner-style rollouts in the true simulator from states an expert visits.
+
+    From `n_starts` states along a noisy expert episode, execute action sequences of the kind
+    CEM proposes (smooth random sequences or perturbed expert actions) and record what really
+    happens.  Training the world model on these teaches it the consequences of the very action
+    sequences the planner will search over, instead of only those of the expert.
+    """
+    rng = np.random.default_rng(rng_seed)
+    base = rollout(seed, noise=1.0, rng_seed=rng_seed)
+    tok = tokenize(W.NavEnv(seed).instruction)
+    env = W.NavEnv(seed)
+    out = []
+    for k, idx in enumerate(rng.choice(len(base["pose"]), size=min(n_starts, len(base["pose"])), replace=False)):
+        env.pose = base["pose"][idx].copy()
+        env.t, env.done, env.success, env.collisions, env.path = 0, False, False, 0, [env.pose.copy()]
+        mode = rng.random()
+        mean = np.array([rng.uniform(0.0, 0.6), rng.uniform(-1.6, 1.6)], np.float32)
+        rec = {k2: [] for k2 in ("pano", "act", "expert", "dist", "coll")}
+        obs = env.observe()
+        for _t in range(horizon + 1):
+            a_exp = expert_action(env)
+            if mode < 0.6:
+                a = mean + rng.normal(0, [0.1, 0.4]).astype(np.float32)
+            else:
+                a = a_exp + rng.normal(0, [0.15, 0.6]).astype(np.float32)
+            a = np.clip(a, [W.V_RANGE[0], W.W_RANGE[0]], [W.V_RANGE[1], W.W_RANGE[1]]).astype(np.float32)
+            rec["pano"].append(W.pano_tensor(obs).astype(np.float16))
+            rec["expert"].append(a_exp)
+            rec["dist"].append(env.geodesic(*env.pose[:2]))
+            env.done = False  # keep simulating past the goal: the model must know what overshooting looks like
+            obs, collided = env.step(a)
+            rec["act"].append(a)
+            rec["coll"].append(collided)
+        o = {k2: np.array(v) for k2, v in rec.items()}
+        o["tok"] = np.repeat(tok[None], horizon + 1, 0)
+        o["ep"] = np.full(horizon + 1, seed * 1000 + k)
+        out.append(o)
+    return out

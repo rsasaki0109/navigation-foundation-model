@@ -87,6 +87,7 @@ def train_wm(d, epochs=4, horizon=8, seed=0, model=None, lr=1e-3):
     act = torch.tensor(d["act"]).float()
     dist = torch.tensor(np.minimum(d["dist"], 12.0)).float()
     coll = torch.tensor(d["coll"]).float()
+    expert = torch.tensor(d["expert"]).float()
     starts = wm_windows(d, horizon)
     steps = epochs * (len(starts) // 128)
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, lr, total_steps=steps)
@@ -103,6 +104,7 @@ def train_wm(d, epochs=4, horizon=8, seed=0, model=None, lr=1e-3):
             t = m.text(tok[s])
             z = z_all[:, 0]
             loss = F.mse_loss(m.decode(z), obs[:, 0]) + F.smooth_l1_loss(m.goal_dist(z, t), dist[idx[:, 0]])
+            loss = loss + F.smooth_l1_loss(m.prior(z, t), expert[idx[:, 0]], beta=0.1)
             for k in range(horizon):
                 a = act[idx[:, k]]
                 loss = loss + 0.5 * F.binary_cross_entropy_with_logits(m.collision(z, a), coll[idx[:, k]], pos_weight=torch.tensor(4.0)) / horizon
@@ -111,6 +113,7 @@ def train_wm(d, epochs=4, horizon=8, seed=0, model=None, lr=1e-3):
                     F.mse_loss(z, z_all[:, k + 1].detach()) * 2.0
                     + F.mse_loss(m.decode(z), obs[:, k + 1])
                     + F.smooth_l1_loss(m.goal_dist(z, t), dist[idx[:, k + 1]])
+                    + 0.5 * F.smooth_l1_loss(m.prior(z, t), expert[idx[:, k + 1]], beta=0.1)
                 ) / horizon
             opt.zero_grad()
             loss.backward()
