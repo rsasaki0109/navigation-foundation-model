@@ -263,16 +263,26 @@ class RWMPlannerAgent(WMPlannerAgent):
 
     name = "WM + planning"
 
+    WINDOW = 16  # matches the observed prefix length used in training
+
     def reset(self, env):
         super().reset(env)
         self.h = None
+        self.hist = []  # (embedding, action that followed the previous step)
 
     @torch.no_grad()
     def initial_state(self, obs):
         e = self.model.embed(_t(W.pano_tensor(obs)))
-        h = self.model.init_state(1) if self.h is None else self.model.step(self.h, _t(self.prev))
-        self.h = self.model.posterior(h, e)
-        return self.h
+        self.hist.append((e, _t(self.prev).float()))
+        self.hist = self.hist[-self.WINDOW :]
+        # re-filter the last WINDOW steps from a fresh state, as in training
+        h = self.model.init_state(1)
+        for i, (ei, ai) in enumerate(self.hist):
+            if i > 0:
+                h = self.model.step(h, ai)
+            h = self.model.posterior(h, ei)
+        self.h = h
+        return h
 
 
 # ------------------------------------------------------------------ WAM
