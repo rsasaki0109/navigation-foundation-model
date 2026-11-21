@@ -120,6 +120,7 @@ class WorldModel(nn.Module):
     """Latent world model: encoder, action-conditioned dynamics, decoder, goal-distance and collision heads."""
 
     Z = 96
+    ENS = 5
 
     def __init__(self):
         super().__init__()
@@ -130,6 +131,13 @@ class WorldModel(nn.Module):
         self.text = TextEncoder()
         self.dist = nn.Sequential(nn.Linear(self.Z + D, 256), nn.GELU(), nn.Linear(256, 128), nn.GELU(), nn.Linear(128, 1))
         self.coll = nn.Sequential(nn.Linear(self.Z + 2, 128), nn.GELU(), nn.Linear(128, 1))
+        # ensemble of goal-distance heads (epistemic uncertainty) and a target-proximity head
+        self.dist_ens = nn.ModuleList(
+            nn.Sequential(nn.Linear(self.Z + D, 192), nn.GELU(), nn.Linear(192, 96), nn.GELU(), nn.Linear(96, 1))
+            for _ in range(self.ENS)
+        )
+        self.near = nn.Sequential(nn.Linear(self.Z + D, 192), nn.GELU(), nn.Linear(192, 1))
+        self.register_buffer("has_ens", torch.zeros(()))
         # policy prior (TD-MPC style): proposes action sequences for the planner to refine
         self.pi = nn.Sequential(nn.Linear(self.Z + D, 256), nn.GELU(), nn.Linear(256, 128), nn.GELU(), nn.Linear(128, 2))
 
@@ -149,6 +157,15 @@ class WorldModel(nn.Module):
 
     def goal_dist(self, z, t):
         return F.softplus(self.dist(torch.cat([z, t], -1))).squeeze(-1)
+
+    def goal_dist_ens(self, z, t):
+        """(K, B) goal-distance predictions of the ensemble heads."""
+        x = torch.cat([z, t], -1)
+        return torch.stack([F.softplus(h(x)).squeeze(-1) for h in self.dist_ens])
+
+    def target_dist(self, z, t):
+        """Predicted Euclidean distance to the instructed object (sharper than geodesic near it)."""
+        return F.softplus(self.near(torch.cat([z, t], -1))).squeeze(-1)
 
     def collision(self, z, a):
         return self.coll(torch.cat([z, a], -1)).squeeze(-1)

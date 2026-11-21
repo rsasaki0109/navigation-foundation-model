@@ -37,7 +37,7 @@ def rollout(seed: int, policy=None, beta: float = 1.0, noise: float = 0.0, rng_s
     obs = env.observe()
     if policy is not None and hasattr(policy, "reset"):
         policy.reset(env)
-    rec = {k: [] for k in ("pano", "mask", "act", "expert", "dist", "coll", "pose", "prev")}
+    rec = {k: [] for k in ("pano", "mask", "act", "expert", "dist", "tdist", "coll", "pose", "prev")}
     if chunk is not None:
         rec["chunk"], rec["future"] = [], []
     prev = np.zeros(2, np.float32)
@@ -62,6 +62,7 @@ def rollout(seed: int, policy=None, beta: float = 1.0, noise: float = 0.0, rng_s
         rec["mask"].append(obs.pano_label == W.OBJ0 + env.target)
         rec["expert"].append(a_exp)
         rec["dist"].append(env.geodesic(*env.pose[:2]))
+        rec["tdist"].append(env.target_distance())
         rec["pose"].append(env.pose.copy())
         rec["prev"].append(prev)
         if chunk is not None:
@@ -103,7 +104,7 @@ def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int):
         env.t, env.done, env.success, env.collisions, env.path = 0, False, False, 0, [env.pose.copy()]
         mode = rng.random()
         mean = np.array([rng.uniform(0.0, 0.6), rng.uniform(-1.6, 1.6)], np.float32)
-        rec = {k2: [] for k2 in ("pano", "act", "expert", "dist", "coll")}
+        rec = {k2: [] for k2 in ("pano", "act", "expert", "dist", "tdist", "coll")}
         obs = env.observe()
         for _t in range(horizon + 1):
             a_exp = expert_action(env)
@@ -115,6 +116,7 @@ def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int):
             rec["pano"].append(W.pano_tensor(obs).astype(np.float16))
             rec["expert"].append(a_exp)
             rec["dist"].append(env.geodesic(*env.pose[:2]))
+            rec["tdist"].append(env.target_distance())
             env.done = False  # keep simulating past the goal: the model must know what overshooting looks like
             obs, collided = env.step(a)
             rec["act"].append(a)

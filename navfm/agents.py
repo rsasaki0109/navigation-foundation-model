@@ -176,6 +176,7 @@ class WMPlannerAgent(Agent):
     name = "WM + planning"
     H, N, ITERS, ELITE = 10, 192, 4, 16
     TERM, GAMMA = 10.0, 1.0
+    USE_ENS, KAPPA = True, 1.0
 
     def __init__(self, model: M.WorldModel, seed: int = 0):
         self.model = model.eval()
@@ -195,10 +196,20 @@ class WMPlannerAgent(Agent):
         t = self.text_feat.expand(n, -1)
         cost = torch.zeros(n)
         zs, ds = [], []
+        ens = bool(self.model.has_ens) and self.USE_ENS
+        reached = torch.zeros(n, dtype=torch.bool)
         for k in range(self.H):
             c = torch.sigmoid(self.model.collision(z, acts[:, k]))
             z = self.model.step(z, acts[:, k])
-            d = self.model.goal_dist(z, t)
+            if ens:
+                e = self.model.goal_dist_ens(z, t)
+                # pessimism: penalise plans whose outcome the ensemble disagrees on
+                d = e.mean(0) + self.KAPPA * e.std(0)
+                near = self.model.target_dist(z, t) < W.SUCCESS_DIST_M - 0.05
+                d = torch.where(reached | near, torch.zeros_like(d), d)
+                reached = reached | near
+            else:
+                d = self.model.goal_dist(z, t)
             cost += (self.GAMMA**k) * d + 3.0 * c
             zs.append(z)
             ds.append(d)

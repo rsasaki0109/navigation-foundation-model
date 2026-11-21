@@ -60,6 +60,20 @@ if __name__ == "__main__":
     base = load("data/expert.npz")
     if "vlm" in which:
         torch.save(T.train_vlm(base).state_dict(), f"{CK}/vlm.pt")
+    if "wm-heads" in which:
+        from navfm.data import counterfactual
+        from navfm.models import WorldModel
+
+        m = WorldModel()
+        print(m.load_state_dict(torch.load(f"{CK}/wm.pt", weights_only=True), strict=False).missing_keys, flush=True)
+        torch.save(m.state_dict(), f"{CK}/wm.pt")  # new heads untrained (has_ens=0): planner unchanged
+        with Pool(4) as p:
+            cf = merge(p.map(_cf_job, range(402_000, 403_000), chunksize=8))
+        on = dagger("wm", [0.3], 200, 90_000)[0]
+        keys = list(cf)
+        d = {k: np.concatenate([base[k], cf[k], on[k]]) for k in keys}
+        m = T.train_wm_heads(m, d)
+        torch.save(m.state_dict(), f"{CK}/wm.pt")
     if "wm" in which:
         import os
 

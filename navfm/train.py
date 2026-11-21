@@ -149,3 +149,57 @@ def train_wam(d, epochs=8, seed=0, model=None):
             tot.append(loss.item())
         _log("wam", ep, np.mean(tot), t0)
     return m
+
+
+def train_wm_heads(m, d, epochs=3, horizon=8, seed=0):
+    """Train the distance-ensemble and target-proximity heads on a frozen world model.
+
+    Each ensemble head sees its own bootstrap resample of the windows, on encoded and on imagined
+    latents, so their disagreement grows where the model is extrapolating.
+    """
+    torch.manual_seed(seed)
+    rng = np.random.default_rng(seed)
+    for p in m.parameters():
+        p.requires_grad_(False)
+    heads = list(m.dist_ens.parameters()) + list(m.near.parameters())
+    for p in heads:
+        p.requires_grad_(True)
+    opt = torch.optim.AdamW(heads, 1e-3, weight_decay=1e-4)
+    pano, tok = torch.tensor(d["pano"]).float(), torch.tensor(d["tok"])
+    act = torch.tensor(d["act"]).float()
+    dist = torch.tensor(np.minimum(d["dist"], 12.0)).float()
+    tdist = torch.tensor(np.minimum(d["tdist"], 12.0)).float()
+    starts = wm_windows(d, horizon)
+    boot = rng.integers(0, 2, size=(m.ENS, len(starts))).astype(np.float32) * 2  # Poisson-ish bootstrap weights
+    ks = torch.arange(horizon + 1)
+    t0 = time.time()
+    for ep in range(epochs):
+        tot = []
+        for bi in _batches(len(starts), 256, rng):
+            s = torch.tensor(starts[bi])
+            idx = s[:, None] + ks[None]
+            with torch.no_grad():
+                t = m.text(tok[s])
+                z = m.encode(pano[idx[:, 0]])
+                zs = [z]
+                for k in range(horizon):
+                    z = m.step(z, act[idx[:, k]])
+                    zs.append(z)
+                enc_last = m.encode(pano[idx[:, horizon]])
+            zz = torch.cat(zs + [enc_last])
+            tt = t.repeat(horizon + 2, 1)
+            yd = torch.cat([dist[idx[:, k]] for k in range(horizon + 1)] + [dist[idx[:, horizon]]])
+            yt = torch.cat([tdist[idx[:, k]] for k in range(horizon + 1)] + [tdist[idx[:, horizon]]])
+            w = torch.tensor(boot[:, bi]).repeat(1, horizon + 2)
+            pred = m.goal_dist_ens(zz, tt)
+            loss = (F.smooth_l1_loss(pred, yd.expand_as(pred), reduction="none") * w).mean()
+            loss = loss + F.smooth_l1_loss(m.target_dist(zz, tt), yt, beta=0.2)
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+            tot.append(loss.item())
+        _log("wm-heads", ep, np.mean(tot), t0)
+    m.has_ens.fill_(1.0)
+    for p in m.parameters():
+        p.requires_grad_(True)
+    return m
