@@ -21,8 +21,8 @@ ACCENT = {
     "WAM": (90, 230, 150),
 }
 SUBTITLE = {
-    "VLM + planning": "grounded goal -> map -> A* planner",
-    "VLA": "pixels + words -> action tokens",
+    "VLM + planning": "grounded goal → online map → A* planner",
+    "VLA": "pixels + words → action tokens",
     "WM + planning": "CEM search in a learned world model",
     "WAM": "joint future frames + action chunk",
 }
@@ -165,9 +165,9 @@ def pano_strip(pano: np.ndarray, w: int, h: int) -> Image.Image:
 def depth_strip(pano: np.ndarray, w: int, h: int) -> Image.Image:
     """Depth/colour visual for predicted panoramas: colour, with brightness from predicted depth."""
     rgb = np.clip(pano[:3].T, 0, 1)
-    d = np.clip(pano[3], 0, 1)
+    depth_m = np.clip(pano[3], 0.01, 1) * W.MAX_RANGE_M
     rows = np.linspace(0, 1, h)[:, None]
-    hgt = np.clip(0.5 / (1 + 12 * d), 0.04, 0.5)[None]  # near -> tall
+    hgt = np.clip(0.55 / depth_m, 0.06, 0.5)[None]  # near -> tall (like a tiny first-person render)
     m = np.abs(rows - 0.5) <= hgt
     out = np.where(m[..., None], rgb[None] * 255, np.array([28, 30, 38]))
     return Image.fromarray(out.astype(np.uint8)).resize((w, h), Image.NEAREST)
@@ -211,7 +211,10 @@ def render_panel(env: W.NavEnv, agent, obs, pose, base: Image.Image, status: str
     if name == "VLM + planning":
         occ = viz.get("occ")
         if occ is not None:
-            o = occ.T[::-1]
+            from scipy import ndimage
+
+            known = ndimage.binary_closing(occ > 0, iterations=3)
+            o = np.where(known, np.maximum(occ, 1), 0).T[::-1]
             ov = np.zeros(o.shape + (4,), np.uint8)
             ov[o == 0] = (0, 0, 0, 120)  # unknown: darken
             ov[o == 2] = (255, 170, 60, 150)
@@ -237,10 +240,9 @@ def render_panel(env: W.NavEnv, agent, obs, pose, base: Image.Image, status: str
     elif name == "WAM" and "chunk" in viz:
         pts = integrate(viz["chunk_pose"], viz["chunk"])
         d.line([w2m(*p) for p in pts], fill=acc + (255,), width=3)
-        for k, p in zip(M.WAM.FUTURE, [pts[k] for k in M.WAM.FUTURE]):
+        for p in [pts[k] for k in M.WAM.FUTURE]:
             px, py = w2m(*p)
             d.ellipse([px - 3, py - 3, px + 3, py + 3], fill=acc)
-            d.text((px + 4, py - 12), f"t+{k}", fill=acc, font=F10)
     elif name == "VLA":
         pass
 
@@ -263,7 +265,7 @@ def render_panel(env: W.NavEnv, agent, obs, pose, base: Image.Image, status: str
     img.paste(Image.fromarray(fp), (FPV_X, FPV_Y))
     d = ImageDraw.Draw(img, "RGBA")
     d.rectangle([FPV_X, FPV_Y, FPV_X + FPV_W - 1, FPV_Y + FPV_H - 1], outline=(70, 75, 90))
-    d.text((FPV_X + 5, FPV_Y + 3), "egocentric camera", fill=(230, 230, 235, 200), font=F10)
+    d.text((FPV_X + 5, FPV_Y + 3), "egocentric camera (rendered for you)", fill=(230, 230, 235, 200), font=F10)
 
     # panorama input strip
     py0 = FPV_Y + FPV_H + 16
@@ -308,15 +310,15 @@ def render_panel(env: W.NavEnv, agent, obs, pose, base: Image.Image, status: str
     elif name == "WM + planning" and "imagined" in viz:
         d.text((FPV_X, y0), f"imagined futures of best plan   ĝ={viz['pred_dist']:.1f} m", fill=acc, font=F11B)
         for i, (fr, k) in enumerate(zip(viz["imagined"], (2, 4, 6, 8))):
-            yy = y0 + 16 + i * 15
-            d.text((FPV_X, yy + 1), f"t+{k}", fill=DIM, font=F10)
-            img.paste(depth_strip(fr, FPV_W - 30, 13), (FPV_X + 30, yy))
+            yy = y0 + 16 + i * 29
+            d.text((FPV_X, yy + 8), f"t+{k}", fill=DIM, font=F10)
+            img.paste(depth_strip(fr, FPV_W - 30, 27), (FPV_X + 30, yy))
         d = ImageDraw.Draw(img, "RGBA")
     elif name == "WAM" and "future" in viz:
-        d.text((FPV_X, y0), "predicted future frames  +  8-step action chunk", fill=acc, font=F11B)
+        d.text((FPV_X, y0), "predicted future  +  8-step action chunk", fill=acc, font=F11B)
         for i, k in enumerate(M.WAM.FUTURE):
-            yy = y0 + 16 + i * 15
-            d.text((FPV_X, yy + 1), f"t+{k}", fill=DIM, font=F10)
-            img.paste(depth_strip(viz["future"][i], FPV_W - 30, 13), (FPV_X + 30, yy))
+            yy = y0 + 16 + i * 29
+            d.text((FPV_X, yy + 8), f"t+{k}", fill=DIM, font=F10)
+            img.paste(depth_strip(viz["future"][i], FPV_W - 30, 27), (FPV_X + 30, yy))
         d = ImageDraw.Draw(img, "RGBA")
     return img

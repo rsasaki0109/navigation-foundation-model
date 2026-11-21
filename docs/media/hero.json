@@ -1,0 +1,30 @@
+{
+ "vlm": {
+  "seed": 78,
+  "success": true,
+  "steps": 45,
+  "collisions": 0,
+  "instruction": "where is the green plant"
+ },
+ "vla": {
+  "seed": 78,
+  "success": true,
+  "steps": 41,
+  "collisions": 0,
+  "instruction": "where is the green plant"
+ },
+ "wm": {
+  "seed": 78,
+  "success": true,
+  "steps": 43,
+  "collisions": 0,
+  "instruction": "where is the green plant"
+ },
+ "wam": {
+  "seed": 78,
+  "success": true,
+  "steps": 42,
+  "collisions": 0,
+  "instruction": "where is the green plant"
+ }
+}
