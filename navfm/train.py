@@ -78,18 +78,18 @@ def wm_windows(d, horizon):
     return starts[ok]
 
 
-def train_wm(d, epochs=8, horizon=8, seed=0):
+def train_wm(d, epochs=4, horizon=8, seed=0, model=None, lr=1e-3):
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
-    m = M.WorldModel()
-    opt = torch.optim.AdamW(m.parameters(), 1e-3, weight_decay=1e-4)
+    m = model or M.WorldModel()
+    opt = torch.optim.AdamW(m.parameters(), lr, weight_decay=1e-4)
     pano, tok = torch.tensor(d["pano"]).float(), torch.tensor(d["tok"])
     act = torch.tensor(d["act"]).float()
     dist = torch.tensor(np.minimum(d["dist"], 12.0)).float()
     coll = torch.tensor(d["coll"]).float()
     starts = wm_windows(d, horizon)
     steps = epochs * (len(starts) // 128)
-    sched = torch.optim.lr_scheduler.OneCycleLR(opt, 1e-3, total_steps=steps)
+    sched = torch.optim.lr_scheduler.OneCycleLR(opt, lr, total_steps=steps)
     t0 = time.time()
     ks = torch.arange(horizon + 1)
     for ep in range(epochs):

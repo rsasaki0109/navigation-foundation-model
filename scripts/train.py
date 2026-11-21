@@ -50,12 +50,27 @@ def cat(ds):
 
 if __name__ == "__main__":
     torch.set_num_threads(4)
-    which = sys.argv[1:] or ["vlm", "vla", "wm", "wam"]
+    which = [a for a in sys.argv[1:] if not a.startswith("--")] or ["vlm", "vla", "wm", "wam"]
     base = load("data/expert.npz")
     if "vlm" in which:
         torch.save(T.train_vlm(base).state_dict(), f"{CK}/vlm.pt")
     if "wm" in which:
-        torch.save(T.train_wm(base).state_dict(), f"{CK}/wm.pt")
+        import os
+
+        if os.path.exists(f"{CK}/wm.pt") and "--finetune" in sys.argv:
+            from navfm.models import WorldModel
+
+            m = WorldModel()
+            m.load_state_dict(torch.load(f"{CK}/wm.pt", weights_only=True))
+        else:
+            m = T.train_wm(base)
+            torch.save(m.state_dict(), f"{CK}/wm.pt")
+        # on-policy data: the planner visits states the expert never does (and exploits model errors there)
+        extra = []
+        for r in range(2):
+            extra += dagger("wm", [0.3], 200, 50_000 + 10_000 * r)
+            m = T.train_wm(cat([base] + [{k: e[k] for k in base} for e in extra]), epochs=2, model=m, lr=5e-4)
+            torch.save(m.state_dict(), f"{CK}/wm.pt")
     if "vla" in which:
         m = T.train_vla(base)
         torch.save(m.state_dict(), f"{CK}/vla.pt")
