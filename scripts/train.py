@@ -72,7 +72,24 @@ if __name__ == "__main__":
     base = load("data/expert.npz")
     if "vlm" in which:
         torch.save(T.train_vlm(base).state_dict(), f"{CK}/vlm.pt")
-    if "rwm-ep" in which:
+    if "rwm-ep-onpolicy" in which:
+        # pure on-policy rounds: the planner's own long, failing episodes teach the state to notice
+        # when its belief ("almost there") disagrees with what it sees
+        from navfm.models import RecurrentWorldModel
+
+        m = RecurrentWorldModel()
+        m.load_state_dict(torch.load(f"{CK}/rwm_ep.pt", weights_only=True))
+        keys = ["pano", "act", "expert", "dist", "tdist", "coll", "tok", "ep"]
+        with Pool(4) as p:
+            cf = merge(p.map(_cf_full_job, range(406_000, 406_700), chunksize=8))
+        d = {k: np.concatenate([base[k], cf[k]]) for k in keys}
+        extra = []
+        for r in range(3):
+            extra += dagger("rwm_ep", [0.0], 160, 130_000 + 10_000 * r)
+            dd = {k: np.concatenate([d[k]] + [e[k] for e in extra]) for k in keys}
+            m = T.train_rwm_episodes(dd, epochs=3, model=m, lr=5e-4, seed=r + 1)
+            torch.save(m.state_dict(), f"{CK}/rwm_ep.pt")
+    if "rwm-ep" in which and "rwm-ep-onpolicy" not in which:
         # recurrent world model trained on whole episodes from their start (state carried as deployed)
 
         with Pool(4) as p:
