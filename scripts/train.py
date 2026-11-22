@@ -83,9 +83,12 @@ if __name__ == "__main__":
         with Pool(4) as p:
             cf = merge(p.map(_cf_full_job, range(406_000, 406_700), chunksize=8))
         d = {k: np.concatenate([base[k], cf[k]]) for k in keys}
+        import os
+
+        off = int(os.environ.get("ONPOLICY_OFFSET", "130000"))
         extra = []
-        for r in range(3):
-            extra += dagger("rwm_ep", [0.0], 160, 130_000 + 10_000 * r)
+        for r in range(int(os.environ.get("ONPOLICY_ROUNDS", "3"))):
+            extra += dagger("rwm_ep", [0.0], 160, off + 10_000 * r)
             dd = {k: np.concatenate([d[k]] + [e[k] for e in extra]) for k in keys}
             m = T.train_rwm_episodes(dd, epochs=3, model=m, lr=5e-4, seed=r + 1)
             torch.save(m.state_dict(), f"{CK}/rwm_ep.pt")
