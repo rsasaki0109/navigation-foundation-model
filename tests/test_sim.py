@@ -59,7 +59,9 @@ def test_rne_scene_export_is_valid_json(tmp_path):
     views = [S.overview_view("ov.png"), S.fpv_view(env.pose, "fpv.png")]
     text = json.dumps(dict(static_items=items, frames=[dict(items=[], views=views)]))
     for it in json.loads(text)["static_items"]:
-        assert it["shape"] in ("box", "sphere", "cylinder")
+        assert it["shape"] in ("box", "sphere", "cylinder", "mesh")
+        if it["shape"] == "mesh":
+            assert Path(it["path"]).exists() and all(v > 0 for v in it["scale"])
     q = np.array(views[1]["rot"])
     assert abs(np.linalg.norm(q) - 1) < 1e-6
 
