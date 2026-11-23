@@ -5,6 +5,7 @@ Results go to docs/results.json (apartment) or docs/results_house.json (house).
 """
 
 import json
+import os
 import sys
 from multiprocessing import Pool
 
@@ -22,7 +23,7 @@ LAYOUT = "house" if "--layout" in sys.argv and sys.argv[sys.argv.index("--layout
 def run(args):
     kind, seed = args
     torch.set_num_threads(1)
-    agent = load_agent(kind)
+    agent = load_agent(kind, os.environ.get("NAVFM_CKPT", "checkpoints"))
     env = W.NavEnv(seed, LAYOUT)
     g0 = env.geodesic(*env.pose[:2])
     agent.reset(env)
@@ -50,7 +51,7 @@ if __name__ == "__main__":
             episodes=r,
         )
         print(f"{k:4s} success {res[k]['success']:.2f}  SPL {res[k]['spl']:.2f}  steps {res[k]['steps']:.1f}  coll {res[k]['collisions']:.1f}", flush=True)
-    out = "docs/results.json" if LAYOUT == "apartment" else "docs/results_house.json"
+    out = os.environ.get("NAVFM_RESULTS") or ("docs/results.json" if LAYOUT == "apartment" else "docs/results_house.json")
     try:
         old = json.load(open(out))
     except FileNotFoundError:

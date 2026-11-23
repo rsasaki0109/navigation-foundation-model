@@ -1,5 +1,6 @@
 """Train all four paradigms.  Usage: python scripts/train.py [vlm|vla|wm|wam ...]"""
 
+import os
 import sys
 from multiprocessing import Pool
 
@@ -12,7 +13,7 @@ from navfm.agents import load_agent
 from navfm.data import merge, rollout
 from navfm.models import WAM
 
-CK = "checkpoints"
+CK = os.environ.get("NAVFM_CKPT", "checkpoints")
 DAGGER_SEED0 = 200_000
 CHUNK = (WAM.CHUNK, WAM.FUTURE)
 
@@ -69,7 +70,7 @@ def cat(ds):
 if __name__ == "__main__":
     torch.set_num_threads(4)
     which = [a for a in sys.argv[1:] if not a.startswith("--")] or ["vlm", "vla", "wm", "wam"]
-    base = load("data/expert.npz")
+    base = load(os.environ.get("NAVFM_DATA", "data/expert.npz"))
     if "vlm" in which:
         torch.save(T.train_vlm(base).state_dict(), f"{CK}/vlm.pt")
     if "rwm-ep-onpolicy" in which:
