@@ -1,5 +1,7 @@
 # Navigation Foundation Model
 
+[![CI](https://github.com/rsasaki0109/navigation-foundation-model/actions/workflows/ci.yml/badge.svg)](https://github.com/rsasaki0109/navigation-foundation-model/actions/workflows/ci.yml)
+
 **Four ways to turn "head over to the chair" into motion, side by side in one simulator.**
 
 <p align="center">
@@ -41,6 +43,8 @@ Held-out evaluation on 100 episodes (seeds 0–99; training uses seeds ≥ 100 0
 | Paradigm | Success | SPL | Steps to goal (successes) | Collisions / episode | Params |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | VLM + planning | **0.99** | 0.90 | 48.8 | **0.00** | 0.11 M (+ classical planner) |
+| ↳ grounding by **pretrained CLIP ViT-B/32, zero-shot** (ray-cast views) | 0.80 | 0.59 | 74.1 | 0.10 | 151 M, not trained here |
+| ↳ same, CLIP sees RNE-rendered views (40 episodes) | 0.70 | 0.54 | 64.1 | 0.10 | 151 M, not trained here |
 | VLA | 0.94 | 0.92 | **38.3** | 0.06 | 0.69 M |
 | WM + planning | 0.80 | 0.63 | 60.6 | 0.35 | 0.73 M (+ CEM) |
 | ↳ policy prior only (no planning) | 0.87 | — | — | 6.76 | same network |
@@ -51,6 +55,7 @@ Held-out evaluation on 100 episodes (seeds 0–99; training uses seeds ≥ 100 0
 What the numbers say, in this toy setting:
 
 - **VLM + planning** is the most robust and never touches furniture. It is the only method with memory: a map built from depth, plus frontier exploration when the target is hidden behind a wall. The price is speed, because exploring costs steps.
+- **A real foundation model drops in zero-shot.** Replacing the trained grounding net with OpenAI's CLIP ViT-B/32 changes nothing else. Every 4 steps the robot renders 8 camera crops around itself, CLIP scores each against the instruction rewritten as a caption (*"take me to the red chair"* becomes *"a photo of a red chair"*) and against background captions, and the same map and A* planner drive. It reaches 0.80 without seeing a single frame of this world in training. It explores more, because CLIP picks the right direction for only about half the crops, and the planner drops a goal once it has stood there 6 steps without arriving. It does better on the flat-coloured ray-cast views than on the RNE renders (0.70): the RNE furniture models are less canonical-looking than "a red chair" (`navfm/clip_vlm.py`, agent kinds `clip_raycast` / `clip`).
 - **WAM** matches it on success and takes the most efficient paths (best SPL). It is a reactive policy like the VLA. Predicting the future panoramas along with an 8-step action chunk acts as an auxiliary task that shapes its representation.
 - **VLA** is the fastest per episode but fails more often (6 of 100). Its discrete action tokens are coarse, and it has no memory or look-ahead.
 - **WM + planning** shows what planning buys and what it costs. The same network's policy prior alone reaches the goal slightly more often (0.87) but bumps into furniture about 20× more (6.8 vs 0.35 collisions per episode). Searching 10 imagined steps ahead with the collision head keeps it clear. The cost is success: when the learned goal-distance head is wrong, CEM optimises toward the error.
@@ -81,13 +86,14 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 
 The 3D views in the GIFs are for humans. The overview shows the plans as glowing dots: the A* path, the CEM samples and the best plan, or the WAM action chunk. The models only ever see the 128-column panorama strip shown under the egocentric camera.
 
-**Rendering.** `navfm/rne_scene.py` exports every frame as a primitive scene, with furniture built from boxes, cylinders and spheres. Robot Native Engine's [`examples/150_scene_replay_render`](https://github.com/rsasaki0109/RobotNativeEngine/tree/main/examples/150_scene_replay_render) renders each frame with wgpu. No GPU is needed: Mesa's llvmpipe software Vulkan driver renders a frame in about 50 ms. If the RNE binary is not found, `make_gifs.py` falls back to a built-in ray caster.
+**Rendering.** `navfm/rne_scene.py` exports every frame as a scene of primitives and [Poly Haven](https://polyhaven.com/models) CC0 furniture models (`assets/polyhaven`, fetched by `scripts/fetch_polyhaven.py`). Each model is fitted to its object's footprint and turned to face the room, and the six instructable objects are drawn in their instruction colour. Robot Native Engine's [`examples/150_scene_replay_render`](https://github.com/rsasaki0109/RobotNativeEngine/tree/main/examples/150_scene_replay_render) renders each frame with wgpu. No GPU is needed: Mesa's llvmpipe software Vulkan driver renders a frame in about 50 ms. If the RNE binary is not found, `make_gifs.py` falls back to a built-in ray caster.
 
 ## Quickstart
 
 ```bash
 pip install -r requirements.txt          # numpy, scipy, pillow, torch (CPU is fine)
 
+python -m pytest -q tests                # simulator, expert, scene export; shipped checkpoints reproduce docs/results.json on the hero seeds
 python scripts/evaluate.py 20            # evaluate the shipped checkpoints
 # GIFs with RNE rendering (sibling checkout of RobotNativeEngine; on a GPU-less box: apt install mesa-vulkan-drivers)
 (cd ../RobotNativeEngine && cargo build --release -p scene_replay_render --example 150_scene_replay_render)

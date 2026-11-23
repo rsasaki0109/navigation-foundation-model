@@ -31,6 +31,7 @@ class VLMPlannerAgent(Agent):
     """Grounding VLM localises the instructed object -> goal in an online map -> Dijkstra/A* + pure pursuit."""
 
     name = "VLM + planning"
+    REJECT_AFTER = 6  # steps spent at a believed goal without the episode ending -> wrong object
 
     def __init__(self, model: M.GroundingVLM):
         self.model = model.eval()
@@ -44,6 +45,14 @@ class VLMPlannerAgent(Agent):
         self.k = 0
         self.mode = "explore"
         self.last_pose = None
+        self.rejected = []
+        self.at_goal_steps = 0
+
+    @torch.no_grad()
+    def ground(self, obs):
+        """Per-panorama-column probability that the instructed object is there."""
+        logits = self.model(_t(W.pano_tensor(obs)), self.tok)[0].numpy()
+        return 1 / (1 + np.exp(-logits))
 
     def _update_map(self, obs):
         x, y, th = obs.pose
@@ -76,8 +85,7 @@ class VLMPlannerAgent(Agent):
                     self.occ[i, j] = 2
                 self.field = None
         self.last_pose = obs.pose.copy()
-        logits = self.model(_t(W.pano_tensor(obs)), self.tok)[0].numpy()
-        prob = 1 / (1 + np.exp(-logits))
+        prob = self.ground(obs)
         x, y, th = obs.pose
         self.viz["prob"] = prob
         conf = float(prob.max())
@@ -96,10 +104,17 @@ class VLMPlannerAgent(Agent):
             ang = th + np.angle(np.sum(prob[best] * np.exp(1j * W.PANO_ANGLES[best])))
             depth = float(np.median(obs.pano_depth[best]))
             gx, gy = x + np.cos(ang) * depth, y + np.sin(ang) * depth
-            if self.goal is None or conf >= self.goal_conf - 0.2:
+            rejected = any(np.hypot(gx - rx, gy - ry) < 0.8 for rx, ry in self.rejected)
+            if not rejected and (self.goal is None or conf >= self.goal_conf - 0.2):
                 self.goal = np.array([gx, gy]) if self.goal is None else 0.5 * self.goal + 0.5 * np.array([gx, gy])
                 self.goal_conf = max(conf, self.goal_conf * 0.98)
             self.viz["det_cols"] = best
+        # reached the believed goal but the episode goes on: it was the wrong object, look elsewhere
+        near_goal = self.goal is not None and np.hypot(self.goal[0] - x, self.goal[1] - y) < 0.45 + W.ROBOT_RADIUS_M
+        self.at_goal_steps = self.at_goal_steps + 1 if near_goal else 0
+        if self.at_goal_steps >= self.REJECT_AFTER:
+            self.rejected.append(tuple(self.goal))
+            self.goal, self.goal_conf, self.field, self.at_goal_steps = None, 0.0, None, 0
         self.viz["goal"] = self.goal
         # plan on the online map (unknown treated as free, occupied inflated by robot radius)
         if self.k % 2 == 0 or self.field is None or (self.goal is not None and self.mode == "explore"):
@@ -147,6 +162,46 @@ class VLMPlannerAgent(Agent):
         self.viz["occ"] = self.occ
         self.prev = a
         return a
+
+
+class ClipPlannerAgent(VLMPlannerAgent):
+    """VLM + planning with a real pretrained VLM: zero-shot CLIP ViT-B/32 picks the goal direction.
+
+    Every EVERY steps the robot renders N_VIEWS camera crops around itself; CLIP scores each
+    against the instruction.  Scores are kept in world bearings and mapped onto panorama
+    columns, so the same mapping, goal back-projection and A* planner as the trained VLM run.
+    """
+
+    name = "VLM + planning"
+    EVERY = 4
+
+    def __init__(self, renderer: str = "rne", grounder=None):
+        from .clip_vlm import ClipGrounder
+
+        self.grounder = grounder or ClipGrounder(renderer)
+        self.model = None
+
+    def reset(self, env):
+        super().reset(env)
+        self.env_layout = env.layout
+        self.instruction = env.instruction
+        self.view_bearings = None
+        self.view_p = None
+        self.calls = 0
+
+    def ground(self, obs):
+        from .clip_vlm import N_VIEWS
+
+        x, y, th = obs.pose
+        if self.view_p is None or self.calls % self.EVERY == 0:
+            p, _ = self.grounder.score(self.env_layout, obs.pose, self.instruction)
+            self.view_bearings = th + np.arange(N_VIEWS) * 2 * np.pi / N_VIEWS
+            self.view_p = p
+        self.calls += 1
+        col_bearings = th + W.PANO_ANGLES
+        d = np.abs((col_bearings[:, None] - self.view_bearings[None, :] + np.pi) % (2 * np.pi) - np.pi)
+        w = np.exp(-0.5 * (d / np.deg2rad(12)) ** 2)  # each view covers ~ +-12 deg around its centre
+        return (w * self.view_p[None, :]).max(1)
 
 
 # ------------------------------------------------------------------ VLA
@@ -322,6 +377,8 @@ class WAMAgent(Agent):
 
 
 def load_agent(kind: str, ckpt_dir: str = "checkpoints"):
+    if kind in ("clip", "clip_raycast"):
+        return ClipPlannerAgent("raycast" if kind == "clip_raycast" else "rne")
     cls = {"vlm": (M.GroundingVLM, VLMPlannerAgent), "vla": (M.VLA, VLAAgent), "wm": (M.WorldModel, WMPlannerAgent),
            "wam": (M.WAM, WAMAgent), "rwm": (M.RecurrentWorldModel, RWMPlannerAgent), "rwm_ep": (M.RecurrentWorldModel, RWMEpisodeAgent)}[kind]
     model = cls[0]()

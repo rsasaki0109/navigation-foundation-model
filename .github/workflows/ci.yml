@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install (CPU-only PyTorch)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt pytest
+      - name: Tests (simulator, expert, scene export, shipped checkpoints)
+        run: python -m pytest -q tests
+      - name: GIF pipeline smoke (ray-cast renderer, one episode)
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, ".")
+          sys.argv = ["make_gifs.py"]
+          import scripts.make_gifs as G
+          recs, env = G.run_episode("vla", 35)
+          frames = G.compose("vla", recs[:6], env, use_rne=False)
+          assert env.success and len(frames) == 6, (env.success, len(frames))
+          print("ok", frames[0].size)
+          PY

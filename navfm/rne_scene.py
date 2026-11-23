@@ -97,6 +97,95 @@ def cyl(x, y, h0, r, length, rgb, rough=0.6, emissive=None):
     return it
 
 
+# ---------------------------------------------------------------- glTF furniture (Poly Haven, CC0)
+ASSET_DIR = Path(__file__).resolve().parents[1] / "assets" / "polyhaven"
+OBJECT_MODELS = {"chair": "WoodenChair_01", "sofa": "Sofa_01", "plant": "potted_plant_02", "bed": "GothicBed_01",
+                 "tv": "Television_01"}  # the fridge stays a styled box: Poly Haven has no fridge
+LOW_MODELS = ["WoodenTable_01", "ClassicConsole_01", "coffee_table_round_01", "drawer_cabinet"]
+
+
+def _quat_mat(q):
+    x, y, z, w = q
+    return np.array([[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+                     [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+                     [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]])
+
+
+def _node_matrix(n):
+    if "matrix" in n:
+        return np.array(n["matrix"], float).reshape(4, 4).T
+    m = np.eye(4)
+    m[:3, :3] = _quat_mat(n.get("rotation", [0, 0, 0, 1])) * np.array(n.get("scale", [1, 1, 1]))[None]
+    m[:3, 3] = n.get("translation", [0, 0, 0])
+    return m
+
+
+_BOUNDS = {}
+
+
+def gltf_bounds(name):
+    """Axis-aligned (min, max) of a glTF model in its own frame, node transforms applied."""
+    if name in _BOUNDS:
+        return _BOUNDS[name]
+    g = json.loads((ASSET_DIR / name / f"{name}.gltf").read_text())
+    lo, hi = np.full(3, np.inf), np.full(3, -np.inf)
+
+    def visit(i, parent):
+        n = g["nodes"][i]
+        m = parent @ _node_matrix(n)
+        if "mesh" in n:
+            for prim in g["meshes"][n["mesh"]]["primitives"]:
+                acc = g["accessors"][prim["attributes"]["POSITION"]]
+                a, b = np.array(acc["min"]), np.array(acc["max"])
+                corners = np.array([[x, y, z, 1] for x in (a[0], b[0]) for y in (a[1], b[1]) for z in (a[2], b[2])])
+                pts = (m @ corners.T).T[:, :3]
+                lo[:] = np.minimum(lo, pts.min(0))
+                hi[:] = np.maximum(hi, pts.max(0))
+        for c in n.get("children", []):
+            visit(c, m)
+
+    for root in g["scenes"][g.get("scene", 0)]["nodes"]:
+        visit(root, np.eye(4))
+    _BOUNDS[name] = (lo, hi)
+    return lo, hi
+
+
+def mesh_fit(name, cx, cy, sx, sy, height, face_xy, rgb=None, keep_aspect=True):
+    """Place model `name` on footprint (centre cx, cy; size sx, sy) with its front (+Z) toward face_xy."""
+    lo, hi = gltf_bounds(name)
+    ext = hi - lo  # model x (width), y (height), z (depth)
+    # candidate yaws: model x along sim x (0, pi) or along sim y (+-pi/2); pick the one whose
+    # footprint orientation matches and whose front faces the room
+    best = None
+    for yaw in (0.0, np.pi / 2, np.pi, -np.pi / 2):
+        along_x = abs(np.cos(yaw)) > 0.5
+        wx, wy = (ext[0], ext[2]) if along_x else (ext[2], ext[0])
+        fit = abs(np.log((sx / sy) / (wx / wy)))
+        # RNE frame: model +Z rotated by yaw about +Y -> world (sin yaw, 0, cos yaw) = sim (sin yaw, -cos yaw)
+        front = np.array([np.sin(yaw), -np.cos(yaw)])
+        to_face = np.array(face_xy) - np.array([cx, cy])
+        score = fit - 0.3 * float(front @ to_face / (np.linalg.norm(to_face) + 1e-6))
+        if best is None or score < best[0]:
+            best = (score, yaw, wx, wy)
+    _, yaw, wx, wy = best
+    kx, ky = sx / wx, sy / wy
+    if keep_aspect:
+        k = min(kx, ky)
+        kx = ky = k
+    kh = height / ext[1] if height else (kx + ky) / 2
+    scale = [kx, kh, ky] if abs(np.cos(yaw)) > 0.5 else [ky, kh, kx]
+    centre = (lo + hi) / 2 * np.array(scale)
+    r = _quat_mat(yaw_q(yaw))
+    off = r @ np.array([centre[0], 0.0, centre[2]])
+    pos = P(cx, cy, -lo[1] * scale[1])
+    pos = [pos[0] - off[0], pos[1], pos[2] - off[2]]
+    it = dict(shape="mesh", path=str(ASSET_DIR / name / f"{name}.gltf"), scale=[float(v) for v in scale],
+              pos_m=[float(v) for v in pos], rot=yaw_q(yaw), color_rgba=[1, 1, 1, 1], roughness=0.6)
+    if rgb is not None:
+        it.update(color_rgba=lin(rgb), flat_color=True, roughness=0.55)
+    return it
+
+
 # ---------------------------------------------------------------- static scene
 def _rects(mask):
     """Greedy cover of a boolean grid with axis-aligned rectangles (cells)."""
@@ -120,7 +209,16 @@ def _rects(mask):
     return out
 
 
-def _object_items(k, box_m):
+OBJECT_HEIGHT_M = {"chair": 0.85, "sofa": 0.8, "plant": 0.95, "bed": 0.9, "tv": 0.95}
+
+
+def _object_items(k, box_m, use_meshes=True):
+    name = W.OBJECTS[k][0]
+    if use_meshes and name in OBJECT_MODELS:
+        x0, y0, x1, y1 = box_m
+        centre = (W.WIDTH_M / 2, W.HEIGHT_M / 2)
+        return [mesh_fit(OBJECT_MODELS[name], (x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0,
+                         OBJECT_HEIGHT_M[name], centre, rgb=W.OBJECTS[k][2], keep_aspect=name != "bed")]
     x0, y0, x1, y1 = box_m
     cx, cy, sx, sy = (x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0
     long_x = sx >= sy
@@ -159,7 +257,7 @@ def _object_items(k, box_m):
     return it
 
 
-def static_items(lay: W.Layout):
+def static_items(lay: W.Layout, use_meshes: bool = True):
     items = [box(W.WIDTH_M / 2, W.HEIGHT_M / 2, -0.02, W.WIDTH_M + 0.4, W.HEIGHT_M + 0.4, 0.02, (120, 100, 85), rough=0.8)]
     # floor tiles for depth cues
     for i in range(16):
@@ -167,12 +265,19 @@ def static_items(lay: W.Layout):
             if (i + j) % 2 == 0:
                 items.append(box(0.25 + 0.5 * i, 0.25 + 0.5 * j, -0.015, 0.5, 0.5, 0.017, (138, 116, 98), rough=0.8))
     res = W.RES_M
-    for lab, h, rgb in ((W.WALL, WALL_H, (205, 205, 212)), (W.LOW, LOW_H, (140, 100, 70))):
-        for i0, j0, i1, j1 in _rects(lay.grid == lab):
-            sx, sy = (i1 - i0 + 1) * res, (j1 - j0 + 1) * res
-            items.append(box(i0 * res + sx / 2, j0 * res + sy / 2, 0.0, sx, sy, h, rgb))
+    for i0, j0, i1, j1 in _rects(lay.grid == W.WALL):
+        sx, sy = (i1 - i0 + 1) * res, (j1 - j0 + 1) * res
+        items.append(box(i0 * res + sx / 2, j0 * res + sy / 2, 0.0, sx, sy, WALL_H, (205, 205, 212)))
+    for n, (i0, j0, i1, j1) in enumerate(_rects(lay.grid == W.LOW)):
+        sx, sy = (i1 - i0 + 1) * res, (j1 - j0 + 1) * res
+        cx, cy = i0 * res + sx / 2, j0 * res + sy / 2
+        if use_meshes and sx > 0.3 and sy > 0.3:
+            model = LOW_MODELS[(i0 * 7 + j0 * 13 + n) % len(LOW_MODELS)]
+            items.append(mesh_fit(model, cx, cy, sx, sy, LOW_H + 0.15, (W.WIDTH_M / 2, W.HEIGHT_M / 2), keep_aspect=False))
+        else:
+            items.append(box(cx, cy, 0.0, sx, sy, LOW_H, (140, 100, 70)))
     for k, b in enumerate(lay.obj_boxes):
-        items += _object_items(k, b)
+        items += _object_items(k, b, use_meshes)
     return items
 
 
