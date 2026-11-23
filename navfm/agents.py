@@ -31,6 +31,7 @@ class VLMPlannerAgent(Agent):
     """Grounding VLM localises the instructed object -> goal in an online map -> Dijkstra/A* + pure pursuit."""
 
     name = "VLM + planning"
+    REJECT_AFTER = 6  # steps spent at a believed goal without the episode ending -> wrong object
 
     def __init__(self, model: M.GroundingVLM):
         self.model = model.eval()
@@ -45,6 +46,7 @@ class VLMPlannerAgent(Agent):
         self.mode = "explore"
         self.last_pose = None
         self.rejected = []
+        self.at_goal_steps = 0
 
     @torch.no_grad()
     def ground(self, obs):
@@ -108,9 +110,11 @@ class VLMPlannerAgent(Agent):
                 self.goal_conf = max(conf, self.goal_conf * 0.98)
             self.viz["det_cols"] = best
         # reached the believed goal but the episode goes on: it was the wrong object, look elsewhere
-        if self.goal is not None and np.hypot(self.goal[0] - x, self.goal[1] - y) < 0.45 + W.ROBOT_RADIUS_M:
+        near_goal = self.goal is not None and np.hypot(self.goal[0] - x, self.goal[1] - y) < 0.45 + W.ROBOT_RADIUS_M
+        self.at_goal_steps = self.at_goal_steps + 1 if near_goal else 0
+        if self.at_goal_steps >= self.REJECT_AFTER:
             self.rejected.append(tuple(self.goal))
-            self.goal, self.goal_conf, self.field = None, 0.0, None
+            self.goal, self.goal_conf, self.field, self.at_goal_steps = None, 0.0, None, 0
         self.viz["goal"] = self.goal
         # plan on the online map (unknown treated as free, occupied inflated by robot radius)
         if self.k % 2 == 0 or self.field is None or (self.goal is not None and self.mode == "explore"):
