@@ -1,5 +1,7 @@
 # Navigation Foundation Model
 
+[![CI](https://github.com/rsasaki0109/navigation-foundation-model/actions/workflows/ci.yml/badge.svg)](https://github.com/rsasaki0109/navigation-foundation-model/actions/workflows/ci.yml)
+
 **Four ways to turn "head over to the chair" into motion, side by side in one simulator.**
 
 <p align="center">
@@ -88,6 +90,7 @@ The 3D views in the GIFs are for humans. The overview shows the plans as glowing
 ```bash
 pip install -r requirements.txt          # numpy, scipy, pillow, torch (CPU is fine)
 
+python -m pytest -q tests                # simulator, expert, scene export; shipped checkpoints reproduce docs/results.json on the hero seeds
 python scripts/evaluate.py 20            # evaluate the shipped checkpoints
 # GIFs with RNE rendering (sibling checkout of RobotNativeEngine; on a GPU-less box: apt install mesa-vulkan-drivers)
 (cd ../RobotNativeEngine && cargo build --release -p scene_replay_render --example 150_scene_replay_render)
