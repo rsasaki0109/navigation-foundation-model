@@ -74,6 +74,39 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 | *Tried, did not help either:* give the world model memory | — | A recurrent, RSSM-style world model (`RecurrentWorldModel`, kind `rwm`): a GRU state folds in each observation, and imagination continues from it. Trained on 24-step sequences, with counterfactual branches that keep their real history. Carrying the state through a whole episode drifted past what it was trained on (success 0.44). Re-filtering a 16-step window each step recovers most of it: success 0.75, SPL 0.49, 7.2 collisions on 100 episodes, still behind the feedforward model above (0.80, SPL 0.63, 0.35 collisions) |
 | *…and trained on whole episodes:* the recurrent model's state drifted because the windows it trained on started mid-episode from an empty state | — | Train on whole episodes from their start, with the state carried as at deployment and imagined 8-step branches every 4 steps (`train_rwm_episodes`, kind `rwm_ep`). With expert-mixed DAgger it fell to 0.27: once off the expert's path, its state "believed" it had arrived (predicted 0.1 m, true 4.8 m) and stopped. Pure on-policy rounds, which add its own long failures, raised it to 0.63 (SPL 0.45, 0.3 collisions) after 3 rounds. Three more rounds made it worse (round success 0.60 → 0.55 → 0.38, evaluation 0.34), so the shipped `rwm_ep.pt` is the round-3 model. Memory needs far more, and more diverse, on-policy data than the feedforward model |
 
+## Harder layout, and real physics
+
+### A multi-room house
+
+`NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:
+
+| Paradigm | House, apartment-trained (zero-shot) | House, fine-tuned on a 50/50 apartment + house mix | Apartment, same mix-trained model |
+| --- | ---: | ---: | ---: |
+| VLM + planning | 0.91 | 0.91 (no learned motion to retrain) | 0.99 |
+| VLA | 0.70 | 0.88 | 0.95 |
+| WAM | 0.80 | **0.94** | 0.98 |
+| WM + planning | 0.58 | 0.67 (10 collisions/episode) | 0.86 |
+| WM with memory (recurrent) | 0.63 | 0.29: on-policy training collapsed again; the apartment model is kept | 0.29 |
+
+- Only the method with an explicit map transfers without retraining. VLM + planning explores frontiers room by room and loses almost nothing. The reactive VLA and WAM, and the world-model planner, drop 10–25 points.
+- A little house data fixes the reactive policies. After fine-tuning on the mix, WAM is the best method in the house (0.94), and the apartment numbers do not regress (VLA 0.95, WAM 0.98, WM 0.86).
+- The recurrent world model is the only learned method whose zero-shot house score equals its apartment score (0.63 in both), so its memory does carry across rooms. Its on-policy fine-tuning is unstable, though, and fell to 0.29 here just as it did in the apartment.
+
+Numbers are in `docs/results_house_zeroshot.json`, `docs/results_house_trained.json` and `docs/results_house_trained_on_apartment.json`. Retrain with `scripts/train_house.sh`, which writes to `checkpoints/house/`.
+
+### On Robot Native Engine physics
+
+`navfm/rne_physics.py` runs the same episodes in RNE's Rapier physics. It exports the layout as a `.rne.scene.toml` of fixed box obstacles and drives a joint-driven differential-drive robot (wheel radius 6 cm, track 28 cm). Each 0.25 s step is 15 ticks at 60 Hz. Wheel motors, slip, inertia and contacts are therefore RNE's, not the unicycle model the policies were trained on. The expert succeeds in every episode with no collisions. The apartment-trained models, with no retraining, over 100 episodes:
+
+| Paradigm | Python sim | RNE physics | Collisions / episode in RNE |
+| --- | ---: | ---: | ---: |
+| VLM + planning | 0.99 | 0.97 | 0.0 |
+| VLA | 0.94 | 0.98 | 0.7 |
+| WAM | 0.99 | 0.90 | 11.2 |
+| WM + planning | 0.80 | 0.71 | 7.3 |
+
+The closed-loop methods barely notice the change of dynamics, because they replan every step. WAM executes 2 actions open-loop from each chunk, and the world-model planner relies on dynamics learned from the unicycle model. Wheel slip that neither expected costs both of them success and collisions. Run with `python scripts/evaluate.py 100 --physics rne`. This needs the `rne_py` wheel built from RobotNativeEngine (`maturin build -m crates/rne_py/Cargo.toml`), which provides `DiffDriveSim.from_scene`.
+
 ## The simulator
 
 `navfm/world.py` is a small, deterministic object-goal navigation world:

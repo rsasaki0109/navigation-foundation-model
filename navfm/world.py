@@ -23,6 +23,7 @@ V_RANGE = (-0.2, 0.6)
 W_RANGE = (-1.6, 1.6)
 SUCCESS_DIST_M = 0.5
 MAX_STEPS = 160
+HOUSE_MAX_STEPS = 240
 MAX_RANGE_M = 8.0
 PANO_RAYS = 128
 
@@ -88,8 +89,26 @@ def _fill(grid, x0, y0, x1, y1, label):
     grid[max(i0, 0) : min(i1 + 1, NX), max(j0, 0) : min(j1 + 1, NY)] = label
 
 
-def make_layout(rng: np.random.Generator) -> Layout:
-    """Random open-plan apartment: outer walls, a partial divider, low furniture, six objects."""
+DOOR_M = 0.9  # door opening width in house layouts
+
+
+def _wall_with_door(grid, x0, y0, x1, y1, vertical, door_c):
+    """Full wall segment with one DOOR_M-wide opening centred at door_c (along the wall)."""
+    if vertical:
+        _fill(grid, x0, y0, x1, door_c - DOOR_M / 2, WALL)
+        _fill(grid, x0, door_c + DOOR_M / 2, x1, y1, WALL)
+    else:
+        _fill(grid, x0, y0, door_c - DOOR_M / 2, y1, WALL)
+        _fill(grid, door_c + DOOR_M / 2, y0, x1, y1, WALL)
+
+
+def make_layout(rng: np.random.Generator, kind: str = "apartment") -> Layout:
+    """Random scene: outer walls, interior walls, low furniture, six objects.
+
+    "apartment": one open-plan room with partial dividers (targets are usually in view).
+    "house": three or four rooms separated by full walls with 0.9 m doors (targets are usually
+    in another room, so the robot has to explore and remember).
+    """
     for _ in range(200):
         grid = np.zeros((NX, NY), np.uint8)
         t = 0.1
@@ -97,16 +116,25 @@ def make_layout(rng: np.random.Generator) -> Layout:
         _fill(grid, 0, HEIGHT_M - t, WIDTH_M, HEIGHT_M, WALL)
         _fill(grid, 0, 0, t, HEIGHT_M, WALL)
         _fill(grid, WIDTH_M - t, 0, WIDTH_M, HEIGHT_M, WALL)
-        # partial divider walls (tall, occlude)
-        dx = rng.uniform(3.2, 4.8)
-        if rng.random() < 0.5:
-            _fill(grid, dx, 0, dx + 0.1, rng.uniform(2.6, 3.6), WALL)
+        if kind == "house":
+            dx = rng.uniform(3.2, 4.8)
+            _wall_with_door(grid, dx, 0, dx + 0.1, HEIGHT_M, True, rng.uniform(0.9, HEIGHT_M - 0.9))
+            wy = rng.uniform(2.3, 3.7)
+            _wall_with_door(grid, 0, wy, dx, wy + 0.1, False, rng.uniform(0.8, dx - 0.8))
+            if rng.random() < 0.6:
+                wy2 = rng.uniform(2.3, 3.7)
+                _wall_with_door(grid, dx + 0.1, wy2, WIDTH_M, wy2 + 0.1, False, rng.uniform(dx + 0.9, WIDTH_M - 0.8))
         else:
-            _fill(grid, dx, rng.uniform(2.4, 3.4), dx + 0.1, HEIGHT_M, WALL)
-        if rng.random() < 0.6:
-            wy = rng.uniform(2.0, 4.0)
-            x0 = rng.uniform(0.0, 1.0) if rng.random() < 0.5 else rng.uniform(5.5, 6.5)
-            _fill(grid, x0, wy, x0 + rng.uniform(1.0, 1.6), wy + 0.1, WALL)
+            # partial divider walls (tall, occlude)
+            dx = rng.uniform(3.2, 4.8)
+            if rng.random() < 0.5:
+                _fill(grid, dx, 0, dx + 0.1, rng.uniform(2.6, 3.6), WALL)
+            else:
+                _fill(grid, dx, rng.uniform(2.4, 3.4), dx + 0.1, HEIGHT_M, WALL)
+            if rng.random() < 0.6:
+                wy = rng.uniform(2.0, 4.0)
+                x0 = rng.uniform(0.0, 1.0) if rng.random() < 0.5 else rng.uniform(5.5, 6.5)
+                _fill(grid, x0, wy, x0 + rng.uniform(1.0, 1.6), wy + 0.1, WALL)
         # low furniture
         boxes = []
         for _k in range(rng.integers(4, 7)):
@@ -217,10 +245,12 @@ class NavEnv:
     A blocked move slides along the obstacle (Habitat-style) and counts as a collision.
     """
 
-    def __init__(self, seed: int):
+    def __init__(self, seed: int, kind: str = "apartment"):
         self.seed = seed
-        rng = np.random.default_rng(seed)
-        self.layout = make_layout(rng)
+        self.kind = kind
+        self.max_steps = MAX_STEPS if kind == "apartment" else HOUSE_MAX_STEPS
+        rng = np.random.default_rng(seed if kind == "apartment" else [seed, 7])
+        self.layout = make_layout(rng, kind)
         self.target = int(rng.integers(N_OBJ))
         self.template = int(rng.integers(len(TEMPLATES)))
         self.instruction = instruction_text(self.target, self.template)
@@ -228,7 +258,8 @@ class NavEnv:
 
         self.field = geodesic_field(self.layout, self.target)
         # start: reachable, at least 3 m geodesic from goal
-        cand = np.argwhere(self.layout.reach & (self.field > 3.0) & np.isfinite(self.field))
+        min_geo = 3.0 if kind == "apartment" else 4.0
+        cand = np.argwhere(self.layout.reach & (self.field > min_geo) & np.isfinite(self.field))
         if len(cand) == 0:
             cand = np.argwhere(self.layout.reach & np.isfinite(self.field) & (self.field > 1.0))
         c = cand[rng.integers(len(cand))]
@@ -277,7 +308,7 @@ class NavEnv:
         self.path.append(self.pose.copy())
         if self.target_distance() <= SUCCESS_DIST_M:
             self.done = self.success = True
-        elif self.t >= MAX_STEPS:
+        elif self.t >= self.max_steps:
             self.done = True
         return self.observe(), collided
 

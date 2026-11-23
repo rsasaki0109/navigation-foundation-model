@@ -3,12 +3,25 @@
 from __future__ import annotations
 
 import copy
+import os
 
 import numpy as np
 
 from . import world as W
 from .expert import expert_action
 from .text import tokenize
+
+
+def layout_for(seed: int) -> str:
+    """Training layout from NAVFM_LAYOUT: 'apartment' (default), 'house', or 'mixed' (alternate by seed)."""
+    mode = os.environ.get("NAVFM_LAYOUT", "apartment")
+    if mode == "mixed":
+        return "house" if (seed // 2) % 2 else "apartment"
+    return mode
+
+
+def make_env(seed: int) -> W.NavEnv:
+    return W.NavEnv(seed, layout_for(seed))
 
 
 def expert_chunk(env: W.NavEnv, k: int, future: tuple):
@@ -33,7 +46,7 @@ def rollout(seed: int, policy=None, beta: float = 1.0, noise: float = 0.0, rng_s
             chunk: tuple | None = None):
     """Run one episode. Executed action: expert(+noise) w.p. beta else policy. Labels are always expert."""
     rng = np.random.default_rng(seed + 7919 if rng_seed is None else rng_seed)
-    env = W.NavEnv(seed)
+    env = make_env(seed)
     obs = env.observe()
     if policy is not None and hasattr(policy, "reset"):
         policy.reset(env)
@@ -97,8 +110,8 @@ def counterfactual(seed: int, n_starts: int, horizon: int, rng_seed: int, prefix
     """
     rng = np.random.default_rng(rng_seed)
     base = rollout(seed, noise=1.0, rng_seed=rng_seed)
-    tok = tokenize(W.NavEnv(seed).instruction)
-    env = W.NavEnv(seed)
+    env = make_env(seed)
+    tok = tokenize(env.instruction)
     out = []
     n = len(base["pose"])
     choices = np.arange(max(prefix, 0), n) if n > prefix else np.arange(n)
