@@ -1,4 +1,8 @@
-"""Evaluate agents on held-out episodes.  Usage: python scripts/evaluate.py N [vlm vla wm wam]"""
+"""Evaluate agents on held-out episodes.
+
+Usage: python scripts/evaluate.py N [vlm vla wm wam ...] [--layout house]
+Results go to docs/results.json (apartment) or docs/results_house.json (house).
+"""
 
 import json
 import sys
@@ -12,11 +16,14 @@ from navfm import world as W
 from navfm.agents import load_agent
 
 
+LAYOUT = "house" if "--layout" in sys.argv and sys.argv[sys.argv.index("--layout") + 1] == "house" else "apartment"
+
+
 def run(args):
     kind, seed = args
     torch.set_num_threads(1)
     agent = load_agent(kind)
-    env = W.NavEnv(seed)
+    env = W.NavEnv(seed, LAYOUT)
     g0 = env.geodesic(*env.pose[:2])
     agent.reset(env)
     obs = env.observe()
@@ -29,7 +36,8 @@ def run(args):
 
 if __name__ == "__main__":
     n = int(sys.argv[1])
-    kinds = sys.argv[2:] or ["vlm", "vla", "wm", "wam"]
+    args = [a for i, a in enumerate(sys.argv[2:], 2) if not a.startswith("--") and sys.argv[i - 1] != "--layout"]
+    kinds = args or ["vlm", "vla", "wm", "wam"]
     res = {}
     for k in kinds:
         with Pool(4) as p:
@@ -42,7 +50,7 @@ if __name__ == "__main__":
             episodes=r,
         )
         print(f"{k:4s} success {res[k]['success']:.2f}  SPL {res[k]['spl']:.2f}  steps {res[k]['steps']:.1f}  coll {res[k]['collisions']:.1f}", flush=True)
-    out = "docs/results.json"
+    out = "docs/results.json" if LAYOUT == "apartment" else "docs/results_house.json"
     try:
         old = json.load(open(out))
     except FileNotFoundError:
