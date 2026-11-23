@@ -1,6 +1,6 @@
 """Evaluate agents on held-out episodes.
 
-Usage: python scripts/evaluate.py N [vlm vla wm wam ...] [--layout house]
+Usage: python scripts/evaluate.py N [vlm vla wm wam ...] [--layout house] [--physics rne]
 Results go to docs/results.json (apartment) or docs/results_house.json (house).
 """
 
@@ -20,11 +20,19 @@ from navfm.agents import load_agent
 LAYOUT = "house" if "--layout" in sys.argv and sys.argv[sys.argv.index("--layout") + 1] == "house" else "apartment"
 
 
+PHYSICS = "rne" if "--physics" in sys.argv and sys.argv[sys.argv.index("--physics") + 1] == "rne" else "python"
+
+
 def run(args):
     kind, seed = args
     torch.set_num_threads(1)
     agent = load_agent(kind, os.environ.get("NAVFM_CKPT", "checkpoints"))
-    env = W.NavEnv(seed, LAYOUT)
+    if PHYSICS == "rne":
+        from navfm.rne_physics import RneNavEnv
+
+        env = RneNavEnv(seed, LAYOUT)
+    else:
+        env = W.NavEnv(seed, LAYOUT)
     g0 = env.geodesic(*env.pose[:2])
     agent.reset(env)
     obs = env.observe()
@@ -37,7 +45,7 @@ def run(args):
 
 if __name__ == "__main__":
     n = int(sys.argv[1])
-    args = [a for i, a in enumerate(sys.argv[2:], 2) if not a.startswith("--") and sys.argv[i - 1] != "--layout"]
+    args = [a for i, a in enumerate(sys.argv[2:], 2) if not a.startswith("--") and sys.argv[i - 1] not in ("--layout", "--physics")]
     kinds = args or ["vlm", "vla", "wm", "wam"]
     res = {}
     for k in kinds:
