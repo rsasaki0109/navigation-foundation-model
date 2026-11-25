@@ -100,6 +100,18 @@ On seed 53, all four agents use the house checkpoints to reach the initially hid
 NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --physics rne
 ```
 
+#### 3D Gaussian Splatting replay
+
+![The four Rapier trajectories rendered with mesh-derived 3D Gaussian splats](docs/media/hero_house_rne_3dgs.gif)
+
+The 3DGS view samples the room and furniture surfaces into oriented Gaussians, projects their covariances into each camera, and composites the splats in depth order. Robot poses come from the same seed-53 Rapier episodes. The model uses the simulation geometry and baked colors.
+
+```bash
+# On Linux, install a C++17 compiler and the optional mesh loader.
+pip install trimesh==4.11.3
+NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --physics rne --3dgs
+```
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:

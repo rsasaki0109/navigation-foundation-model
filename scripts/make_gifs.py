@@ -1,6 +1,6 @@
 """Render hero GIFs: one per paradigm + a 2x2 comparison on the same episode.
 
-Usage: python scripts/make_gifs.py [SEED] [--layout house] [--physics rne] [--raycast]
+Usage: python scripts/make_gifs.py [SEED] [--layout house] [--physics rne] [--raycast | --3dgs]
 
 By default the 3D views are rendered by Robot Native Engine's wgpu renderer
 (`examples/150_scene_replay_render`; set RNE_REPLAY_BIN to the built binary).  With
@@ -94,14 +94,15 @@ def compose(kind, recs, env, use_rne, *, wood_floor=False):
         return compose_frames(recs, base, tmp)
 
 
-def compose_frames(recs, base, views=None):
+def compose_frames(recs, base, views=None, *, renderer_label="rendered by RNE (wgpu)"):
     frames = []
     for i, r in enumerate(recs):
         ov = fp = None
         if views is not None:
             ov = Image.open(views / f"ov_{i:04d}.png").convert("RGB")
             fp = Image.open(views / f"fpv_{i:04d}.png").convert("RGB")
-        frames.append(R.render_panel(r["env"], r["agent"], r["obs"], r["pose"], base, r["status"], ov, fp))
+        frames.append(R.render_panel(r["env"], r["agent"], r["obs"], r["pose"], base, r["status"], ov, fp,
+                                     renderer_label=renderer_label))
     return frames
 
 
@@ -133,23 +134,51 @@ def main():
     parser.add_argument("seed", nargs="?", type=int, default=35)
     parser.add_argument("--layout", choices=("apartment", "house"), default="apartment")
     parser.add_argument("--physics", choices=("python", "rne"), default="python")
-    parser.add_argument("--raycast", action="store_true")
+    renderer = parser.add_mutually_exclusive_group()
+    renderer.add_argument("--raycast", action="store_true")
+    renderer.add_argument("--3dgs", dest="splat", action="store_true", help="render mesh-derived 3D Gaussians")
     args = parser.parse_args()
-    use_rne = not args.raycast and S.rne_binary() is not None
-    print("3D renderer:", "RNE wgpu" if use_rne else "built-in ray caster", flush=True)
+    use_rne = not (args.raycast or args.splat) and S.rne_binary() is not None
+    renderer_name = ("3D Gaussian Splatting (mesh-derived)" if args.splat else
+                     "RNE wgpu (examples/150_scene_replay_render)" if use_rne else "built-in ray caster")
+    print("3D renderer:", renderer_name, flush=True)
     output = Path(OUT)
     output.mkdir(parents=True, exist_ok=True)
     suffix = ("_house" if args.layout == "house" else "") + ("_rne" if args.physics == "rne" else "")
+    if args.splat:
+        suffix += "_3dgs"
     wood_floor = args.layout == "house" and args.physics == "rne"
+    with tempfile.TemporaryDirectory(prefix="navfm_splats_") as directory:
+        runs = render_runs(args, use_rne, wood_floor, output, suffix, Path(directory))
+    save_comparison(runs, args, output, suffix, renderer_name)
+
+
+def render_runs(args, use_rne, wood_floor, output, suffix, directory):
     runs = {}
+    splat = None
     for k in KINDS:
         recs, env = run_episode(k, args.seed, args.layout, args.physics)
-        fr = compose(k, recs, env, use_rne, wood_floor=wood_floor)
+        if args.splat:
+            from navfm.splat_render import SplatRenderer
+
+            if splat is None:
+                splat = SplatRenderer(env.layout, wood_floor, directory)
+                print(f"{len(splat.static):,} static Gaussians", flush=True)
+            records = [dict(pose=r["pose"], viz=r["agent"].viz, path=r["env"].path) for r in recs]
+            splat.render_episode(k, R.ACCENT[recs[0]["agent"].name], records,
+                                 env.layout.obj_boxes[env.target], directory)
+            fr = compose_frames(recs, R.map_base(env.layout), directory, renderer_label="3D Gaussian Splatting")
+        else:
+            fr = compose(k, recs, env, use_rne, wood_floor=wood_floor)
         runs[k] = (fr, env)
         print(k, "success", env.success, "steps", env.t, "frames", len(fr), flush=True)
         if not suffix:
             save_gif(fr, output / f"{k}.gif")
             fr[len(fr) // 2].save(output / f"{k}.png")
+    return runs
+
+
+def save_comparison(runs, args, output, suffix, renderer_name):
     n = max(len(r[0]) for r in runs.values())
     grid = []
     for i in range(n):
@@ -168,7 +197,7 @@ def main():
         grid[len(grid) // 2].save(output / "hero.png")
     meta = {k: dict(seed=args.seed, success=bool(e.success), steps=e.t, collisions=e.collisions,
                     instruction=e.instruction,
-                    renderer="RNE wgpu (examples/150_scene_replay_render)" if use_rne else "built-in ray caster")
+                    renderer=renderer_name)
             for k, (_f, e) in runs.items()}
     if suffix:
         for data in meta.values():
