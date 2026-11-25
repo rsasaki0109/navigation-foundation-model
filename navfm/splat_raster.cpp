@@ -10,7 +10,8 @@ struct Splat {
 }
 
 extern "C" void splat_raster(const float* cloud, int count, const float* view,
-                            float focal, int w, int h, float* pixels) {
+                            const float* intrinsics, int w, int h, float* pixels) {
+    const float fx = intrinsics[0], fy = intrinsics[1], cx = intrinsics[2], cy = intrinsics[3];
     std::vector<Splat> splats;
     splats.reserve(count);
     auto rotate = [&](int row, float x, float y, float z) {
@@ -23,16 +24,17 @@ extern "C" void splat_raster(const float* cloud, int count, const float* view,
         float z = rotate(2, dx, dy, dz);
         if (z < .055f) continue;
         float x = rotate(0, dx, dy, dz) / z, y = rotate(1, dx, dy, dz) / z;
-        float u = .5f * w + focal * x, v = .5f * h + focal * y;
+        float u = cx + fx * x, v = cy + fy * y;
         if (u < -48 || v < -48 || u > w + 48 || v > h + 48) continue;
         // Project the surface-aligned covariance using the perspective Jacobian.
         float nz = rotate(2, p[3], p[4], p[5]);
         float jx = rotate(0, p[3], p[4], p[5]) - x * nz;
         float jy = rotate(1, p[3], p[4], p[5]) - y * nz;
-        float t = p[9] * p[9], d = p[10] * p[10] - t, f = focal * focal / (z * z);
-        float xx = .24f + f * (t * (1 + x * x) + d * jx * jx);
-        float yy = .24f + f * (t * (1 + y * y) + d * jy * jy);
-        float xy = f * (t * x * y + d * jx * jy);
+        float t = p[9] * p[9], d = p[10] * p[10] - t;
+        float kx = fx / z, ky = fy / z;
+        float xx = .24f + kx * kx * (t * (1 + x * x) + d * jx * jx);
+        float yy = .24f + ky * ky * (t * (1 + y * y) + d * jy * jy);
+        float xy = kx * ky * (t * x * y + d * jx * jy);
         float det = xx * yy - xy * xy;
         splats.push_back({u, v, z, yy / det, -xy / det, xx / det,
                           std::min(48.f, 3 * std::sqrt(xx)), std::min(48.f, 3 * std::sqrt(yy)), p + 6});

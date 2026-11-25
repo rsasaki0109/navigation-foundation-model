@@ -112,6 +112,22 @@ pip install trimesh==4.11.3
 NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --physics rne --3dgs
 ```
 
+#### 3DGS from real RGB-D measurements
+
+![Desk reconstructed from the TUM RGB-D Freiburg 1 desk capture](docs/media/tum_desk_3dgs.gif)
+
+The desk reconstruction fuses Kinect RGB and metric depth using the benchmark's time-stamped motion-capture poses. Surface normals orient the Gaussians and the RGB frames supply their colors. Replay cameras use alternating poses reserved from fusion. The PLY contains depth-fused Gaussians with degree-zero color and is suitable as an initialization for photometric optimization. This replay follows the recorded sensor poses. Integrating it with Rapier would require a registered collision map for this room.
+
+Source data and derived PLY and GIF are attributed to Jürgen Sturm, Nikolas Engelhard, Felix Endres, Wolfram Burgard, and Daniel Cremers, *A Benchmark for the Evaluation of RGB-D SLAM Systems* (IROS 2012). The source data is [TUM RGB-D Freiburg 1 desk](https://cvg.cit.tum.de/data/datasets/rgbd-dataset) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+```bash
+# Requires the core Python dependencies and a C++17 compiler.
+curl -fLO https://cvg.cit.tum.de/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk.tgz
+python scripts/rgbd_splat.py rgbd_dataset_freiburg1_desk.tgz docs/media/tum_desk_3dgs.gif
+```
+
+The script writes the GIF, an uncompressed Gaussian PLY, and reconstruction metadata. The [committed PLY](docs/media/tum_desk_3dgs.ply.gz) is gzip-compressed.
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:

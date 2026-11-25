@@ -68,8 +68,8 @@ def _cloud(items, spacing, seed):
     return np.ascontiguousarray(np.concatenate(parts), dtype=np.float32)
 
 
-class SplatRenderer:
-    def __init__(self, layout, wood_floor, work_dir):
+class SplatRaster:
+    def __init__(self, work_dir):
         library = Path(work_dir) / "splat_raster.so"
         source = Path(__file__).with_name("splat_raster.cpp")
         subprocess.run([os.environ.get("CXX", "c++"), "-std=c++17", "-O3", "-shared", "-fPIC",
@@ -77,18 +77,27 @@ class SplatRenderer:
         self.library = ctypes.CDLL(str(library))
         self.raster = self.library.splat_raster
         fp32 = np.ctypeslib.ndpointer(dtype=np.float32, flags="C_CONTIGUOUS")
-        self.raster.argtypes = [fp32, ctypes.c_int, fp32, ctypes.c_float, ctypes.c_int, ctypes.c_int, fp32]
+        self.raster.argtypes = [fp32, ctypes.c_int, fp32, fp32, ctypes.c_int, ctypes.c_int, fp32]
         self.raster.restype = None
+    def render(self, cloud, eye, basis, intrinsics, size):
+        w, h = size
+        camera = np.array([*eye, *basis.ravel()], dtype=np.float32)
+        intrinsics = np.asarray(intrinsics, dtype=np.float32)
+        pixels = np.zeros((h, w, 3), dtype=np.float32)
+        self.raster(cloud, len(cloud), camera, intrinsics, w, h, pixels)
+        return Image.fromarray(np.uint8(np.clip(pixels, 0, 1) * 255))
+
+
+class SplatRenderer(SplatRaster):
+    def __init__(self, layout, wood_floor, work_dir):
+        super().__init__(work_dir)
         self.static = _cloud(S.static_items(layout, wood_floor=wood_floor), .035, 53)
 
     def image(self, cloud, view):
         w, h = view["width"], view["height"]
         basis = S._quat_mat(view["rot"]).T * np.array([[1], [-1], [-1]])
-        camera = np.array([*view["eye_m"], *basis.ravel()], dtype=np.float32)
         focal = .5 * h / np.tan(.5 * view["fov_y_rad"])
-        pixels = np.zeros((h, w, 3), dtype=np.float32)
-        self.raster(cloud, len(cloud), camera, focal, w, h, pixels)
-        return Image.fromarray(np.uint8(np.clip(pixels, 0, 1) * 255))
+        return self.render(cloud, view["eye_m"], basis, (focal, focal, w / 2, h / 2), (w, h))
 
     def render_episode(self, kind, accent, records, target_box, output):
         for i, r in enumerate(records):
