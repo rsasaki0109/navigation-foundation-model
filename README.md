@@ -116,7 +116,7 @@ NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --phy
 
 ![Desk reconstructed from the TUM RGB-D Freiburg 1 desk capture](docs/media/tum_desk_3dgs.gif)
 
-The desk reconstruction fuses Kinect RGB and metric depth using the benchmark's time-stamped motion-capture poses. Surface normals orient the Gaussians and the RGB frames supply their colors. Replay cameras use alternating poses reserved from fusion. The PLY contains depth-fused Gaussians with degree-zero color and is suitable as an initialization for photometric optimization. This replay follows the recorded sensor poses. Integrating it with Rapier would require a registered collision map for this room.
+The desk reconstruction fuses Kinect RGB and metric depth using the benchmark's time-stamped motion-capture poses. Surface normals orient the Gaussians and the RGB frames supply their colors. Replay cameras use alternating poses reserved from fusion. The PLY contains depth-fused Gaussians with degree-zero color and is suitable as an initialization for photometric optimization. This capture replay follows the recorded sensor poses.
 
 Source data and derived PLY and GIF are attributed to Jürgen Sturm, Nikolas Engelhard, Felix Endres, Wolfram Burgard, and Daniel Cremers, *A Benchmark for the Evaluation of RGB-D SLAM Systems* (IROS 2012). The source data is [TUM RGB-D Freiburg 1 desk](https://cvg.cit.tum.de/data/datasets/rgbd-dataset) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
@@ -127,6 +127,21 @@ python scripts/rgbd_splat.py rgbd_dataset_freiburg1_desk.tgz docs/media/tum_desk
 ```
 
 The script writes the GIF, an uncompressed Gaussian PLY, and reconstruction metadata. The [committed PLY](docs/media/tum_desk_3dgs.ply.gz) is gzip-compressed.
+
+#### Rapier simulation in the reconstructed desk scene
+
+![A Rapier robot driving through the measured TUM desk scene alongside the collision map](docs/media/tum_desk_rapier.gif)
+
+The same Gaussian PLY supplies a fitted floor and 5 cm obstacle cells. The route uses observed floor with at least 13 cm of map clearance. A joint-driven differential-drive robot follows it in Rapier. The map shows obstacle cells in red, surveyed free floor in grey, the robot in yellow, and the goal in green. The camera shows the registered reconstruction and the simulated robot.
+
+The replay uses 55% of the original Gaussian width. On eight camera views reserved from fusion, measured at 320 × 240 over valid Kinect depths of 0.45–4.5 m, this increased mean RGB PSNR from 12.84 to 13.49 dB and luminance-gradient magnitude correlation from 0.228 to 0.247. Narrower splats leave more gaps where scan coverage is sparse.
+
+```bash
+pip install trimesh==4.11.3
+python scripts/simulate_rgbd.py docs/media/tum_desk_3dgs.ply.gz docs/media/tum_desk_rapier.gif
+```
+
+This command also requires the RNE Python wheel. The accompanying JSON records the registration, Rapier trajectory, and final goal error. The scan and derived visualization use the TUM RGB-D attribution above.
 
 ### A multi-room house
 

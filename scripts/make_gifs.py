@@ -116,13 +116,13 @@ def save_gif(frames, path, hold=20, frame_ms=FRAME_MS):
     q[0].save(path, save_all=True, append_images=q[1:], duration=frame_ms, loop=0, optimize=True, disposal=1)
 
 
-def save_small_gif(frames, path):
+def save_small_gif(frames, path, *, frame_ms=FRAME_MS):
     # Preserve the full episode, including the last observation.
     for stride, width in ((2, 960), (2, 800), (4, 800), (4, 640), (8, 640)):
         sampled = frames[:-1:stride] + [frames[-1]]
         height = frames[0].height * width // frames[0].width
         sampled = [f.resize((width, height), Image.Resampling.LANCZOS) for f in sampled]
-        save_gif(sampled, path, hold=max(1, 25 // stride), frame_ms=FRAME_MS * stride)
+        save_gif(sampled, path, hold=max(1, 25 // stride), frame_ms=frame_ms * stride)
         if path.stat().st_size <= 3_000_000:
             return
     path.unlink()
