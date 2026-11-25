@@ -357,20 +357,29 @@ class WAMAgent(Agent):
     name = "WAM"
     EXEC = 2
 
-    def __init__(self, model: M.WAM):
+    def __init__(self, model: M.WAM, temporal_ensemble=False):
         self.model = model.eval()
+        self.temporal_ensemble = temporal_ensemble
 
     def reset(self, env):
         super().reset(env)
         self.queue = []
+        self.chunks = []
 
     @torch.no_grad()
     def act(self, obs):
-        if not self.queue:
+        if self.temporal_ensemble or not self.queue:
             acts, fut = self.model(_t(W.pano_tensor(obs)), self.tok, _t(self.prev))
             acts = acts[0].numpy()
             self.viz = {"chunk": acts, "future": fut[0].numpy(), "chunk_pose": obs.pose.copy()}
-            self.queue = list(acts[: self.EXEC])
+            if self.temporal_ensemble:
+                self.chunks.append(acts)
+                aligned = np.stack([chunk[0] for chunk in self.chunks])
+                weights = np.exp(-0.01 * np.arange(len(aligned)))  # ACT weights, oldest first
+                self.queue = [np.average(aligned, axis=0, weights=weights)]
+                self.chunks = [chunk[1:] for chunk in self.chunks if len(chunk) > 1]
+            else:
+                self.queue = list(acts[: self.EXEC])
         a = np.asarray(self.queue.pop(0), np.float32)
         self.prev = a
         return a
@@ -379,6 +388,11 @@ class WAMAgent(Agent):
 def load_agent(kind: str, ckpt_dir: str = "checkpoints"):
     if kind in ("clip", "clip_raycast"):
         return ClipPlannerAgent("raycast" if kind == "clip_raycast" else "rne")
+    if kind in ("wam_exec1", "wam_act"):
+        agent = load_agent("wam", ckpt_dir)
+        agent.EXEC = 1
+        agent.temporal_ensemble = kind == "wam_act"
+        return agent
     cls = {"vlm": (M.GroundingVLM, VLMPlannerAgent), "vla": (M.VLA, VLAAgent), "wm": (M.WorldModel, WMPlannerAgent),
            "wam": (M.WAM, WAMAgent), "rwm": (M.RecurrentWorldModel, RWMPlannerAgent), "rwm_ep": (M.RecurrentWorldModel, RWMEpisodeAgent)}[kind]
     model = cls[0]()

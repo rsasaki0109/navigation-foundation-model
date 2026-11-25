@@ -43,22 +43,28 @@ def expert_chunk(env: W.NavEnv, k: int, future: tuple):
 
 
 def rollout(seed: int, policy=None, beta: float = 1.0, noise: float = 0.0, rng_seed: int | None = None,
-            chunk: tuple | None = None):
+            chunk: tuple | None = None, *, env=None, track_executed_action=False):
     """Run one episode. Executed action: expert(+noise) w.p. beta else policy. Labels are always expert."""
     rng = np.random.default_rng(seed + 7919 if rng_seed is None else rng_seed)
-    env = make_env(seed)
+    if env is None:
+        env = make_env(seed)
     obs = env.observe()
     if policy is not None and hasattr(policy, "reset"):
         policy.reset(env)
     rec = {k: [] for k in ("pano", "mask", "act", "expert", "dist", "tdist", "coll", "pose", "prev")}
+    if track_executed_action and (policy is None or chunk is not None):
+        raise ValueError("Tracking executed actions requires an unchunked policy")
     if chunk is not None:
         rec["chunk"], rec["future"] = [], []
     prev = np.zeros(2, np.float32)
     burst = 0
     while not env.done:
         a_exp = expert_action(env)
-        if policy is not None and rng.random() > beta:
-            a = np.asarray(policy.act(obs), np.float32)
+        use_policy = policy is not None and rng.random() > beta
+        if use_policy or track_executed_action:
+            proposed = np.asarray(policy.act(obs), np.float32)
+        if use_policy:
+            a = proposed
         else:
             a = a_exp.copy()
             if noise > 0:
@@ -87,6 +93,8 @@ def rollout(seed: int, policy=None, beta: float = 1.0, noise: float = 0.0, rng_s
         rec["act"].append(a)
         rec["coll"].append(collided)
         prev = a
+        if track_executed_action:
+            policy.prev = a
     out = {k: np.array(v) for k, v in rec.items()}
     out["tok"] = np.repeat(tokenize(env.instruction)[None], len(out["act"]), 0)
     out["ep"] = np.full(len(out["act"]), seed)
