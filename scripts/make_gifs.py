@@ -82,14 +82,15 @@ def run_episode(kind, seed, layout="apartment", physics="python"):
     return recs, env
 
 
-def compose(kind, recs, env, use_rne):
+def compose(kind, recs, env, use_rne, *, wood_floor=False):
     base = R.map_base(env.layout)
     if not use_rne:
         return compose_frames(recs, base)
     with tempfile.TemporaryDirectory(prefix=f"rne_{kind}_") as directory:
         tmp = Path(directory)
         rne_recs = [dict(pose=r["pose"], viz=r["agent"].viz, path=r["env"].path) for r in recs]
-        S.render_episode(env.layout, env.layout.obj_boxes[env.target], kind, R.ACCENT[recs[0]["agent"].name], rne_recs, tmp)
+        S.render_episode(env.layout, env.layout.obj_boxes[env.target], kind,
+                         R.ACCENT[recs[0]["agent"].name], rne_recs, tmp, wood_floor=wood_floor)
         return compose_frames(recs, base, tmp)
 
 
@@ -139,10 +140,11 @@ def main():
     output = Path(OUT)
     output.mkdir(parents=True, exist_ok=True)
     suffix = ("_house" if args.layout == "house" else "") + ("_rne" if args.physics == "rne" else "")
+    wood_floor = args.layout == "house" and args.physics == "rne"
     runs = {}
     for k in KINDS:
         recs, env = run_episode(k, args.seed, args.layout, args.physics)
-        fr = compose(k, recs, env, use_rne)
+        fr = compose(k, recs, env, use_rne, wood_floor=wood_floor)
         runs[k] = (fr, env)
         print(k, "success", env.success, "steps", env.t, "frames", len(fr), flush=True)
         if not suffix:

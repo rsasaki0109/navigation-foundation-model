@@ -89,6 +89,17 @@ NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --ray
 python scripts/make_gifs.py 17 --physics rne --raycast
 ```
 
+#### Multi-room house on Rapier, rendered in 3D
+
+![Four agents navigating a furnished multi-room house with Rapier physics and RNE 3D rendering](docs/media/hero_house_rne.gif)
+
+On seed 53, all four agents use the house checkpoints to reach the initially hidden cyan TV with zero collisions. RNE's wgpu renderer adds Poly Haven furniture meshes, plank flooring, lighting, and shadows. The agents use the simulator's ray-cast panoramas for observations.
+
+```bash
+# Build the RNE renderer as shown in Quickstart.
+NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --physics rne
+```
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:
