@@ -1,8 +1,13 @@
 """Train all four paradigms.  Usage: python scripts/train.py [vlm|vla|wm|wam ...]"""
 
+import json
 import os
+import shutil
 import sys
+import tempfile
+from collections import deque
 from multiprocessing import Pool
+from pathlib import Path
 
 sys.path.insert(0, ".")
 import numpy as np
@@ -24,10 +29,11 @@ def load(path):
 
 
 def _dagger_job(args):
-    kind, seed, beta = args
+    kind, seed, beta, ckpt_dir = args
     torch.set_num_threads(1)
-    agent = load_agent(kind, CK)
-    return rollout(seed, policy=agent, beta=beta, chunk=CHUNK if kind == "wam" else None)
+    agent = load_agent(kind, ckpt_dir)
+    return rollout(seed, policy=agent, beta=beta, chunk=CHUNK if kind == "wam" else None,
+                   track_executed_action=kind == "rwm_ep")
 
 
 def _cf_job(seed):
@@ -52,14 +58,14 @@ def _chunk_job(seed):
     return rollout(seed, noise=1.0 if seed % 4 else 0.0, chunk=CHUNK)
 
 
-def dagger(kind, rounds, n, offset):
+def dagger(kind, rounds, n, offset, ckpt_dir=CK, keep_episodes=False):
     out = []
     for r, beta in enumerate(rounds):
         seeds = range(DAGGER_SEED0 + offset + r * n, DAGGER_SEED0 + offset + (r + 1) * n)
         with Pool(4) as p:
-            eps = p.map(_dagger_job, [(kind, s, beta) for s in seeds], chunksize=4)
-        print(f"[{kind}] dagger round {r} beta={beta} learner-success {np.mean([e['success'] for e in eps]):.2f}", flush=True)
-        out.append(merge(eps))
+            eps = p.map(_dagger_job, [(kind, s, beta, ckpt_dir) for s in seeds], chunksize=4)
+        print(f"[{kind}] dagger round {r} beta={beta} rollout-success {np.mean([e['success'] for e in eps]):.2f}", flush=True)
+        out.append(eps if keep_episodes else merge(eps))
     return out
 
 
@@ -67,32 +73,137 @@ def cat(ds):
     return {k: np.concatenate([d[k] for d in ds]) for k in ds[0]}
 
 
+def train_rwm_onpolicy(base, cf=None, default_rounds=5, initial_model=None):
+    from scripts.evaluate import evaluate
+
+    rounds = int(os.environ.get("ONPOLICY_ROUNDS", str(default_rounds)))
+    rollouts = int(os.environ.get("ONPOLICY_EPISODES", "160"))
+    capacity = int(os.environ.get("ONPOLICY_REPLAY", str(2 * rollouts)))
+    beta = float(os.environ.get("ONPOLICY_BETA", "0.1"))
+    decay = float(os.environ.get("ONPOLICY_LR_DECAY", "0.7"))
+    offset = int(os.environ.get("ONPOLICY_OFFSET", "130000"))
+    cf_count = int(os.environ.get("ONPOLICY_COUNTERFACTUALS", "700"))
+    epochs = int(os.environ.get("ONPOLICY_EPOCHS", "3"))
+    start = DAGGER_SEED0 + offset
+    if not (rounds > 0 and 0 < rollouts <= 10_000 and capacity > 0 and cf_count > 0 and epochs > 0
+            and 0 <= beta <= 1 and 0 < decay <= 1 and start >= 100_000
+            and start + (rounds - 1) * 10_000 + rollouts <= 900_000
+            and 406_000 + cf_count <= 900_000
+            and np.all((base["ep"] >= 100_000) & (base["ep"] < 900_000))):
+        raise ValueError("Invalid on-policy parameters or training seed range")
+
+    layout = os.environ.get("NAVFM_LAYOUT", "apartment")
+    if layout not in ("apartment", "house", "mixed"):
+        raise ValueError(f"Unknown training layout: {layout}")
+    output = Path(os.environ.get("ONPOLICY_OUT", f"{CK}/rwm_ep_onpolicy"))
+    output.mkdir(parents=True, exist_ok=False)
+    current = output / "round_00"
+    current.mkdir()
+    if initial_model is None:
+        shutil.copyfile(Path(CK) / "rwm_ep.pt", current / "rwm_ep.pt")
+        initial_model = load_agent("rwm_ep", current).model
+    else:
+        torch.save(initial_model.state_dict(), current / "rwm_ep.pt")
+
+    validation = []
+
+    def score(path):
+        seeds = range(900_000, 900_030)
+        suites = {"apartment": seeds[::2], "house": seeds[1::2]} if layout == "mixed" else {layout: seeds}
+        scores = {name: evaluate("rwm_ep", subset, name, "python", path) for name, subset in suites.items()}
+        success = float(np.mean([x["success"] for x in scores.values()]))
+        validation.append(dict(round=path.name, success=success, layouts=scores))
+        print(f"[rwm-ep] {path.name} validation success {success:.3f}", flush=True)
+        return success
+
+    def record(best):
+        temporary = output / "validation.tmp"
+        with temporary.open("w") as f:
+            json.dump(dict(best=best.name, beta=beta, lr_decay=decay, replay_episodes=capacity,
+                           rollouts_per_round=rollouts, counterfactual_seeds=cf_count, epochs=epochs,
+                           rounds=validation), f, indent=1)
+        temporary.replace(output / "validation.json")
+
+    def publish_best(path):
+        temporary = output / "rwm_ep.tmp"
+        shutil.copyfile(path / "rwm_ep.pt", temporary)
+        temporary.replace(output / "rwm_ep.pt")
+
+    best = current
+    best_score = score(current)
+    publish_best(best)
+    record(best)
+    if cf is None:
+        with Pool(4) as p:
+            cf = merge(p.map(_cf_full_job, range(406_000, 406_000 + cf_count), chunksize=8))
+    keys = list(cf)
+    fixed = {k: np.concatenate([base[k], cf[k]]) for k in keys}
+    max_replay_steps = len(fixed["act"])
+    replay = deque(maxlen=capacity)
+    model = initial_model.train()
+    for r in range(1, rounds + 1):
+        episodes = dagger("rwm_ep", [beta], rollouts, offset + 10_000 * (r - 1), current,
+                          keep_episodes=True)[0]
+        replay.extend(episodes)
+        replay_steps = sum(len(e["act"]) for e in replay)
+        while replay_steps > max_replay_steps:
+            replay_steps -= len(replay.popleft()["act"])
+        data = {k: np.concatenate([fixed[k]] + [e[k] for e in replay]) for k in keys}
+        lr = 5e-4 * decay ** (r - 1)
+        print(f"[rwm-ep] round {r}: {replay_steps} replay steps, lr={lr:g}", flush=True)
+        model = T.train_rwm_episodes(data, epochs=epochs, model=model, lr=lr, seed=r)
+        current = output / f"round_{r:02d}"
+        current.mkdir()
+        torch.save(model.state_dict(), current / "rwm_ep.pt")
+        success = score(current)
+        if success > best_score:
+            best, best_score = current, success
+            publish_best(best)
+        record(best)
+
+
+def _rne_job(seed):
+    from navfm.rne_physics import RneNavEnv
+
+    env = RneNavEnv(seed)
+    torch.set_num_threads(1)
+    policy = load_agent("wm", CK) if seed % 4 == 0 else None
+    return rollout(seed, policy=policy, beta=0.2, noise=1.0, env=env)
+
+
+def train_rne_wm():
+    output = Path(os.environ.get("NAVFM_RNE_OUT", "checkpoints/rne"))
+    output.mkdir(parents=True, exist_ok=True)
+    destination = output / "wm.pt"
+    if destination.exists() or destination.resolve() == (Path(CK) / "wm.pt").resolve():
+        raise FileExistsError(destination)
+    episodes = int(os.environ.get("NAVFM_RNE_EPISODES", "240"))
+    if not 1 <= episodes <= 300_000:
+        raise ValueError("NAVFM_RNE_EPISODES must be between 1 and 300000")
+    with Pool(4) as p:
+        data = merge(p.map(_rne_job, range(600_000, 600_000 + episodes), chunksize=4))
+    print(f"[wm-rne] {len(data['act'])} RNE steps", flush=True)
+    model = load_agent("wm", CK).model
+    model = T.train_wm(data, epochs=2, model=model, lr=2e-4, dynamics_only=True)
+    with tempfile.TemporaryDirectory(dir=output) as directory:
+        temporary = Path(directory) / "wm.pt"
+        torch.save(model.state_dict(), temporary)
+        destination.hardlink_to(temporary)
+
+
 if __name__ == "__main__":
     torch.set_num_threads(4)
     which = [a for a in sys.argv[1:] if not a.startswith("--")] or ["vlm", "vla", "wm", "wam"]
+    if "wm-rne" in which:
+        train_rne_wm()
+        which.remove("wm-rne")
+        if not which:
+            sys.exit(0)
     base = load(os.environ.get("NAVFM_DATA", "data/expert.npz"))
     if "vlm" in which:
         torch.save(T.train_vlm(base).state_dict(), f"{CK}/vlm.pt")
     if "rwm-ep-onpolicy" in which:
-        # pure on-policy rounds: the planner's own long, failing episodes teach the state to notice
-        # when its belief ("almost there") disagrees with what it sees
-        from navfm.models import RecurrentWorldModel
-
-        m = RecurrentWorldModel()
-        m.load_state_dict(torch.load(f"{CK}/rwm_ep.pt", weights_only=True))
-        keys = ["pano", "act", "expert", "dist", "tdist", "coll", "tok", "ep"]
-        with Pool(4) as p:
-            cf = merge(p.map(_cf_full_job, range(406_000, 406_700), chunksize=8))
-        d = {k: np.concatenate([base[k], cf[k]]) for k in keys}
-        import os
-
-        off = int(os.environ.get("ONPOLICY_OFFSET", "130000"))
-        extra = []
-        for r in range(int(os.environ.get("ONPOLICY_ROUNDS", "3"))):
-            extra += dagger("rwm_ep", [0.0], 160, off + 10_000 * r)
-            dd = {k: np.concatenate([d[k]] + [e[k] for e in extra]) for k in keys}
-            m = T.train_rwm_episodes(dd, epochs=3, model=m, lr=5e-4, seed=r + 1)
-            torch.save(m.state_dict(), f"{CK}/rwm_ep.pt")
+        train_rwm_onpolicy(base)
     if "rwm-ep" in which and "rwm-ep-onpolicy" not in which:
         # recurrent world model trained on whole episodes from their start (state carried as deployed)
 
@@ -102,13 +213,7 @@ if __name__ == "__main__":
         d = {k: np.concatenate([base[k], cf[k]]) for k in keys}
         print("[rwm-ep] samples", len(d["act"]), flush=True)
         m = T.train_rwm_episodes(d, epochs=10)
-        torch.save(m.state_dict(), f"{CK}/rwm_ep.pt")
-        extra = []
-        for r in range(2):
-            extra += dagger("rwm_ep", [0.3], 200, 110_000 + 10_000 * r)
-            dd = {k: np.concatenate([d[k]] + [e[k] for e in extra]) for k in keys}
-            m = T.train_rwm_episodes(dd, epochs=3, model=m, lr=5e-4)
-            torch.save(m.state_dict(), f"{CK}/rwm_ep.pt")
+        train_rwm_onpolicy(base, cf, default_rounds=2, initial_model=m)
     if "rwm" in which and "rwm-ep" not in which:
         # recurrent world model: expert data + counterfactual branches with real history + on-policy rounds
         with Pool(4) as p:
@@ -143,8 +248,6 @@ if __name__ == "__main__":
         m = T.train_wm_heads(m, d, epochs=12 if resumed else 3)
         torch.save(m.state_dict(), f"{CK}/wm.pt")
     if "wm" in which:
-        import os
-
         if os.path.exists(f"{CK}/wm.pt") and "--finetune" in sys.argv:
             from navfm.models import WorldModel
 

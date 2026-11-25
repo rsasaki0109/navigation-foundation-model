@@ -73,6 +73,13 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 | *Tried, did not help:* WM failures that remain (20 of 100: 4 stall just short of the object, 3 trust a hallucinated "almost there", 4 never see the target, 9 run out of time otherwise) | — | A 5-head bootstrap ensemble of distance heads on the frozen model, plus a target-proximity head. Used as the mean, success fell to 0.70; as a disagreement penalty on the original head, it stayed at 0.80 on 40 episodes. Off by default (`WMPlannerAgent.USE_ENS`). Memory or a better-calibrated value probably matter more |
 | *Tried, did not help either:* give the world model memory | — | A recurrent, RSSM-style world model (`RecurrentWorldModel`, kind `rwm`): a GRU state folds in each observation, and imagination continues from it. Trained on 24-step sequences, with counterfactual branches that keep their real history. Carrying the state through a whole episode drifted past what it was trained on (success 0.44). Re-filtering a 16-step window each step recovers most of it: success 0.75, SPL 0.49, 7.2 collisions on 100 episodes, still behind the feedforward model above (0.80, SPL 0.63, 0.35 collisions) |
 | *…and trained on whole episodes:* the recurrent model's state drifted because the windows it trained on started mid-episode from an empty state | — | Train on whole episodes from their start, with the state carried as at deployment and imagined 8-step branches every 4 steps (`train_rwm_episodes`, kind `rwm_ep`). With expert-mixed DAgger it fell to 0.27: once off the expert's path, its state "believed" it had arrived (predicted 0.1 m, true 4.8 m) and stopped. Pure on-policy rounds, which add its own long failures, raised it to 0.63 (SPL 0.45, 0.3 collisions) after 3 rounds. Three more rounds made it worse (round success 0.60 → 0.55 → 0.38, evaluation 0.34), so the shipped `rwm_ep.pt` is the round-3 model. Memory needs far more, and more diverse, on-policy data than the feedforward model |
+| *Tried:* average overlapping WAM action chunks with ACT-style weights | Success fell from 0.99 to 0.87 in Python and from 0.90 to 0.60 in Rapier. Rapier collisions increased from 11.50 to 53.65 per episode | Use `wam_exec1` for the stronger Rapier variant. The original two-action policy remains the default |
+
+### Whole-episode on-policy fine-tuning
+
+`python scripts/train.py rwm-ep-onpolicy` starts with `NAVFM_CKPT/rwm_ep.pt` and writes each checkpoint to a separate `round_NN` directory under `ONPOLICY_OUT` (default `checkpoints/rwm_ep_onpolicy`). The original checkpoint is kept as round 0. The best validation checkpoint is also available as `ONPOLICY_OUT/rwm_ep.pt`, with per-seed results in `validation.json`. Selection uses episode success on seeds 900000–900029, favoring the earlier round on ties. For mixed training, 15 validation seeds are assigned to each layout.
+
+By default it runs five rounds, with expert actions on 10% of rollout steps, a learning-rate multiplier of 0.7 per round, and at most two rounds' worth of replay episodes. Replay is also capped by the number of expert and counterfactual steps. `ONPOLICY_BETA`, `ONPOLICY_LR_DECAY`, and `ONPOLICY_REPLAY` control these settings. Set `NAVFM_CKPT` to the selected run directory and `NAVFM_RESULTS` to a new file when evaluating on seeds 0–99.
 
 ## Harder layout, and real physics
 
@@ -106,6 +113,20 @@ Numbers are in `docs/results_house_zeroshot.json`, `docs/results_house_trained.j
 | WM + planning | 0.80 | 0.71 | 7.3 |
 
 The closed-loop methods barely notice the change of dynamics, because they replan every step. WAM executes 2 actions open-loop from each chunk, and the world-model planner relies on dynamics learned from the unicycle model. Wheel slip that neither expected costs both of them success and collisions. Run with `python scripts/evaluate.py 100 --physics rne`. This needs the `rne_py` wheel built from RobotNativeEngine (`maturin build -m crates/rne_py/Cargo.toml`), which provides `DiffDriveSim.from_scene`.
+
+### WAM execution and world-model transfer
+
+The same WAM weights were evaluated with two actions per chunk, replanning every step (`wam_exec1`), and ACT-style temporal ensembling (`wam_act`). Temporal ensembling replans every step and uses an exponentially weighted average of actions predicted for the current step by overlapping chunks.
+
+| WAM execution | Python success | Python collisions / episode | Rapier success | Rapier collisions / episode |
+| --- | ---: | ---: | ---: | ---: |
+| Two actions (default) | 0.99 | 0.39 | 0.90 | 11.50 |
+| Replan every step | 0.97 | 1.70 | **0.93** | **8.05** |
+| Temporal ensemble | 0.87 | 21.05 | 0.60 | 53.65 |
+
+Replanning every step improved Rapier success by 3 points and reduced collisions by 3.45 per episode. The two-action default scored highest in the Python simulator. `docs/results_wam_python.json` and `docs/results_wam_rne.json` contain the 100 episodes per variant. The Rapier comparison used `rne_py` 0.4.0 from Robot Native Engine commit `eab0161edc7090bb83b5a956afc24ac5c699acdb`.
+
+`python scripts/train.py wm-rne` collects noisy expert episodes and planner rollouts in Rapier from seed 600000 onward. It adapts the latent transition and collision predictors and writes `checkpoints/rne/wm.pt`. Evaluate that checkpoint with `NAVFM_CKPT=checkpoints/rne` and a separate `NAVFM_RESULTS` file.
 
 ## The simulator
 

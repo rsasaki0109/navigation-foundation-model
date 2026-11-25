@@ -78,46 +78,57 @@ def wm_windows(d, horizon):
     return starts[ok]
 
 
-def train_wm(d, epochs=4, horizon=8, seed=0, model=None, lr=1e-3):
+def train_wm(d, epochs=4, horizon=8, seed=0, model=None, lr=1e-3, dynamics_only=False):
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
     m = model or M.WorldModel()
-    opt = torch.optim.AdamW(m.parameters(), lr, weight_decay=1e-4)
-    pano, tok = torch.tensor(d["pano"]).float(), torch.tensor(d["tok"])
+    parameters = list(m.dyn.parameters()) + list(m.coll.parameters()) if dynamics_only else list(m.parameters())
+    opt = torch.optim.AdamW(parameters, lr, weight_decay=1e-4)
+    pano = torch.tensor(d["pano"]).float()
     act = torch.tensor(d["act"]).float()
-    dist = torch.tensor(np.minimum(d["dist"], 12.0)).float()
     coll = torch.tensor(d["coll"]).float()
-    expert = torch.tensor(d["expert"]).float()
+    if not dynamics_only:
+        tok = torch.tensor(d["tok"])
+        dist = torch.tensor(np.minimum(d["dist"], 12.0)).float()
+        expert = torch.tensor(d["expert"]).float()
     starts = wm_windows(d, horizon)
-    steps = epochs * (len(starts) // 128)
+    if not len(starts):
+        raise ValueError("World-model training requires at least one complete horizon")
+    batch = min(128, len(starts)) if dynamics_only else 128
+    steps = epochs * (len(starts) // batch)
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, lr, total_steps=steps)
     t0 = time.time()
     ks = torch.arange(horizon + 1)
     for ep in range(epochs):
         tot = []
-        for bi in _batches(len(starts), 128, rng):
+        for bi in _batches(len(starts), batch, rng):
             s = torch.tensor(starts[bi])
             idx = s[:, None] + ks[None]  # (B, H+1)
             obs = pano[idx]  # (B, H+1, 5, 128)
             B = len(s)
-            z_all = m.encode(obs.flatten(0, 1)).view(B, horizon + 1, -1)
-            t = m.text(tok[s])
+            with torch.set_grad_enabled(not dynamics_only):
+                z_all = m.encode(obs.flatten(0, 1)).view(B, horizon + 1, -1)
             z = z_all[:, 0]
-            loss = F.mse_loss(m.decode(z), obs[:, 0]) + F.smooth_l1_loss(m.goal_dist(z, t), dist[idx[:, 0]])
-            loss = loss + F.smooth_l1_loss(m.prior(z, t), expert[idx[:, 0]], beta=0.1)
+            loss = 0.0
+            if not dynamics_only:
+                t = m.text(tok[s])
+                loss = F.mse_loss(m.decode(z), obs[:, 0]) + F.smooth_l1_loss(m.goal_dist(z, t), dist[idx[:, 0]])
+                loss = loss + F.smooth_l1_loss(m.prior(z, t), expert[idx[:, 0]], beta=0.1)
             for k in range(horizon):
                 a = act[idx[:, k]]
                 loss = loss + 0.5 * F.binary_cross_entropy_with_logits(m.collision(z, a), coll[idx[:, k]], pos_weight=torch.tensor(4.0)) / horizon
                 z = m.step(z, a)
+                loss = loss + 2.0 * F.mse_loss(z, z_all[:, k + 1].detach()) / horizon
+                if dynamics_only:
+                    continue
                 loss = loss + (
-                    F.mse_loss(z, z_all[:, k + 1].detach()) * 2.0
-                    + F.mse_loss(m.decode(z), obs[:, k + 1])
+                    F.mse_loss(m.decode(z), obs[:, k + 1])
                     + F.smooth_l1_loss(m.goal_dist(z, t), dist[idx[:, k + 1]])
                     + 0.5 * F.smooth_l1_loss(m.prior(z, t), expert[idx[:, k + 1]], beta=0.1)
                 ) / horizon
             opt.zero_grad()
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
+            torch.nn.utils.clip_grad_norm_(parameters, 1.0)
             opt.step()
             sched.step()
             tot.append(loss.item())
