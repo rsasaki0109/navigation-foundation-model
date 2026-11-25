@@ -73,6 +73,7 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 | *Tried, did not help:* WM failures that remain (20 of 100: 4 stall just short of the object, 3 trust a hallucinated "almost there", 4 never see the target, 9 run out of time otherwise) | — | A 5-head bootstrap ensemble of distance heads on the frozen model, plus a target-proximity head. Used as the mean, success fell to 0.70; as a disagreement penalty on the original head, it stayed at 0.80 on 40 episodes. Off by default (`WMPlannerAgent.USE_ENS`). Memory or a better-calibrated value probably matter more |
 | *Tried, did not help either:* give the world model memory | — | A recurrent, RSSM-style world model (`RecurrentWorldModel`, kind `rwm`): a GRU state folds in each observation, and imagination continues from it. Trained on 24-step sequences, with counterfactual branches that keep their real history. Carrying the state through a whole episode drifted past what it was trained on (success 0.44). Re-filtering a 16-step window each step recovers most of it: success 0.75, SPL 0.49, 7.2 collisions on 100 episodes, still behind the feedforward model above (0.80, SPL 0.63, 0.35 collisions) |
 | *…and trained on whole episodes:* the recurrent model's state drifted because the windows it trained on started mid-episode from an empty state | — | Train on whole episodes from their start, with the state carried as at deployment and imagined 8-step branches every 4 steps (`train_rwm_episodes`, kind `rwm_ep`). With expert-mixed DAgger it fell to 0.27: once off the expert's path, its state "believed" it had arrived (predicted 0.1 m, true 4.8 m) and stopped. Pure on-policy rounds, which add its own long failures, raised it to 0.63 (SPL 0.45, 0.3 collisions) after 3 rounds. Three more rounds made it worse (round success 0.60 → 0.55 → 0.38, evaluation 0.34), so the shipped `rwm_ep.pt` is the round-3 model. Memory needs far more, and more diverse, on-policy data than the feedforward model |
+| *Tried:* average overlapping WAM action chunks with ACT-style weights | Success fell from 0.99 to 0.87 in Python and from 0.90 to 0.60 in Rapier. Rapier collisions increased from 11.50 to 53.65 per episode | Use `wam_exec1` for the stronger Rapier variant. The original two-action policy remains the default |
 
 ### Whole-episode on-policy fine-tuning
 
@@ -117,13 +118,13 @@ The closed-loop methods barely notice the change of dynamics, because they repla
 
 The same WAM weights were evaluated with two actions per chunk, replanning every step (`wam_exec1`), and ACT-style temporal ensembling (`wam_act`). Temporal ensembling replans every step and uses an exponentially weighted average of actions predicted for the current step by overlapping chunks.
 
-| WAM execution | Python success | Python collisions / episode |
-| --- | ---: | ---: |
-| Two actions (default) | 0.99 | 0.39 |
-| Replan every step | 0.97 | 1.70 |
-| Temporal ensemble | 0.87 | 21.05 |
+| WAM execution | Python success | Python collisions / episode | Rapier success | Rapier collisions / episode |
+| --- | ---: | ---: | ---: | ---: |
+| Two actions (default) | 0.99 | 0.39 | 0.90 | 11.50 |
+| Replan every step | 0.97 | 1.70 | **0.93** | **8.05** |
+| Temporal ensemble | 0.87 | 21.05 | 0.60 | 53.65 |
 
-`docs/results_wam_python.json` contains all 100 episodes per variant. Replanning every step and temporal ensembling both reduced success and increased collisions in the Python simulator.
+Replanning every step improved Rapier success by 3 points and reduced collisions by 3.45 per episode. The two-action default scored highest in the Python simulator. `docs/results_wam_python.json` and `docs/results_wam_rne.json` contain the 100 episodes per variant. The Rapier comparison used `rne_py` 0.4.0 from Robot Native Engine commit `eab0161edc7090bb83b5a956afc24ac5c699acdb`.
 
 `python scripts/train.py wm-rne` collects noisy expert episodes and planner rollouts in Rapier from seed 600000 onward. It adapts the latent transition and collision predictors and writes `checkpoints/rne/wm.pt`. Evaluate that checkpoint with `NAVFM_CKPT=checkpoints/rne` and a separate `NAVFM_RESULTS` file.
 

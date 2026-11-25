@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import sys
+import tempfile
 from collections import deque
 from multiprocessing import Pool
 from pathlib import Path
@@ -63,7 +64,7 @@ def dagger(kind, rounds, n, offset, ckpt_dir=CK, keep_episodes=False):
         seeds = range(DAGGER_SEED0 + offset + r * n, DAGGER_SEED0 + offset + (r + 1) * n)
         with Pool(4) as p:
             eps = p.map(_dagger_job, [(kind, s, beta, ckpt_dir) for s in seeds], chunksize=4)
-        print(f"[{kind}] dagger round {r} beta={beta} learner-success {np.mean([e['success'] for e in eps]):.2f}", flush=True)
+        print(f"[{kind}] dagger round {r} beta={beta} rollout-success {np.mean([e['success'] for e in eps]):.2f}", flush=True)
         out.append(eps if keep_episodes else merge(eps))
     return out
 
@@ -184,7 +185,10 @@ def train_rne_wm():
     print(f"[wm-rne] {len(data['act'])} RNE steps", flush=True)
     model = load_agent("wm", CK).model
     model = T.train_wm(data, epochs=2, model=model, lr=2e-4, dynamics_only=True)
-    torch.save(model.state_dict(), destination)
+    with tempfile.TemporaryDirectory(dir=output) as directory:
+        temporary = Path(directory) / "wm.pt"
+        torch.save(model.state_dict(), temporary)
+        destination.hardlink_to(temporary)
 
 
 if __name__ == "__main__":
