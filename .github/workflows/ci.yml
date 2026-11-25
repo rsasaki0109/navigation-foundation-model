@@ -22,7 +22,7 @@ jobs:
           cache: pip
       - name: Install (CPU-only PyTorch)
         run: |
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt pytest
       - name: Tests (simulator, expert, scene export, shipped checkpoints)
         run: python -m pytest -q tests

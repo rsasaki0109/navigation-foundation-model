@@ -1,0 +1,42 @@
+{
+ "vlm": {
+  "seed": 53,
+  "success": true,
+  "steps": 32,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "built-in ray caster",
+  "layout": "house",
+  "physics": "python"
+ },
+ "vla": {
+  "seed": 53,
+  "success": true,
+  "steps": 32,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "built-in ray caster",
+  "layout": "house",
+  "physics": "python"
+ },
+ "wm": {
+  "seed": 53,
+  "success": true,
+  "steps": 35,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "built-in ray caster",
+  "layout": "house",
+  "physics": "python"
+ },
+ "wam": {
+  "seed": 53,
+  "success": true,
+  "steps": 32,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "built-in ray caster",
+  "layout": "house",
+  "physics": "python"
+ }
+}

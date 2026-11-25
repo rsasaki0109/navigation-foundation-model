@@ -76,13 +76,16 @@ class RneNavEnv(W.NavEnv):
         import rne_py
 
         super().__init__(seed, kind)
-        self._dir = Path(tempfile.mkdtemp(prefix="rne_nav_"))
+        # The native simulator reloads the scene file on reset.
+        self._scene_files = tempfile.TemporaryDirectory(prefix="rne_nav_")
+        path = Path(self._scene_files.name)
         x0, y0, th0 = self.pose
-        (self._dir / "robot.rne.robot.toml").write_text(
+        (path / "robot.rne.robot.toml").write_text(
             ROBOT_TOML.format(x=f"{x0 - W.WIDTH_M / 2:.4f}", z=f"{W.HEIGHT_M / 2 - y0:.4f}")
         )
-        (self._dir / "scene.rne.scene.toml").write_text(scene_toml(self.layout, seed))
-        self.sim = rne_py.DiffDriveSim.from_scene(str(self._dir / "scene.rne.scene.toml"))
+        scene = path / "scene.rne.scene.toml"
+        scene.write_text(scene_toml(self.layout, seed))
+        self.sim = rne_py.DiffDriveSim.from_scene(str(scene))
         self._obs = self.sim.reset()
         assert abs(self.sim.fixed_delta_s * self.TICKS - W.DT_S) < 1e-3
         # the asset format has no initial yaw: spin in place to the start heading (not counted)

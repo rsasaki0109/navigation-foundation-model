@@ -76,6 +76,19 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 
 ## Harder layout, and real physics
 
+### House and physics replays
+
+| Multi-room house (seed 53) | RNE Rapier physics (seed 17) |
+| --- | --- |
+| ![Four navigation methods reaching the same target in a multi-room house](docs/media/hero_house.gif) | ![Four navigation methods running on the RNE physics engine](docs/media/hero_rne.gif) |
+
+All four agents reach the cyan TV, which is out of view at the start of the house episode. Both replays use the built-in ray caster for the camera views. The physics replay takes its poses from Rapier.
+
+```bash
+NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --raycast
+python scripts/make_gifs.py 17 --physics rne --raycast
+```
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:
@@ -124,7 +137,9 @@ The 3D views in the GIFs are for humans. The overview shows the plans as glowing
 ## Quickstart
 
 ```bash
-pip install -r requirements.txt          # numpy, scipy, pillow, torch (CPU is fine)
+# Python 3.12, CPU
+pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt pytest
 
 python -m pytest -q tests                # simulator, expert, scene export; shipped checkpoints reproduce docs/results.json on the hero seeds
 python scripts/evaluate.py 20            # evaluate the shipped checkpoints
@@ -136,6 +151,11 @@ python scripts/make_gifs.py 35           # or RNE_REPLAY_BIN=/path/to/150_scene_
 python scripts/collect.py 2500 data/expert.npz
 python scripts/train.py vlm wm vla wam
 ```
+
+### Optional dependencies
+
+- Install `transformers` with `pip install transformers` for the CLIP agents (`clip_raycast` and `clip`). The pretrained ViT-B/32 weights are downloaded on first use.
+- Install an `rne_py` wheel exposing `DiffDriveSim.from_scene` for Rapier physics (`--physics rne`). Build it from [Robot Native Engine](https://github.com/rsasaki0109/RobotNativeEngine/tree/eab0161edc7090bb83b5a956afc24ac5c699acdb) with `maturin build --release --locked -m crates/rne_py/Cargo.toml` and install the resulting wheel with pip.
 
 ## Layout
 
