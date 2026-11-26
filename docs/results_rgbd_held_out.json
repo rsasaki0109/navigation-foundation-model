@@ -1,0 +1,3556 @@
+{
+  "summary": {
+    "runs": 10,
+    "detections": 8,
+    "correct_localizations": 8,
+    "reaches": 7,
+    "runs_with_obstacle_contacts": 0,
+    "obstacle_contact_onsets": 0
+  },
+  "source": "tum_desk_3dgs.ply.gz",
+  "detector": "google/owlv2-base-patch16-ensemble",
+  "detector_revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+  "threshold": 0.012,
+  "confirm_views": true,
+  "unseen_starts": true,
+  "reference_screen_xz_m": [
+    -0.29629325,
+    -1.0785005
+  ],
+  "localization_limit_m": 0.25,
+  "approach_limit_m": 0.85,
+  "trials": [
+    {
+      "start": [
+        -0.7284014225006104,
+        -2.2726068019866945
+      ],
+      "requested_yaw_rad": -1.5707963267948966,
+      "camera_start_yaw_rad": -1.5248516549224547,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.07769671412649785,
+      "goal_error_m": 0.020568588818055806,
+      "final_screen_distance_m": 0.7558102583988711,
+      "final_position": [
+        -0.9281910061836243,
+        -1.4931743144989014
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 75.399996984,
+      "confirmation_seconds": 22.599999096,
+      "confirmations": [
+        {
+          "candidate_probe": 9,
+          "reason": "missing second detection",
+          "displacement_m": 0.22438541888485491,
+          "position_error_m": null,
+          "probe": 10
+        },
+        {
+          "candidate_probe": 11,
+          "reason": "confirmed",
+          "displacement_m": 0.2199703201761748,
+          "position_error_m": 0.07321317429430355,
+          "probe": 12
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 4524,
+          "positive_impulse_reports": 4523,
+          "max_impulse_ns": 1.1205284595489502
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 4524,
+          "positive_impulse_reports": 4520,
+          "max_impulse_ns": 1.2408767938613892
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 4524,
+          "positive_impulse_reports": 3624,
+          "max_impulse_ns": 0.27428802847862244
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 4003,
+          "positive_impulse_reports": 2612,
+          "max_impulse_ns": 0.1586441993713379
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              92,
+              87,
+              111,
+              110
+            ]
+          ],
+          "position": [
+            -0.7282040119171143,
+            -2.2770259380340576
+          ],
+          "yaw": -1.5248516549224547,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              222,
+              87,
+              240,
+              112
+            ]
+          ],
+          "position": [
+            -0.7329742908477783,
+            -2.274117946624756
+          ],
+          "yaw": -0.8013867382676013,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7314522862434387,
+            -2.27167010307312
+          ],
+          "yaw": -0.012521452247079649,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7269852161407471,
+            -2.270512819290161
+          ],
+          "yaw": 0.7763443518898598,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7246847152709961,
+            -2.2752528190612793
+          ],
+          "yaw": 1.5594269134422907,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7229359149932861,
+            -2.272125244140625
+          ],
+          "yaw": 2.342069017381685,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7219061851501465,
+            -2.27370285987854
+          ],
+          "yaw": 3.130286829670457,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7192684412002563,
+            -2.2744596004486084
+          ],
+          "yaw": -2.374383581219907,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              2,
+              80,
+              48,
+              135
+            ]
+          ],
+          "position": [
+            -0.8802313208580017,
+            -1.7968335151672363
+          ],
+          "yaw": -1.532520245315208,
+          "score": 0.013789281249046326,
+          "box": [
+            2,
+            80,
+            48,
+            135
+          ],
+          "grounded": [
+            -0.3120172188501522,
+            0.8889355714982724,
+            -1.1302439374295465
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              153,
+              85,
+              176,
+              121
+            ]
+          ],
+          "position": [
+            -0.7817257046699524,
+            -1.9948017597198486
+          ],
+          "yaw": -1.023234020276904,
+          "score": 0.008690980263054371,
+          "box": [
+            153,
+            85,
+            176,
+            121
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              192,
+              85,
+              214,
+              122
+            ]
+          ],
+          "position": [
+            -0.7812448143959045,
+            -1.993841290473938
+          ],
+          "yaw": -0.8042838418183946,
+          "score": 0.015903308987617493,
+          "box": [
+            192,
+            85,
+            214,
+            122
+          ],
+          "grounded": [
+            -0.3265221893654279,
+            0.8934705008049093,
+            -1.1885564891009825
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              141,
+              83,
+              168,
+              126
+            ]
+          ],
+          "position": [
+            -0.882946789264679,
+            -1.7938387393951416
+          ],
+          "yaw": -0.8949748281567078,
+          "score": 0.01451986376196146,
+          "box": [
+            141,
+            83,
+            168,
+            126
+          ],
+          "grounded": [
+            -0.3073217775883629,
+            0.8863967574574123,
+            -1.1182608616914989
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.7284014225006104,
+        -2.2726068019866945
+      ],
+      "requested_yaw_rad": 1.5707963267948966,
+      "camera_start_yaw_rad": 1.51956628168704,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.028539455468103683,
+      "goal_error_m": 0.02193200771829581,
+      "final_screen_distance_m": 0.7630857322671515,
+      "final_position": [
+        -0.9371782541275024,
+        -1.492706060409546
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 120.399995184,
+      "confirmation_seconds": 24.399999024,
+      "confirmations": [
+        {
+          "candidate_probe": 9,
+          "reason": "missing second detection",
+          "displacement_m": 0.226887965252489,
+          "position_error_m": null,
+          "probe": 10
+        },
+        {
+          "candidate_probe": 19,
+          "reason": "confirmed",
+          "displacement_m": 0.19032960847835012,
+          "position_error_m": 0.011621913668022732,
+          "probe": 20
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 7224,
+          "positive_impulse_reports": 7213,
+          "max_impulse_ns": 1.2866525650024414
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 7224,
+          "positive_impulse_reports": 7215,
+          "max_impulse_ns": 1.0915722846984863
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 7224,
+          "positive_impulse_reports": 5867,
+          "max_impulse_ns": 0.2667176127433777
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 6537,
+          "positive_impulse_reports": 4224,
+          "max_impulse_ns": 0.13812990486621857
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7232263088226318,
+            -2.261481761932373
+          ],
+          "yaw": 1.51956628168704,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7200493812561035,
+            -2.2634308338165283
+          ],
+          "yaw": 2.242904103641671,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7214779257774353,
+            -2.2649199962615967
+          ],
+          "yaw": 3.035664867158053,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7192350029945374,
+            -2.266610860824585
+          ],
+          "yaw": -2.467234593345546,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              59,
+              87,
+              83,
+              113
+            ]
+          ],
+          "position": [
+            -0.719529926776886,
+            -2.2625982761383057
+          ],
+          "yaw": -1.6803627427353598,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              204,
+              87,
+              222,
+              112
+            ]
+          ],
+          "position": [
+            -0.7187860012054443,
+            -2.262115240097046
+          ],
+          "yaw": -0.8976157287157637,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7179349660873413,
+            -2.2591946125030518
+          ],
+          "yaw": -0.11089109872845054,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.717298686504364,
+            -2.263363838195801
+          ],
+          "yaw": 0.6729605133185392,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              7,
+              81,
+              55,
+              134
+            ]
+          ],
+          "position": [
+            -0.8813384771347046,
+            -1.795750617980957
+          ],
+          "yaw": -1.5027079213964216,
+          "score": 0.015966469421982765,
+          "box": [
+            7,
+            81,
+            55,
+            134
+          ],
+          "grounded": [
+            -0.3150630865903554,
+            0.8897854055749235,
+            -1.1485291477391866
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              157,
+              85,
+              179,
+              121
+            ]
+          ],
+          "position": [
+            -0.7787057757377625,
+            -2.0013182163238525
+          ],
+          "yaw": -1.0083204447699494,
+          "score": 0.006639920175075531,
+          "box": [
+            157,
+            85,
+            179,
+            121
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              198,
+              85,
+              220,
+              122
+            ]
+          ],
+          "position": [
+            -0.7781494855880737,
+            -1.9991767406463623
+          ],
+          "yaw": -0.7770532040574448,
+          "score": 0.00812541600316763,
+          "box": [
+            198,
+            85,
+            220,
+            122
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7806518077850342,
+            -1.9977068901062012
+          ],
+          "yaw": 0.0040117749162325985,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7770618200302124,
+            -1.9951142072677612
+          ],
+          "yaw": 0.7885175404228164,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              6,
+              149,
+              85,
+              173
+            ]
+          ],
+          "position": [
+            -0.7774081826210022,
+            -1.9902527332305908
+          ],
+          "yaw": 1.595924940231776,
+          "score": 0.010952627286314964,
+          "box": [
+            6,
+            149,
+            85,
+            173
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              163,
+              135,
+              217,
+              167
+            ]
+          ],
+          "position": [
+            -0.7793810367584229,
+            -1.9858211278915405
+          ],
+          "yaw": 2.36003291363486,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7779272794723511,
+            -1.9868403673171997
+          ],
+          "yaw": -3.1362460985636877,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.777614951133728,
+            -1.9887923002243042
+          ],
+          "yaw": -2.35271942504428,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.982049822807312,
+            -1.4937071800231934
+          ],
+          "yaw": -1.4207697366086325,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              104,
+              82,
+              155,
+              133
+            ]
+          ],
+          "position": [
+            -0.9842627048492432,
+            -1.493239402770996
+          ],
+          "yaw": -0.6976017432026854,
+          "score": 0.11750209331512451,
+          "box": [
+            104,
+            82,
+            155,
+            133
+          ],
+          "grounded": [
+            -0.3023890436511272,
+            0.8812272143527573,
+            -1.1005356981964833
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              151,
+              82,
+              187,
+              131
+            ]
+          ],
+          "position": [
+            -0.8793827891349792,
+            -1.657591462135315
+          ],
+          "yaw": -0.7047992103650832,
+          "score": 0.017484720796346664,
+          "box": [
+            151,
+            82,
+            187,
+            131
+          ],
+          "grounded": [
+            -0.30558836897458097,
+            0.883706452743774,
+            -1.1114300348803843
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8284014225006102,
+        -2.122606801986694
+      ],
+      "requested_yaw_rad": -1.5707963267948966,
+      "camera_start_yaw_rad": -1.5193600172440958,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": false,
+      "initial_hit": false,
+      "target_error_m": 0.028756048313273386,
+      "goal_error_m": null,
+      "final_screen_distance_m": 0.7584970438900382,
+      "final_position": [
+        -0.9335460066795349,
+        -1.4898722171783447
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": "Robot did not complete the commanded turn",
+      "simulated_seconds": 150.199993992,
+      "confirmation_seconds": 45.99999816,
+      "confirmations": [
+        {
+          "candidate_probe": 5,
+          "reason": "missing second detection",
+          "displacement_m": 0.1995244099934738,
+          "position_error_m": null,
+          "probe": 6
+        },
+        {
+          "candidate_probe": 10,
+          "reason": "position mismatch",
+          "displacement_m": 0.23993517125894198,
+          "position_error_m": 0.23028873640326564,
+          "probe": 11
+        },
+        {
+          "candidate_probe": 12,
+          "reason": "missing second detection",
+          "displacement_m": 0.20668988924825857,
+          "position_error_m": null,
+          "probe": 13
+        },
+        {
+          "candidate_probe": 21,
+          "reason": "confirmed",
+          "displacement_m": 0.18257344185837654,
+          "position_error_m": 0.005985338090577722,
+          "probe": 22
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 9012,
+          "positive_impulse_reports": 9005,
+          "max_impulse_ns": 1.2052943706512451
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 9012,
+          "positive_impulse_reports": 9006,
+          "max_impulse_ns": 1.1348103284835815
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 9012,
+          "positive_impulse_reports": 7189,
+          "max_impulse_ns": 0.2347971349954605
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 8043,
+          "positive_impulse_reports": 5352,
+          "max_impulse_ns": 0.14491376280784607
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              65,
+              86,
+              91,
+              118
+            ]
+          ],
+          "position": [
+            -0.8263849020004272,
+            -2.1254782676696777
+          ],
+          "yaw": -1.5193600172440958,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              202,
+              89,
+              225,
+              119
+            ]
+          ],
+          "position": [
+            -0.8246495723724365,
+            -2.1225006580352783
+          ],
+          "yaw": -0.7785044839009805,
+          "score": 0.006892460398375988,
+          "box": [
+            202,
+            89,
+            225,
+            119
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8258975744247437,
+            -2.1189801692962646
+          ],
+          "yaw": -0.013387706925782911,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8238368630409241,
+            -2.1162240505218506
+          ],
+          "yaw": 0.7763412362108567,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              36,
+              149,
+              106,
+              170
+            ]
+          ],
+          "position": [
+            -0.8249267935752869,
+            -2.116706371307373
+          ],
+          "yaw": 1.559760194257613,
+          "score": 0.013502981513738632,
+          "box": [
+            36,
+            149,
+            106,
+            170
+          ],
+          "grounded": [
+            -0.9288421295641106,
+            0.8694696764123897,
+            -2.3137837651465722
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [],
+          "position": [
+            -0.6747801303863525,
+            -2.2507948875427246
+          ],
+          "yaw": 2.8282486611075015,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6739459037780762,
+            -2.2545602321624756
+          ],
+          "yaw": 2.4704429040874003,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6796963214874268,
+            -2.252309560775757
+          ],
+          "yaw": 3.1315417457060666,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6820752620697021,
+            -2.253528356552124
+          ],
+          "yaw": -2.3686371156430193,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              2,
+              91,
+              21,
+              131
+            ]
+          ],
+          "position": [
+            -0.8770394921302795,
+            -1.7441514730453491
+          ],
+          "yaw": -1.6109165090227568,
+          "score": 0.012074670754373074,
+          "box": [
+            2,
+            91,
+            21,
+            131
+          ],
+          "grounded": [
+            -0.2517376499984796,
+            0.8680398819091208,
+            -0.9686740563277975
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              150,
+              85,
+              173,
+              122
+            ]
+          ],
+          "position": [
+            -0.7964248061180115,
+            -1.9768445491790771
+          ],
+          "yaw": -1.0165333348483998,
+          "score": 0.01994926482439041,
+          "box": [
+            150,
+            85,
+            173,
+            122
+          ],
+          "grounded": [
+            -0.3176861570488711,
+            0.8928073824169241,
+            -1.1879233834661793
+          ]
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              173,
+              85,
+              196,
+              122
+            ]
+          ],
+          "position": [
+            -0.7953493595123291,
+            -1.975281834602356
+          ],
+          "yaw": -0.8864666620748113,
+          "score": 0.013386518694460392,
+          "box": [
+            173,
+            85,
+            196,
+            122
+          ],
+          "grounded": [
+            -0.32372448452199387,
+            0.8919617337323386,
+            -1.1805289917742907
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              158,
+              87,
+              177,
+              115
+            ]
+          ],
+          "position": [
+            -0.6790381073951721,
+            -2.1543047428131104
+          ],
+          "yaw": -1.1531731125207105,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              62,
+              215,
+              77,
+              238
+            ]
+          ],
+          "position": [
+            -0.6839543581008911,
+            -2.152369737625122
+          ],
+          "yaw": -0.09991161447213859,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              191,
+              201,
+              202,
+              223
+            ]
+          ],
+          "position": [
+            -0.68415766954422,
+            -2.1507153511047363
+          ],
+          "yaw": 0.6889091010676709,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.684190571308136,
+            -2.149205207824707
+          ],
+          "yaw": 1.4663550593698387,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6848214864730835,
+            -2.1512155532836914
+          ],
+          "yaw": 2.2525412514962464,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              236,
+              135,
+              256,
+              157
+            ]
+          ],
+          "position": [
+            -0.6886478066444397,
+            -2.149782657623291
+          ],
+          "yaw": 3.0377588661303907,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6889737248420715,
+            -2.1453914642333984
+          ],
+          "yaw": -2.452939563703435,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9798411130905151,
+            -1.4959458112716675
+          ],
+          "yaw": -1.509655593728906,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              87,
+              82,
+              140,
+              134
+            ]
+          ],
+          "position": [
+            -0.9799416661262512,
+            -1.4940937757492065
+          ],
+          "yaw": -0.7890222044673778,
+          "score": 0.20279407501220703,
+          "box": [
+            87,
+            82,
+            140,
+            134
+          ],
+          "grounded": [
+            -0.3039086530774935,
+            0.8808800333095078,
+            -1.1035001831740705
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              150,
+              82,
+              187,
+              131
+            ]
+          ],
+          "position": [
+            -0.8852299451828003,
+            -1.645070195198059
+          ],
+          "yaw": -0.6931907653225007,
+          "score": 0.024161916226148605,
+          "box": [
+            150,
+            82,
+            187,
+            131
+          ],
+          "grounded": [
+            -0.3053405728663158,
+            0.8837630067241078,
+            -1.1085462055746955
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8284014225006102,
+        -2.122606801986694
+      ],
+      "requested_yaw_rad": 1.5707963267948966,
+      "camera_start_yaw_rad": 1.51576692720632,
+      "detected": false,
+      "correctly_localized": false,
+      "reached": false,
+      "initial_hit": false,
+      "target_error_m": null,
+      "goal_error_m": null,
+      "final_screen_distance_m": 1.020281985085444,
+      "final_position": [
+        -0.7872053980827332,
+        -1.972916841506958
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": "Robot did not complete the commanded turn",
+      "simulated_seconds": 77.399996904,
+      "confirmation_seconds": 11.99999952,
+      "confirmations": [
+        {
+          "candidate_probe": 9,
+          "reason": "missing second detection",
+          "displacement_m": 0.23287930310592497,
+          "position_error_m": null,
+          "probe": 10
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 4644,
+          "positive_impulse_reports": 4641,
+          "max_impulse_ns": 1.0801259279251099
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 4644,
+          "positive_impulse_reports": 4639,
+          "max_impulse_ns": 1.0908061265945435
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 4644,
+          "positive_impulse_reports": 3753,
+          "max_impulse_ns": 0.22733741998672485
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 4401,
+          "positive_impulse_reports": 3081,
+          "max_impulse_ns": 0.1465456187725067
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              23,
+              152,
+              98,
+              173
+            ]
+          ],
+          "position": [
+            -0.8243153095245361,
+            -2.118992328643799
+          ],
+          "yaw": 1.51576692720632,
+          "score": 0.005828463472425938,
+          "box": [
+            23,
+            152,
+            98,
+            173
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              159,
+              141,
+              215,
+              172
+            ]
+          ],
+          "position": [
+            -0.821135938167572,
+            -2.1255922317504883
+          ],
+          "yaw": 2.2430048497582646,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8217491507530212,
+            -2.127403736114502
+          ],
+          "yaw": 3.0292909020665153,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8197351694107056,
+            -2.1323866844177246
+          ],
+          "yaw": -2.46496978221901,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              25,
+              85,
+              56,
+              120
+            ]
+          ],
+          "position": [
+            -0.8224733471870422,
+            -2.1322922706604004
+          ],
+          "yaw": -1.6891603796679415,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              180,
+              87,
+              199,
+              117
+            ]
+          ],
+          "position": [
+            -0.826761782169342,
+            -2.1316847801208496
+          ],
+          "yaw": -0.9034506344496657,
+          "score": 0.0051647755317389965,
+          "box": [
+            180,
+            87,
+            199,
+            117
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8276445269584656,
+            -2.133882761001587
+          ],
+          "yaw": -0.10731914737131583,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8226481080055237,
+            -2.1326510906219482
+          ],
+          "yaw": 0.671476145889902,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              2,
+              82,
+              30,
+              140
+            ]
+          ],
+          "position": [
+            -0.8779887557029724,
+            -1.7441129684448242
+          ],
+          "yaw": -1.577972050965414,
+          "score": 0.01826295629143715,
+          "box": [
+            2,
+            82,
+            30,
+            140
+          ],
+          "grounded": [
+            -0.27529138969931766,
+            0.8693794479181685,
+            -1.0215132238083278
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              151,
+              85,
+              175,
+              121
+            ]
+          ],
+          "position": [
+            -0.7965735793113708,
+            -1.9684194326400757
+          ],
+          "yaw": -1.0064076740250314,
+          "score": 0.010071385651826859,
+          "box": [
+            151,
+            85,
+            175,
+            121
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              178,
+              84,
+              201,
+              122
+            ]
+          ],
+          "position": [
+            -0.7962425947189331,
+            -1.9664934873580933
+          ],
+          "yaw": -0.8542975069384626,
+          "score": 0.010184918530285358,
+          "box": [
+            178,
+            84,
+            201,
+            122
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7941853404045105,
+            -1.9702966213226318
+          ],
+          "yaw": -0.07088864170600495,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7902253866195679,
+            -1.9674838781356812
+          ],
+          "yaw": 0.7175575870889266,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              2,
+              148,
+              88,
+              166
+            ]
+          ],
+          "position": [
+            -0.7902177572250366,
+            -1.9654884338378906
+          ],
+          "yaw": 1.5034631653110861,
+          "score": 0.005418610759079456,
+          "box": [
+            2,
+            148,
+            88,
+            166
+          ],
+          "grounded": null
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.9226068019866942
+      ],
+      "requested_yaw_rad": -1.5707963267948966,
+      "camera_start_yaw_rad": -1.5091305944187516,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": true,
+      "target_error_m": 0.030936263639965673,
+      "goal_error_m": 0.02794311467262942,
+      "final_screen_distance_m": 0.756629763824562,
+      "final_position": [
+        -0.9244637489318848,
+        -1.5002710819244385
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 119.799995208,
+      "confirmation_seconds": 31.399998744,
+      "confirmations": [
+        {
+          "candidate_probe": 1,
+          "reason": "missing second detection",
+          "displacement_m": 0.2015777492469559,
+          "position_error_m": null,
+          "probe": 2
+        },
+        {
+          "candidate_probe": 12,
+          "reason": "missing second detection",
+          "displacement_m": 0.2196059614391123,
+          "position_error_m": null,
+          "probe": 13
+        },
+        {
+          "candidate_probe": 20,
+          "reason": "confirmed",
+          "displacement_m": 0.22918102235667073,
+          "position_error_m": 0.002861376570490363,
+          "probe": 21
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 7188,
+          "positive_impulse_reports": 7177,
+          "max_impulse_ns": 1.1329091787338257
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 7188,
+          "positive_impulse_reports": 7178,
+          "max_impulse_ns": 1.0586271286010742
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 7188,
+          "positive_impulse_reports": 5725,
+          "max_impulse_ns": 0.2456892728805542
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 6482,
+          "positive_impulse_reports": 4147,
+          "max_impulse_ns": 0.196782648563385
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              33,
+              83,
+              67,
+              128
+            ]
+          ],
+          "position": [
+            -0.8830432891845703,
+            -1.9188258647918701
+          ],
+          "yaw": -1.5091305944187516,
+          "score": 0.013851970434188843,
+          "box": [
+            33,
+            83,
+            67,
+            128
+          ],
+          "grounded": [
+            -0.3158631438761019,
+            0.8881995450422159,
+            -1.1499955234620036
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              156,
+              87,
+              176,
+              117
+            ]
+          ],
+          "position": [
+            -0.7435154318809509,
+            -2.0706942081451416
+          ],
+          "yaw": -1.0814485785182695,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              208,
+              86,
+              229,
+              119
+            ]
+          ],
+          "position": [
+            -0.7445865869522095,
+            -2.072410821914673
+          ],
+          "yaw": -0.7881301468726902,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7452789545059204,
+            -2.0717644691467285
+          ],
+          "yaw": -0.0016895004667490435,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7430615425109863,
+            -2.0719869136810303
+          ],
+          "yaw": 0.78737646824387,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              21,
+              143,
+              53,
+              154
+            ],
+            [
+              69,
+              209,
+              135,
+              236
+            ]
+          ],
+          "position": [
+            -0.7436933517456055,
+            -2.0723025798797607
+          ],
+          "yaw": 1.5700960704442555,
+          "score": 0.006248675286769867,
+          "box": [
+            69,
+            209,
+            135,
+            236
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.740947425365448,
+            -2.0734801292419434
+          ],
+          "yaw": 2.354850154928879,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7401801347732544,
+            -2.0783777236938477
+          ],
+          "yaw": 3.1413353064515164,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7391427755355835,
+            -2.0826303958892822
+          ],
+          "yaw": -2.3500361313813043,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9067180156707764,
+            -1.6286448240280151
+          ],
+          "yaw": -2.83282231042718,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9050059914588928,
+            -1.6324113607406616
+          ],
+          "yaw": -2.112080796573216,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              8,
+              80,
+              69,
+              140
+            ]
+          ],
+          "position": [
+            -0.9020721912384033,
+            -1.6302859783172607
+          ],
+          "yaw": -1.324299183899017,
+          "score": 0.023657433688640594,
+          "box": [
+            8,
+            80,
+            69,
+            140
+          ],
+          "grounded": [
+            -0.30958502142329125,
+            0.8844795753533511,
+            -1.1244349260310522
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              157,
+              84,
+              182,
+              125
+            ]
+          ],
+          "position": [
+            -0.8751334547996521,
+            -1.844960331916809
+          ],
+          "yaw": -0.8459124089309279,
+          "score": 0.011129924096167088,
+          "box": [
+            157,
+            84,
+            182,
+            125
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              211,
+              84,
+              239,
+              127
+            ]
+          ],
+          "position": [
+            -0.8759617209434509,
+            -1.846848964691162
+          ],
+          "yaw": -0.5399633575584163,
+          "score": 0.00786581076681614,
+          "box": [
+            211,
+            84,
+            239,
+            127
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8799846768379211,
+            -1.8431437015533447
+          ],
+          "yaw": 0.2502204851970292,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              2,
+              138,
+              49,
+              151
+            ]
+          ],
+          "position": [
+            -0.88303142786026,
+            -1.8420737981796265
+          ],
+          "yaw": 1.0340433853877111,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              164,
+              127,
+              205,
+              138
+            ]
+          ],
+          "position": [
+            -0.8835049271583557,
+            -1.8453253507614136
+          ],
+          "yaw": 1.8264273537735782,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8813638687133789,
+            -1.8459185361862183
+          ],
+          "yaw": 2.600321674060347,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.979714035987854,
+            -1.495496153831482
+          ],
+          "yaw": -1.5234946728372125,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              84,
+              81,
+              138,
+              134
+            ]
+          ],
+          "position": [
+            -0.9778935313224792,
+            -1.4943238496780396
+          ],
+          "yaw": -0.802171989245934,
+          "score": 0.08063850551843643,
+          "box": [
+            84,
+            81,
+            138,
+            134
+          ],
+          "grounded": [
+            -0.3042291964429932,
+            0.8836318184797437,
+            -1.1069201785761063
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              155,
+              83,
+              187,
+              129
+            ]
+          ],
+          "position": [
+            -0.8797521591186523,
+            -1.7115548849105835
+          ],
+          "yaw": -0.7406513648324703,
+          "score": 0.029169494286179543,
+          "box": [
+            155,
+            83,
+            187,
+            129
+          ],
+          "grounded": [
+            -0.3048810682702656,
+            0.8836655042195568,
+            -1.1097061082718978
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.9226068019866942
+      ],
+      "requested_yaw_rad": 1.5707963267948966,
+      "camera_start_yaw_rad": 1.511821090355959,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.033949777562004756,
+      "goal_error_m": 0.02318508318623002,
+      "final_screen_distance_m": 0.7609180293345623,
+      "final_position": [
+        -0.9328671097755432,
+        -1.4953577518463135
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 80.99999676,
+      "confirmation_seconds": 21.199999152,
+      "confirmations": [
+        {
+          "candidate_probe": 6,
+          "reason": "missing second detection",
+          "displacement_m": 0.22928398399714633,
+          "position_error_m": null,
+          "probe": 7
+        },
+        {
+          "candidate_probe": 13,
+          "reason": "confirmed",
+          "displacement_m": 0.22174469059329255,
+          "position_error_m": 0.024836923783248983,
+          "probe": 14
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 4860,
+          "positive_impulse_reports": 4856,
+          "max_impulse_ns": 1.1149128675460815
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 4860,
+          "positive_impulse_reports": 4854,
+          "max_impulse_ns": 1.0751398801803589
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 4860,
+          "positive_impulse_reports": 3875,
+          "max_impulse_ns": 0.25427839159965515
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 4357,
+          "positive_impulse_reports": 2800,
+          "max_impulse_ns": 0.13933973014354706
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              91,
+              139,
+              147,
+              152
+            ]
+          ],
+          "position": [
+            -0.8723215460777283,
+            -1.9231343269348145
+          ],
+          "yaw": 1.511821090355959,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              216,
+              139,
+              282,
+              162
+            ]
+          ],
+          "position": [
+            -0.8743905425071716,
+            -1.9225921630859375
+          ],
+          "yaw": 2.232860055485796,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8710867166519165,
+            -1.9263503551483154
+          ],
+          "yaw": 3.0200549649402246,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8772658109664917,
+            -1.9248687028884888
+          ],
+          "yaw": -2.473175038168319,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              2,
+              86,
+              23,
+              132
+            ]
+          ],
+          "position": [
+            -0.8805131912231445,
+            -1.9229477643966675
+          ],
+          "yaw": -1.6934244743757099,
+          "score": 0.008195150643587112,
+          "box": [
+            2,
+            86,
+            23,
+            132
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              157,
+              84,
+              178,
+              122
+            ]
+          ],
+          "position": [
+            -0.8770580291748047,
+            -1.9235831499099731
+          ],
+          "yaw": -0.9076575950721345,
+          "score": 0.014307417906820774,
+          "box": [
+            157,
+            84,
+            178,
+            122
+          ],
+          "grounded": [
+            -0.31273409457687185,
+            0.8883941254568624,
+            -1.1251568077434935
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              154,
+              86,
+              174,
+              116
+            ]
+          ],
+          "position": [
+            -0.7286659479141235,
+            -2.1132378578186035
+          ],
+          "yaw": -1.1194305166206802,
+          "score": 0.00795354787260294,
+          "box": [
+            154,
+            86,
+            174,
+            116
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              28,
+              179,
+              41,
+              198
+            ]
+          ],
+          "position": [
+            -0.7326324582099915,
+            -2.107539176940918
+          ],
+          "yaw": -0.12193122924866079,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7321780323982239,
+            -2.1027235984802246
+          ],
+          "yaw": 0.6628459192014445,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9060475826263428,
+            -1.6321862936019897
+          ],
+          "yaw": -2.6867521125023868,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9083712100982666,
+            -1.6329126358032227
+          ],
+          "yaw": -1.9604455149853288,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              49,
+              81,
+              99,
+              136
+            ]
+          ],
+          "position": [
+            -0.9065105319023132,
+            -1.6330533027648926
+          ],
+          "yaw": -1.17336178621879,
+          "score": 0.009976135566830635,
+          "box": [
+            49,
+            81,
+            99,
+            136
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              197,
+              82,
+              239,
+              133
+            ]
+          ],
+          "position": [
+            -0.9025224447250366,
+            -1.629481554031372
+          ],
+          "yaw": -0.3901176191622693,
+          "score": 0.01982584409415722,
+          "box": [
+            197,
+            82,
+            239,
+            133
+          ],
+          "grounded": [
+            -0.30202605982081976,
+            0.8822036641820165,
+            -1.0993219450223006
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              157,
+              84,
+              181,
+              125
+            ]
+          ],
+          "position": [
+            -0.878158688545227,
+            -1.8484512567520142
+          ],
+          "yaw": -0.851401838148064,
+          "score": 0.016920210793614388,
+          "box": [
+            157,
+            84,
+            181,
+            125
+          ],
+          "grounded": [
+            -0.31110679787484874,
+            0.8836290413744246,
+            -1.1223953340076316
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.7226068019866942
+      ],
+      "requested_yaw_rad": -1.5707963267948966,
+      "camera_start_yaw_rad": -1.5072147809597682,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.02737231446719074,
+      "goal_error_m": 0.01907054764775816,
+      "final_screen_distance_m": 0.7607802410660569,
+      "final_position": [
+        -0.9361626505851746,
+        -1.490026593208313
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 21.199999152,
+      "confirmation_seconds": 10.399999584,
+      "confirmations": [
+        {
+          "candidate_probe": 2,
+          "reason": "confirmed",
+          "displacement_m": 0.20147228014411786,
+          "position_error_m": 0.017770329522591246,
+          "probe": 3
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 1272,
+          "positive_impulse_reports": 1270,
+          "max_impulse_ns": 1.0830825567245483
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 1272,
+          "positive_impulse_reports": 1272,
+          "max_impulse_ns": 1.0767090320587158
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 1272,
+          "positive_impulse_reports": 1002,
+          "max_impulse_ns": 0.24623799324035645
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 1179,
+          "positive_impulse_reports": 796,
+          "max_impulse_ns": 0.13583706319332123
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              2,
+              79,
+              47,
+              139
+            ]
+          ],
+          "position": [
+            -0.8717556595802307,
+            -1.727431058883667
+          ],
+          "yaw": -1.5072147809597682,
+          "score": 0.009019124321639538,
+          "box": [
+            2,
+            79,
+            47,
+            139
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              149,
+              83,
+              181,
+              129
+            ]
+          ],
+          "position": [
+            -0.8757511973381042,
+            -1.7220230102539062
+          ],
+          "yaw": -0.7858437189424149,
+          "score": 0.015321612358093262,
+          "box": [
+            149,
+            83,
+            181,
+            129
+          ],
+          "grounded": [
+            -0.30594094754223033,
+            0.8831949176056686,
+            -1.1134172291753166
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              129,
+              82,
+              175,
+              131
+            ]
+          ],
+          "position": [
+            -0.9674814939498901,
+            -1.543285846710205
+          ],
+          "yaw": -0.6334449919757315,
+          "score": 0.05665486305952072,
+          "box": [
+            129,
+            82,
+            175,
+            131
+          ],
+          "grounded": [
+            -0.3000135555457595,
+            0.8836637491322025,
+            -1.0966711600108416
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.7226068019866942
+      ],
+      "requested_yaw_rad": 1.5707963267948966,
+      "camera_start_yaw_rad": 1.5059884904220047,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.03048664685055436,
+      "goal_error_m": 0.02296043732565505,
+      "final_screen_distance_m": 0.7673085975862399,
+      "final_position": [
+        -0.9447059035301208,
+        -1.488772988319397
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 34.599998616,
+      "confirmation_seconds": 9.799999608,
+      "confirmations": [
+        {
+          "candidate_probe": 6,
+          "reason": "confirmed",
+          "displacement_m": 0.20170379782782177,
+          "position_error_m": 0.014373610490772433,
+          "probe": 7
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 2076,
+          "positive_impulse_reports": 2075,
+          "max_impulse_ns": 1.1031266450881958
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 2076,
+          "positive_impulse_reports": 2074,
+          "max_impulse_ns": 1.0229560136795044
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 2076,
+          "positive_impulse_reports": 1661,
+          "max_impulse_ns": 0.23071835935115814
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 1971,
+          "positive_impulse_reports": 1325,
+          "max_impulse_ns": 0.12739212810993195
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              118,
+              113,
+              151,
+              126
+            ]
+          ],
+          "position": [
+            -0.8816760182380676,
+            -1.7268775701522827
+          ],
+          "yaw": 1.5059884904220047,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              248,
+              122,
+              292,
+              134
+            ]
+          ],
+          "position": [
+            -0.882917046546936,
+            -1.7274755239486694
+          ],
+          "yaw": 2.235137935963558,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8822646141052246,
+            -1.7283282279968262
+          ],
+          "yaw": 3.0136382223712053,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8806173801422119,
+            -1.7256278991699219
+          ],
+          "yaw": -2.472102475926534,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8824304342269897,
+            -1.7266026735305786
+          ],
+          "yaw": -1.6959094342853356,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              126,
+              83,
+              159,
+              128
+            ]
+          ],
+          "position": [
+            -0.8822312355041504,
+            -1.7268903255462646
+          ],
+          "yaw": -0.9151267155443837,
+          "score": 0.017746811732649803,
+          "box": [
+            126,
+            83,
+            159,
+            128
+          ],
+          "grounded": [
+            -0.30606170268023003,
+            0.8849618675350555,
+            -1.1148331187261857
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              127,
+              82,
+              173,
+              131
+            ]
+          ],
+          "position": [
+            -0.9752070307731628,
+            -1.5434569120407104
+          ],
+          "yaw": -0.6375460892813987,
+          "score": 0.07600925117731094,
+          "box": [
+            127,
+            82,
+            173,
+            131
+          ],
+          "grounded": [
+            -0.30273190406921846,
+            0.8833158170511579,
+            -1.10094774377428
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.9784014225006104,
+        -1.4726068019866942
+      ],
+      "requested_yaw_rad": -1.5707963267948966,
+      "camera_start_yaw_rad": -1.5142320097875,
+      "detected": false,
+      "correctly_localized": false,
+      "reached": false,
+      "initial_hit": false,
+      "target_error_m": null,
+      "goal_error_m": null,
+      "final_screen_distance_m": 1.230621111443272,
+      "final_position": [
+        -0.664973258972168,
+        -2.2525973320007324
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 118.199995272,
+      "confirmation_seconds": 22.99999908,
+      "confirmations": [
+        {
+          "candidate_probe": 2,
+          "reason": "missing second detection",
+          "displacement_m": 0.20300546188683385,
+          "position_error_m": null,
+          "probe": 3
+        },
+        {
+          "candidate_probe": 16,
+          "reason": "missing second detection",
+          "displacement_m": 0.2158015927152118,
+          "position_error_m": null,
+          "probe": 17
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 7092,
+          "positive_impulse_reports": 7082,
+          "max_impulse_ns": 1.1043792963027954
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 7092,
+          "positive_impulse_reports": 7087,
+          "max_impulse_ns": 1.1544601917266846
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 7092,
+          "positive_impulse_reports": 5598,
+          "max_impulse_ns": 0.24126200377941132
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 6756,
+          "positive_impulse_reports": 4685,
+          "max_impulse_ns": 0.15301622450351715
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9764664173126221,
+            -1.4703857898712158
+          ],
+          "yaw": -1.5142320097875,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              80,
+              81,
+              137,
+              135
+            ]
+          ],
+          "position": [
+            -0.9714325070381165,
+            -1.4657278060913086
+          ],
+          "yaw": -0.7909080089888785,
+          "score": 0.07064744085073471,
+          "box": [
+            80,
+            81,
+            137,
+            135
+          ],
+          "grounded": [
+            -0.30195708629994333,
+            0.8832061086331396,
+            -1.10145837314653
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              152,
+              82,
+              189,
+              132
+            ]
+          ],
+          "position": [
+            -0.8765913844108582,
+            -1.6513882875442505
+          ],
+          "yaw": -0.693372062922743,
+          "score": 0.010926913470029831,
+          "box": [
+            152,
+            82,
+            189,
+            132
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              290,
+              78,
+              318,
+              144
+            ]
+          ],
+          "position": [
+            -0.8774414658546448,
+            -1.6547044515609741
+          ],
+          "yaw": -0.00384202073698273,
+          "score": 0.004102026578038931,
+          "box": [
+            290,
+            78,
+            318,
+            144
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8760223388671875,
+            -1.651430368423462
+          ],
+          "yaw": 0.7823982087665363,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8631386160850525,
+            -1.6474207639694214
+          ],
+          "yaw": 1.573772112582653,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              272,
+              115,
+              317,
+              130
+            ]
+          ],
+          "position": [
+            -0.8597388863563538,
+            -1.649516224861145
+          ],
+          "yaw": 2.3570728744109495,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.864933967590332,
+            -1.6509007215499878
+          ],
+          "yaw": 3.139242905059568,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8623471856117249,
+            -1.6469806432724
+          ],
+          "yaw": -2.3624134423351686,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8013767004013062,
+            -1.9678313732147217
+          ],
+          "yaw": 0.17796460658991778,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.796828031539917,
+            -1.9671541452407837
+          ],
+          "yaw": 0.9066564875757328,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              51,
+              141,
+              110,
+              160
+            ]
+          ],
+          "position": [
+            -0.7924604415893555,
+            -1.9654442071914673
+          ],
+          "yaw": 1.684966640570625,
+          "score": 0.005331181455403566,
+          "box": [
+            51,
+            141,
+            110,
+            160
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              192,
+              135,
+              242,
+              163
+            ]
+          ],
+          "position": [
+            -0.7899112701416016,
+            -1.9684151411056519
+          ],
+          "yaw": 2.469598347823304,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.7965842485427856,
+            -1.9722744226455688
+          ],
+          "yaw": -3.0207222408962453,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.8028183579444885,
+            -1.9683289527893066
+          ],
+          "yaw": -2.2135121986051582,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              68,
+              84,
+              96,
+              123
+            ]
+          ],
+          "position": [
+            -0.8063574433326721,
+            -1.9698734283447266
+          ],
+          "yaw": -1.4482073864507785,
+          "score": 0.016062656417489052,
+          "box": [
+            68,
+            84,
+            96,
+            123
+          ],
+          "grounded": [
+            -0.31813433343647796,
+            0.895639324089146,
+            -1.182001287014867
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              159,
+              86,
+              178,
+              116
+            ]
+          ],
+          "position": [
+            -0.6838542819023132,
+            -2.1473865509033203
+          ],
+          "yaw": -1.1449803822224656,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              249,
+              86,
+              272,
+              120
+            ]
+          ],
+          "position": [
+            -0.6831686496734619,
+            -2.1467342376708984
+          ],
+          "yaw": -0.6612702893647052,
+          "score": 0.004759401548653841,
+          "box": [
+            249,
+            86,
+            272,
+            120
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.681093692779541,
+            -2.247838020324707
+          ],
+          "yaw": 1.5000480563449146,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6803955435752869,
+            -2.2486486434936523
+          ],
+          "yaw": 2.2225228729438538,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6757921576499939,
+            -2.2515065670013428
+          ],
+          "yaw": 3.015823318511473,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.6738934516906738,
+            -2.2520971298217773
+          ],
+          "yaw": -2.491774511932346,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              59,
+              87,
+              83,
+              116
+            ]
+          ],
+          "position": [
+            -0.6742372512817383,
+            -2.251751661300659
+          ],
+          "yaw": -1.7059138613142741,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              207,
+              87,
+              225,
+              115
+            ]
+          ],
+          "position": [
+            -0.6725627183914185,
+            -2.251659870147705
+          ],
+          "yaw": -0.9146472443881593,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.669143795967102,
+            -2.2535476684570312
+          ],
+          "yaw": -0.1332802511826757,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.664973258972168,
+            -2.2525973320007324
+          ],
+          "yaw": 0.6504063107393997,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.9784014225006104,
+        -1.4726068019866942
+      ],
+      "requested_yaw_rad": 1.5707963267948966,
+      "camera_start_yaw_rad": 1.5157803123035576,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.035920305858090355,
+      "goal_error_m": 0.021704262427306338,
+      "final_screen_distance_m": 0.7610980125944038,
+      "final_position": [
+        -0.9342979192733765,
+        -1.4934947490692139
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "simulated_seconds": 67.199997312,
+      "confirmation_seconds": 24.199999032,
+      "confirmations": [
+        {
+          "candidate_probe": 6,
+          "reason": "missing second detection",
+          "displacement_m": 0.20304859057538832,
+          "position_error_m": null,
+          "probe": 7
+        },
+        {
+          "candidate_probe": 8,
+          "reason": "confirmed",
+          "displacement_m": 0.21048326569178144,
+          "position_error_m": 0.04575324255527893,
+          "probe": 9
+        }
+      ],
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 4032,
+          "positive_impulse_reports": 4030,
+          "max_impulse_ns": 1.0843372344970703
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 4032,
+          "positive_impulse_reports": 4029,
+          "max_impulse_ns": 1.0554845333099365
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 4032,
+          "positive_impulse_reports": 3160,
+          "max_impulse_ns": 0.2314259111881256
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 3689,
+          "positive_impulse_reports": 2531,
+          "max_impulse_ns": 0.127817302942276
+        }
+      ],
+      "probes": [
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9850476384162903,
+            -1.4740421772003174
+          ],
+          "yaw": 1.5157803123035576,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9838833212852478,
+            -1.4743787050247192
+          ],
+          "yaw": 2.2464491241140516,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9807772636413574,
+            -1.475343108177185
+          ],
+          "yaw": 3.024813174678632,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9864789843559265,
+            -1.4741014242172241
+          ],
+          "yaw": -2.466261847193164,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [],
+          "position": [
+            -0.9896848201751709,
+            -1.4772435426712036
+          ],
+          "yaw": -1.689437546383866,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              56,
+              81,
+              116,
+              136
+            ]
+          ],
+          "position": [
+            -0.9932796955108643,
+            -1.478804349899292
+          ],
+          "yaw": -0.9026478205469248,
+          "score": 0.05585918948054314,
+          "box": [
+            56,
+            81,
+            116,
+            136
+          ],
+          "grounded": [
+            -0.3037745555441713,
+            0.8816956321385835,
+            -1.1099641689909356
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              151,
+              82,
+              188,
+              131
+            ]
+          ],
+          "position": [
+            -0.8865964412689209,
+            -1.6532227993011475
+          ],
+          "yaw": -0.6943173846835872,
+          "score": 0.005096105858683586,
+          "box": [
+            151,
+            82,
+            188,
+            131
+          ],
+          "grounded": null
+        },
+        {
+          "phase": "search",
+          "blue_proposals": [
+            [
+              259,
+              80,
+              312,
+              139
+            ]
+          ],
+          "position": [
+            -0.8857946395874023,
+            -1.6507123708724976
+          ],
+          "yaw": -0.11892998841070057,
+          "score": 0.018857313320040703,
+          "box": [
+            259,
+            80,
+            312,
+            139
+          ],
+          "grounded": [
+            -0.2968375258963797,
+            0.8843356359980975,
+            -1.0922126993386745
+          ]
+        },
+        {
+          "phase": "confirmation",
+          "blue_proposals": [
+            [
+              157,
+              84,
+              180,
+              126
+            ]
+          ],
+          "position": [
+            -0.8251722455024719,
+            -1.84871244430542
+          ],
+          "yaw": -0.8979378631196948,
+          "score": 0.012400072067975998,
+          "box": [
+            157,
+            84,
+            180,
+            126
+          ],
+          "grounded": [
+            -0.31624514913910806,
+            0.8838590591541182,
+            -1.1336430775520372
+          ]
+        }
+      ]
+    }
+  ]
+}

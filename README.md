@@ -180,6 +180,26 @@ The [run log](docs/results_rgbd_navigation.json) includes the contact entities, 
 python scripts/evaluate_rgbd_navigation.py docs/media/tum_desk_3dgs.ply.gz docs/results_rgbd_navigation.json
 ```
 
+#### Two-view confirmation
+
+The optional policy prefers a lateral move to a reachable floor cell 12–25 cm away. It checks that the robot actually moved at least 10 cm, points the camera at the candidate, and reruns the same detector. It accepts the mean of the two 3D estimates when their separation is at most 15 cm. A missing or inconsistent second observation sends the robot back to its search.
+
+| Start conditions | Policy | Reached | Wrong accepted target | Runs with obstacle contact | Mean simulated time |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Original ten | Single view | 8 / 10 | 2 | 0 | 28.8 s |
+| Original ten | Two views | 7 / 10 | 0 | 1 | 62.5 s |
+| Ten unused poses | Single view | 9 / 10 | 1 | 0 | 30.6 s |
+| Ten unused poses | Two views | 7 / 10 | 0 | 0 | 86.5 s |
+
+The unused poses are five different floor cells in the same scan, each tested at headings −90° and +90°. Times include the entire simulated episode and exclude inference and rendering latency. Confirmation moves and turns averaged 13.9 s and 22.5 s per run on the original and unused poses, respectively. The original set recovered run 3 and retained six of eight baseline successes. Its five rejected confirmations all lacked an above-threshold second detection. Run 6 recorded a positive-impulse contact between the base and a scan collider and ended on a turn timeout. Single-view navigation remains the default in this scene.
+
+```bash
+python scripts/evaluate_rgbd_navigation.py docs/media/tum_desk_3dgs.ply.gz docs/results_rgbd_two_view.json --confirm-views
+python scripts/evaluate_rgbd_navigation.py docs/media/tum_desk_3dgs.ply.gz docs/results_rgbd_held_out.json --confirm-views --unseen
+```
+
+Remove `--confirm-views` to reproduce the single-view controls. Trial data and probe sheets are available for the [original starts](docs/results_rgbd_two_view.json), [original probes](docs/results_rgbd_two_view.jpg), [unused starts](docs/results_rgbd_held_out.json), and [unused probes](docs/results_rgbd_held_out.jpg). The timed controls are recorded for the [original starts](docs/results_rgbd_baseline.json) and [unused starts](docs/results_rgbd_held_out_baseline.json).
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:

@@ -101,6 +101,8 @@ class Episode:
         self.raster = SplatRaster(directory)
         self.capture_frames = capture_frames
         self.probe_images = []
+        self.confirmations = []
+        self.confirmation_steps = 0
         self.contact_pairs_available = hasattr(self.sim, "contact_pairs")
         self.contact_summary = {}
         self.active_obstacle_pairs = set()
@@ -240,7 +242,58 @@ class Episode:
         draw.text((image.width + 8, 209), "Robot / screen / approach", fill="white")
         self.frames.append(panel)
 
-    def search(self, detector, threshold):
+    def probe(self, detector, threshold, phase):
+        image, depth, eye, basis = self.observe()
+        score, box = detector.detect(image)
+        hit = ground_target(box, depth, eye, basis) if box is not None and score >= threshold else None
+        self.probe_images.append(image)
+        self.probes.append(dict(phase=phase, blue_proposals=detector.last_proposals,
+                                position=self.position.tolist(), yaw=self.obs.base_yaw,
+                                score=score, box=box, grounded=None if hit is None else hit.tolist()))
+        return image, box, score, hit
+
+    def confirm(self, detector, threshold, candidate):
+        first = self.position
+        first_probe = len(self.probes)
+        direction = candidate[[0, 2]] - first
+        parents = self.reachable()
+        lateral = np.array([-direction[1], direction[0]])
+        norm = np.linalg.norm(lateral)
+        if norm < 1e-6:
+            self.confirmations.append(dict(candidate_probe=first_probe, reason="degenerate sightline"))
+            return None
+        lateral /= norm
+        options = []
+        for cell in parents:
+            shift = self.center(cell) - first
+            if .12 <= np.linalg.norm(shift) <= .25:
+                options.append((abs(shift @ lateral), cell))
+        if not options:
+            self.confirmations.append(dict(candidate_probe=first_probe, reason="no safe second viewpoint"))
+            return None
+        _, waypoint = max(options)
+        start_steps = len(self.path)
+        try:
+            self.move_to(parents, waypoint, "moving for second view")
+            displacement = float(np.linalg.norm(self.position - first))
+            if displacement < .10:
+                self.confirmations.append(dict(candidate_probe=first_probe, reason="camera baseline too short",
+                                               displacement_m=displacement))
+                return None
+            delta = candidate[[0, 2]] - self.position
+            self.turn(np.arctan2(-delta[1], delta[0]), "aiming second view")
+            image, box, score, observed = self.probe(detector, threshold, "confirmation")
+            error = None if observed is None else float(np.linalg.norm(candidate - observed))
+            accepted = error is not None and error <= .15
+            reason = "confirmed" if accepted else ("missing second detection" if error is None else "position mismatch")
+            self.confirmations.append(dict(candidate_probe=first_probe, reason=reason, displacement_m=displacement,
+                                           position_error_m=error, probe=len(self.probes)))
+            self.add_frame(image, f"{reason} | {score:.3f}", box)
+            return (candidate + observed) / 2 if accepted else None
+        finally:
+            self.confirmation_steps += len(self.path) - start_steps
+
+    def search(self, detector, threshold, *, confirm_views=False):
         anchor = self.position
         parents = self.reachable()
         endpoint = self.center(max(parents, key=lambda c: np.linalg.norm(self.center(c) - anchor)))
@@ -253,19 +306,15 @@ class Episode:
             initial_yaw = self.obs.base_yaw
             for n in range(8):
                 self.turn(initial_yaw + n * np.pi / 4)
-                image, depth, eye, basis = self.observe()
-                score, box = detector.detect(image)
-                hit = ground_target(box, depth, eye, basis) if box is not None and score >= threshold else None
-                self.probe_images.append(image)
-                self.probes.append(dict(blue_proposals=detector.last_proposals, position=self.position.tolist(), yaw=self.obs.base_yaw, score=score,
-                                        box=box, grounded=None if hit is None else hit.tolist()))
-                print("probe", len(self.probes), "score", round(score, 4), "grounded", hit, flush=True)
-                if hit is not None:
-                    self.target_xy = hit[[0, 2]]
-                self.add_frame(image, f"{detector.target}: {'found' if hit is not None else 'searching'} | {score:.3f}",
+                image, box, score, hit = self.probe(detector, threshold, "search")
+                self.add_frame(image, f"{detector.target}: {'candidate' if hit is not None else 'searching'} | {score:.3f}",
                                box if hit is not None else None)
                 if hit is not None:
-                    return hit
+                    if confirm_views:
+                        hit = self.confirm(detector, threshold, hit)
+                    if hit is not None:
+                        self.target_xy = hit[[0, 2]]
+                        return hit
         return None
 
 
@@ -290,6 +339,7 @@ def main():
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--threshold", type=float, default=.012)
+    parser.add_argument("--confirm-views", action="store_true")
     args = parser.parse_args()
     torch.set_num_threads(2)
     cloud, _ = register_floor(read_cloud(args.source))
@@ -299,7 +349,7 @@ def main():
     detector = Detector("blue computer screen")
     with tempfile.TemporaryDirectory(prefix="scan_nav_") as directory:
         episode = Episode(cloud, free, obstacles, origin, start, Path(directory))
-        target = episode.search(detector, args.threshold)
+        target = episode.search(detector, args.threshold, confirm_views=args.confirm_views)
         goal = None
         error = None
         if target is not None:
@@ -308,7 +358,9 @@ def main():
         save_small_gif(episode.frames, args.output, frame_ms=450)
         args.output.with_suffix(".json").write_text(json.dumps(dict(
             source=args.source.name, detector=MODEL, detector_revision=MODEL_REVISION,
-            target=detector.target, threshold=args.threshold,
+            target=detector.target, threshold=args.threshold, confirm_views=args.confirm_views,
+            confirmations=episode.confirmations,
+            confirmation_seconds=episode.confirmation_steps * TICKS * episode.sim.fixed_delta_s,
             initial_position=start.tolist(), probes=episode.probes, path=episode.path,
             reached=error is not None and error < .05, goal=None if goal is None else goal.tolist(),
             goal_error_before_final_turn_m=error,
