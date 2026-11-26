@@ -160,6 +160,26 @@ python scripts/navigate_rgbd.py docs/media/tum_desk_3dgs.ply.gz docs/media/tum_d
 
 The command also needs the RNE Python wheel and C++17 compiler. The pretrained detector is fetched on first use. The scan and derived visualization use the TUM RGB-D attribution above.
 
+#### Ten-start evaluation
+
+The same detector, threshold, map and controller were run at five surveyed floor locations with yaw 0 and π at each location. A run counted as a correct localization if the estimated screen was within 25 cm of the visually checked reference from the original replay. Reaching required a correct localization, under 5 cm of final error to the computed approach point, and a final base-to-screen distance no greater than 85 cm. These are repeatability checks in one capture.
+
+| Result | Count |
+| --- | ---: |
+| Screen candidate grounded | 10 / 10 |
+| Correct screen localized | 8 / 10 |
+| Approach completed | 8 / 10 |
+| Run with a positive-impulse obstacle contact | 0 / 10 |
+
+Runs 3 and 4 share the same starting location and accepted a small blue patch about 1.27 m from the screen reference. Run 4 also had a view of the actual screen at probe 3. OWLv2 scored that proposal 0.008, below the 0.012 acceptance threshold. The later false region scored 0.017. This failure involves target discrimination and the policy accepting the first qualifying view.
+
+The [run log](docs/results_rgbd_navigation.json) includes the contact entities, normal impulses, and each camera probe. The [probe sheet](docs/results_rgbd_navigation.jpg) shows each initial view and the strongest candidates, with amber proposals and a green accepted region. Wheel–floor contacts were observed in every run. Obstacle onsets count positive normal impulses between a robot body and a named scan collider after a tick without that same pair.
+
+```bash
+# Use an RNE Python wheel with DiffDriveSim.contact_pairs.
+python scripts/evaluate_rgbd_navigation.py docs/media/tum_desk_3dgs.ply.gz docs/results_rgbd_navigation.json
+```
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:

@@ -65,6 +65,7 @@ class Detector:
                 continue
             y, x = slices
             regions.append([x.start, y.start, x.stop, y.stop])
+        self.last_proposals = regions
         if not regions:
             return 0, None
         inputs = self.processor(text=[[f"a photo of a {self.target}", "a computer monitor",
@@ -88,7 +89,7 @@ class Detector:
 
 
 class Episode:
-    def __init__(self, cloud, free, obstacles, origin, start, directory):
+    def __init__(self, cloud, free, obstacles, origin, start, directory, *, capture_frames=True):
         self.cloud, self.free, self.obstacles, self.origin = cloud, free, obstacles, origin
         self.safe = distance_transform_edt(free) * CELL >= .13
         self.obstacle_distance = distance_transform_edt(~obstacles) * CELL
@@ -98,6 +99,13 @@ class Episode:
         self.sim = create_sim(directory, obstacles, origin, start)
         self.obs = self.sim.reset()
         self.raster = SplatRaster(directory)
+        self.capture_frames = capture_frames
+        self.probe_images = []
+        self.contact_pairs_available = hasattr(self.sim, "contact_pairs")
+        self.contact_summary = {}
+        self.active_obstacle_pairs = set()
+        self.obstacle_contact_onsets = 0
+        self.obstacle_contact_ticks = 0
         self.path, self.frames, self.probes = [], [], []
         self.max_contacts = 0
         pixels = np.full((*free.T.shape, 3), (31, 42, 52), dtype=np.uint8)
@@ -121,6 +129,8 @@ class Episode:
             self.obs = self.sim.step(float((v - w * TRACK/2) / WHEEL),
                                      float((v + w * TRACK/2) / WHEEL))
             self.max_contacts = max(self.max_contacts, self.sim.contact_count)
+            if self.contact_pairs_available:
+                self.track_contacts(self.sim.contact_pairs)
             # Distance from the center to the actual axis-aligned box footprints.
             gap = np.maximum(abs(self.collider_centers - self.position) - CELL / 2, 0)
             distance = float(np.linalg.norm(gap, axis=1).min(initial=np.inf))
@@ -131,6 +141,29 @@ class Episode:
             raise RuntimeError("Robot left the surveyed floor")
         self.path.append(dict(position=self.position.tolist(), yaw=self.obs.base_yaw, phase=phase,
                               obstacle_cell_clearance_m=float(self.obstacle_distance[cell])))
+
+    def track_contacts(self, pairs):
+        obstacle_pairs = set()
+        for a, b, impulse in pairs:
+            names = tuple(sorted((a, b)))
+            if any(name.startswith("scan_") for name in names) and "ground" not in names:
+                kind = "obstacle"
+                if impulse > 0:
+                    obstacle_pairs.add(names)
+            elif "ground" in names:
+                kind = "wheel_floor" if any("wheel" in name for name in names) else "other_floor"
+            else:
+                kind = "other"
+            key = (kind, *names)
+            record = self.contact_summary.setdefault(key, dict(kind=kind, entities=list(names),
+                                                                reports=0, positive_impulse_reports=0,
+                                                                max_impulse_ns=0.0))
+            record["reports"] += 1
+            record["positive_impulse_reports"] += impulse > 0
+            record["max_impulse_ns"] = max(record["max_impulse_ns"], impulse)
+        self.obstacle_contact_onsets += len(obstacle_pairs - self.active_obstacle_pairs)
+        self.obstacle_contact_ticks += bool(obstacle_pairs)
+        self.active_obstacle_pairs = obstacle_pairs
 
     def turn(self, yaw, phase="search"):
         for _ in range(40):
@@ -176,12 +209,14 @@ class Episode:
                 angle = yaw_error(np.arctan2(-delta[1], delta[0]), self.obs.base_yaw)
                 self.step(min(.16, 2*distance) if abs(angle) < .3 else 0,
                           np.clip(3*angle, -1.6, 1.6), phase)
-                if len(self.path) % 4 == 0:
+                if self.capture_frames and len(self.path) % 4 == 0:
                     self.add_frame(self.observe()[0], phase)
             else:
                 raise RuntimeError(f"Could not reach {phase} waypoint")
 
     def add_frame(self, image, phase, box=None):
+        if not self.capture_frames:
+            return
         panel = Image.new("RGB", (image.width + self.map.width, image.height + 26), "#1b2632")
         panel.paste(image, (0, 0))
         draw = ImageDraw.Draw(panel)
@@ -221,7 +256,8 @@ class Episode:
                 image, depth, eye, basis = self.observe()
                 score, box = detector.detect(image)
                 hit = ground_target(box, depth, eye, basis) if box is not None and score >= threshold else None
-                self.probes.append(dict(position=self.position.tolist(), yaw=self.obs.base_yaw, score=score,
+                self.probe_images.append(image)
+                self.probes.append(dict(blue_proposals=detector.last_proposals, position=self.position.tolist(), yaw=self.obs.base_yaw, score=score,
                                         box=box, grounded=None if hit is None else hit.tolist()))
                 print("probe", len(self.probes), "score", round(score, 4), "grounded", hit, flush=True)
                 if hit is not None:
@@ -231,6 +267,22 @@ class Episode:
                 if hit is not None:
                     return hit
         return None
+
+
+def approach(episode, detector, target, threshold):
+    parents = episode.reachable()
+    cell = min(parents, key=lambda c: np.linalg.norm(episode.center(c) - target[[0, 2]]))
+    goal = episode.center(cell)
+    episode.approach = goal
+    episode.move_to(parents, cell, "approaching visual goal")
+    error = float(np.linalg.norm(episode.position - goal))
+    delta = target[[0, 2]] - episode.position
+    episode.turn(np.arctan2(-delta[1], delta[0]), "facing visual target")
+    image, _, _, _ = episode.observe()
+    score, final_box = detector.detect(image)
+    episode.add_frame(image, "reached mapped approach point",
+                      final_box if score >= threshold else None)
+    return goal, error, score, final_box
 
 
 def main():
@@ -251,19 +303,7 @@ def main():
         goal = None
         error = None
         if target is not None:
-            # Choose a reachable floor cell nearest the target in the horizontal plane.
-            parents = episode.reachable()
-            cell = min(parents, key=lambda c: np.linalg.norm(episode.center(c) - target[[0, 2]]))
-            goal = episode.center(cell)
-            episode.approach = goal
-            episode.move_to(parents, cell, "approaching visual goal")
-            error = float(np.linalg.norm(episode.position - goal))
-            delta = target[[0, 2]] - episode.position
-            episode.turn(np.arctan2(-delta[1], delta[0]), "facing visual target")
-            image, _, _, _ = episode.observe()
-            score, final_box = detector.detect(image)
-            episode.add_frame(image, "reached mapped approach point",
-                              final_box if score >= args.threshold else None)
+            goal, error, _, _ = approach(episode, detector, target, args.threshold)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         save_small_gif(episode.frames, args.output, frame_ms=450)
         args.output.with_suffix(".json").write_text(json.dumps(dict(
@@ -274,6 +314,8 @@ def main():
             goal_error_before_final_turn_m=error,
             final_position=episode.position.tolist(), max_contacts_per_tick=episode.max_contacts,
             min_collider_clearance_m=episode.min_collider_clearance,
+            obstacle_contact_onsets=episode.obstacle_contact_onsets if episode.contact_pairs_available else None,
+            contact_pairs=list(episode.contact_summary.values()) if episode.contact_pairs_available else None,
             footprint_envelope_m=.10, footprint_envelope_overlap_ticks=episode.envelope_overlap_ticks,
             min_obstacle_cell_clearance_m=min((step["obstacle_cell_clearance_m"] for step in episode.path),
                                               default=None),

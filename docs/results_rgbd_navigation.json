@@ -1,0 +1,1631 @@
+{
+  "summary": {
+    "runs": 10,
+    "detections": 10,
+    "correct_localizations": 8,
+    "reaches": 8,
+    "runs_with_obstacle_contacts": 0,
+    "obstacle_contact_onsets": 0
+  },
+  "source": "tum_desk_3dgs.ply.gz",
+  "detector": "google/owlv2-base-patch16-ensemble",
+  "detector_revision": "cfd3195ba4ea9592eec887ded089f4c08eff231d",
+  "threshold": 0.012,
+  "reference_screen_xz_m": [
+    -0.29629325,
+    -1.0785005
+  ],
+  "localization_limit_m": 0.25,
+  "approach_limit_m": 0.85,
+  "trials": [
+    {
+      "start": [
+        -0.7784014225006102,
+        -2.2726068019866945
+      ],
+      "requested_yaw_rad": 0.0,
+      "camera_start_yaw_rad": 0.0,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 1.639327182708217e-09,
+      "goal_error_m": 0.018944773028897407,
+      "final_screen_distance_m": 0.7554858601027858,
+      "final_position": [
+        -0.9288693070411682,
+        -1.4915457963943481
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 3204,
+          "positive_impulse_reports": 3202,
+          "max_impulse_ns": 1.2182843685150146
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 3204,
+          "positive_impulse_reports": 3197,
+          "max_impulse_ns": 1.160569429397583
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 3204,
+          "positive_impulse_reports": 2644,
+          "max_impulse_ns": 0.23028455674648285
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 2869,
+          "positive_impulse_reports": 1923,
+          "max_impulse_ns": 0.17203834652900696
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7784014225006102,
+            -2.2726068019866945
+          ],
+          "yaw": 0.0,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7778988480567932,
+            -2.269878387451172
+          ],
+          "yaw": 0.7231341016739441,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7749024033546448,
+            -2.2670092582702637
+          ],
+          "yaw": 1.5130595923651418,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              58,
+              193,
+              73,
+              214
+            ]
+          ],
+          "position": [
+            -0.7790694236755371,
+            -2.266486167907715
+          ],
+          "yaw": 2.2912965720778744,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7788963913917542,
+            -2.2704241275787354
+          ],
+          "yaw": 3.0774244224199876,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7811447381973267,
+            -2.2756879329681396
+          ],
+          "yaw": -2.4165624494412157,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              59,
+              87,
+              83,
+              116
+            ]
+          ],
+          "position": [
+            -0.783653974533081,
+            -2.274045467376709
+          ],
+          "yaw": -1.6336893630195608,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              206,
+              88,
+              225,
+              114
+            ]
+          ],
+          "position": [
+            -0.7835062742233276,
+            -2.272240161895752
+          ],
+          "yaw": -0.8420224853288185,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              2,
+              81,
+              38,
+              136
+            ]
+          ],
+          "position": [
+            -0.8782423734664917,
+            -1.796491265296936
+          ],
+          "yaw": -1.5752226717534317,
+          "score": 0.012535112909972668,
+          "box": [
+            2,
+            81,
+            38,
+            136
+          ],
+          "grounded": [
+            -0.2962932491107133,
+            0.8802679145873544,
+            -1.0785004986228426
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.7784014225006102,
+        -2.2726068019866945
+      ],
+      "requested_yaw_rad": 3.141592653589793,
+      "camera_start_yaw_rad": -3.0838685815726983,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.040506627062977904,
+      "goal_error_m": 0.024971856540154148,
+      "final_screen_distance_m": 0.7584846771462189,
+      "final_position": [
+        -0.9284899234771729,
+        -1.497578501701355
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 3156,
+          "positive_impulse_reports": 3151,
+          "max_impulse_ns": 1.11415433883667
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 3156,
+          "positive_impulse_reports": 3153,
+          "max_impulse_ns": 1.0657004117965698
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 3156,
+          "positive_impulse_reports": 2508,
+          "max_impulse_ns": 0.2536320388317108
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 2872,
+          "positive_impulse_reports": 1899,
+          "max_impulse_ns": 0.16023333370685577
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7750347852706909,
+            -2.268458366394043
+          ],
+          "yaw": -3.0838685815726983,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7740837335586548,
+            -2.2683701515197754
+          ],
+          "yaw": -2.3634519948535204,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              72,
+              86,
+              95,
+              114
+            ]
+          ],
+          "position": [
+            -0.77520751953125,
+            -2.2687575817108154
+          ],
+          "yaw": -1.577917735720746,
+          "score": 0.009613601490855217,
+          "box": [
+            72,
+            86,
+            95,
+            114
+          ],
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              217,
+              87,
+              236,
+              115
+            ]
+          ],
+          "position": [
+            -0.7767318487167358,
+            -2.2633914947509766
+          ],
+          "yaw": -0.7886660168847834,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7826980948448181,
+            -2.2624387741088867
+          ],
+          "yaw": -0.00673584166022085,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7806519865989685,
+            -2.2551140785217285
+          ],
+          "yaw": 0.7796348074740989,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.7776771783828735,
+            -2.255744695663452
+          ],
+          "yaw": 1.563865611696431,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              78,
+              184,
+              93,
+              203
+            ]
+          ],
+          "position": [
+            -0.776009202003479,
+            -2.258164882659912
+          ],
+          "yaw": 2.349679808931791,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              2,
+              80,
+              47,
+              135
+            ]
+          ],
+          "position": [
+            -0.8799021244049072,
+            -1.7963799238204956
+          ],
+          "yaw": -1.5399224119808388,
+          "score": 0.019605329260230064,
+          "box": [
+            2,
+            80,
+            47,
+            135
+          ],
+          "grounded": [
+            -0.3098121624196156,
+            0.8874784392175349,
+            -1.1166846045856773
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8284014225006102,
+        -2.0726068019866943
+      ],
+      "requested_yaw_rad": 0.0,
+      "camera_start_yaw_rad": 0.0,
+      "detected": true,
+      "correctly_localized": false,
+      "reached": false,
+      "initial_hit": false,
+      "target_error_m": 1.2694567829257266,
+      "goal_error_m": 0.022188441865055364,
+      "final_screen_distance_m": 1.1944610902244215,
+      "final_position": [
+        -0.8193430304527283,
+        -2.1523516178131104
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 1140,
+          "positive_impulse_reports": 1140,
+          "max_impulse_ns": 1.0626769065856934
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 1140,
+          "positive_impulse_reports": 1140,
+          "max_impulse_ns": 0.9654457569122314
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 1140,
+          "positive_impulse_reports": 937,
+          "max_impulse_ns": 0.2032247632741928
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 1112,
+          "positive_impulse_reports": 815,
+          "max_impulse_ns": 0.13625966012477875
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8284014225006102,
+            -2.0726068019866943
+          ],
+          "yaw": 0.0,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              67,
+              205,
+              110,
+              237
+            ]
+          ],
+          "position": [
+            -0.8188875317573547,
+            -2.0679993629455566
+          ],
+          "yaw": 0.7205955634920007,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              197,
+              216,
+              241,
+              230
+            ]
+          ],
+          "position": [
+            -0.819148063659668,
+            -2.0713467597961426
+          ],
+          "yaw": 1.5069075523225024,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              123,
+              164,
+              142,
+              181
+            ]
+          ],
+          "position": [
+            -0.8157669305801392,
+            -2.0732226371765137
+          ],
+          "yaw": 2.2953743576711387,
+          "score": 0.012188143096864223,
+          "box": [
+            123,
+            164,
+            142,
+            181
+          ],
+          "grounded": [
+            -0.9394740417805046,
+            0.8722505487609158,
+            -2.1729588102159436
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8284014225006102,
+        -2.0726068019866943
+      ],
+      "requested_yaw_rad": 3.141592653589793,
+      "camera_start_yaw_rad": -3.0808857931394598,
+      "detected": true,
+      "correctly_localized": false,
+      "reached": false,
+      "initial_hit": false,
+      "target_error_m": 1.2698098750929057,
+      "goal_error_m": 0.0198254100528816,
+      "final_screen_distance_m": 1.1978939092274854,
+      "final_position": [
+        -0.8259590864181519,
+        -2.1529324054718018
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 2148,
+          "positive_impulse_reports": 2148,
+          "max_impulse_ns": 1.163216233253479
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 2148,
+          "positive_impulse_reports": 2145,
+          "max_impulse_ns": 1.1725929975509644
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 2148,
+          "positive_impulse_reports": 1710,
+          "max_impulse_ns": 0.23225143551826477
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 2109,
+          "positive_impulse_reports": 1509,
+          "max_impulse_ns": 0.14349442720413208
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [
+            [
+              295,
+              189,
+              318,
+              221
+            ]
+          ],
+          "position": [
+            -0.822687029838562,
+            -2.0708792209625244
+          ],
+          "yaw": -3.0808857931394598,
+          "score": 0.004134178161621094,
+          "box": [
+            295,
+            189,
+            318,
+            221
+          ],
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8185060024261475,
+            -2.0695157051086426
+          ],
+          "yaw": -2.353045527599153,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              49,
+              84,
+              77,
+              121
+            ]
+          ],
+          "position": [
+            -0.8198751211166382,
+            -2.0689468383789062
+          ],
+          "yaw": -1.5721655218384443,
+          "score": 0.007586408406496048,
+          "box": [
+            49,
+            84,
+            77,
+            121
+          ],
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              198,
+              85,
+              218,
+              120
+            ]
+          ],
+          "position": [
+            -0.8186274766921997,
+            -2.07002329826355
+          ],
+          "yaw": -0.7870707018496379,
+          "score": 0.0064660320058465,
+          "box": [
+            198,
+            85,
+            218,
+            120
+          ],
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8164951205253601,
+            -2.067927598953247
+          ],
+          "yaw": -0.0030011111470039254,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              73,
+              203,
+              117,
+              238
+            ]
+          ],
+          "position": [
+            -0.8152942061424255,
+            -2.068817138671875
+          ],
+          "yaw": 0.7821340865032161,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              2,
+              193,
+              13,
+              216
+            ],
+            [
+              216,
+              222,
+              261,
+              231
+            ]
+          ],
+          "position": [
+            -0.8240242004394531,
+            -2.069949150085449
+          ],
+          "yaw": 1.5805511039916715,
+          "score": 0.008636695332825184,
+          "box": [
+            2,
+            193,
+            13,
+            216
+          ],
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              140,
+              162,
+              169,
+              186
+            ]
+          ],
+          "position": [
+            -0.8307085633277893,
+            -2.0707828998565674
+          ],
+          "yaw": 2.3527000333725105,
+          "score": 0.016911108046770096,
+          "box": [
+            140,
+            162,
+            169,
+            186
+          ],
+          "grounded": [
+            -0.9393165813954196,
+            0.874325092160239,
+            -2.1734608253838
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.8726068019866944
+      ],
+      "requested_yaw_rad": 0.0,
+      "camera_start_yaw_rad": 0.0,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.050448664564585306,
+      "goal_error_m": 0.02309612432034959,
+      "final_screen_distance_m": 0.7593184372072465,
+      "final_position": [
+        -0.9308101534843445,
+        -1.4955769777297974
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 1920,
+          "positive_impulse_reports": 1917,
+          "max_impulse_ns": 1.0695416927337646
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 1920,
+          "positive_impulse_reports": 1919,
+          "max_impulse_ns": 0.9955036044120789
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 1920,
+          "positive_impulse_reports": 1561,
+          "max_impulse_ns": 0.25197267532348633
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 1785,
+          "positive_impulse_reports": 1188,
+          "max_impulse_ns": 0.11646504700183868
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8784014225006103,
+            -1.8726068019866944
+          ],
+          "yaw": 0.0,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8774328231811523,
+            -1.8713023662567139
+          ],
+          "yaw": 0.7219678017687875,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              101,
+              131,
+              148,
+              141
+            ]
+          ],
+          "position": [
+            -0.8733677864074707,
+            -1.867767333984375
+          ],
+          "yaw": 1.5080913908766453,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              237,
+              134,
+              298,
+              153
+            ]
+          ],
+          "position": [
+            -0.8714842200279236,
+            -1.8689457178115845
+          ],
+          "yaw": 2.297034138657482,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8696023225784302,
+            -1.8700975179672241
+          ],
+          "yaw": 3.0835736670797966,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8704999685287476,
+            -1.8686847686767578
+          ],
+          "yaw": -2.4146727785419175,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              2,
+              82,
+              33,
+              133
+            ]
+          ],
+          "position": [
+            -0.8775326609611511,
+            -1.870656132698059
+          ],
+          "yaw": -1.6339941639521378,
+          "score": 0.011094409041106701,
+          "box": [
+            2,
+            82,
+            33,
+            133
+          ],
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              160,
+              84,
+              183,
+              124
+            ]
+          ],
+          "position": [
+            -0.8824672102928162,
+            -1.8697344064712524
+          ],
+          "yaw": -0.8463845426449074,
+          "score": 0.015823684632778168,
+          "box": [
+            160,
+            84,
+            183,
+            124
+          ],
+          "grounded": [
+            -0.3132214178018419,
+            0.8870555545304821,
+            -1.1260242297696923
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.8726068019866944
+      ],
+      "requested_yaw_rad": 3.141592653589793,
+      "camera_start_yaw_rad": -3.0849628887150207,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.07214330740943263,
+      "goal_error_m": 0.020292886344603106,
+      "final_screen_distance_m": 0.759864726553973,
+      "final_position": [
+        -0.9336650967597961,
+        -1.4922051429748535
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 1308,
+          "positive_impulse_reports": 1306,
+          "max_impulse_ns": 1.078586220741272
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 1308,
+          "positive_impulse_reports": 1306,
+          "max_impulse_ns": 1.021781086921692
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 1308,
+          "positive_impulse_reports": 1058,
+          "max_impulse_ns": 0.20901048183441162
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 1161,
+          "positive_impulse_reports": 723,
+          "max_impulse_ns": 0.13063597679138184
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8667376041412354,
+            -1.8688759803771973
+          ],
+          "yaw": -3.0849628887150207,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8680323958396912,
+            -1.8690303564071655
+          ],
+          "yaw": -2.3550796657886237,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              11,
+              81,
+              51,
+              131
+            ]
+          ],
+          "position": [
+            -0.8638956546783447,
+            -1.874470829963684
+          ],
+          "yaw": -1.5735305932046855,
+          "score": 0.013913117349147797,
+          "box": [
+            11,
+            81,
+            51,
+            131
+          ],
+          "grounded": [
+            -0.3149394014073835,
+            0.8919326879436986,
+            -1.1481925213630286
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.6726068019866942
+      ],
+      "requested_yaw_rad": 0.0,
+      "camera_start_yaw_rad": 0.0,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.03503198248376078,
+      "goal_error_m": 0.017991122104359287,
+      "final_screen_distance_m": 0.7585471340786416,
+      "final_position": [
+        -0.9336404800415039,
+        -1.4898182153701782
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 2112,
+          "positive_impulse_reports": 2111,
+          "max_impulse_ns": 1.1189192533493042
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 2112,
+          "positive_impulse_reports": 2110,
+          "max_impulse_ns": 1.0560256242752075
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 2112,
+          "positive_impulse_reports": 1746,
+          "max_impulse_ns": 0.25430527329444885
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 2044,
+          "positive_impulse_reports": 1424,
+          "max_impulse_ns": 0.13255059719085693
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [
+            [
+              296,
+              78,
+              318,
+              144
+            ]
+          ],
+          "position": [
+            -0.8784014225006103,
+            -1.6726068019866942
+          ],
+          "yaw": 0.0,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8809388875961304,
+            -1.6725475788116455
+          ],
+          "yaw": 0.7204166050106401,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8837594389915466,
+            -1.6761616468429565
+          ],
+          "yaw": 1.5095481330284934,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              265,
+              119,
+              309,
+              132
+            ]
+          ],
+          "position": [
+            -0.8813015222549438,
+            -1.6803959608078003
+          ],
+          "yaw": 2.2936801515483887,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8823177218437195,
+            -1.676289677619934
+          ],
+          "yaw": 3.0796228299448707,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8866822123527527,
+            -1.6794002056121826
+          ],
+          "yaw": -2.4142575166281577,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8866706490516663,
+            -1.6792635917663574
+          ],
+          "yaw": -1.6336600085143616,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              128,
+              82,
+              164,
+              130
+            ]
+          ],
+          "position": [
+            -0.885282576084137,
+            -1.6750990152359009
+          ],
+          "yaw": -0.8494768395063297,
+          "score": 0.020074589177966118,
+          "box": [
+            128,
+            82,
+            164,
+            130
+          ],
+          "grounded": [
+            -0.30502100095785845,
+            0.88560725841211,
+            -1.1124278659449143
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.8784014225006103,
+        -1.6726068019866942
+      ],
+      "requested_yaw_rad": 3.141592653589793,
+      "camera_start_yaw_rad": -3.082352068021181,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.12072177997356602,
+      "goal_error_m": 0.01912127165346733,
+      "final_screen_distance_m": 0.7576913594815605,
+      "final_position": [
+        -0.9315532445907593,
+        -1.4914665222167969
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 1104,
+          "positive_impulse_reports": 1103,
+          "max_impulse_ns": 1.0910731554031372
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 1104,
+          "positive_impulse_reports": 1104,
+          "max_impulse_ns": 1.047437071800232
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 1104,
+          "positive_impulse_reports": 888,
+          "max_impulse_ns": 0.2359379529953003
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 1026,
+          "positive_impulse_reports": 666,
+          "max_impulse_ns": 0.12061131000518799
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.871833086013794,
+            -1.6724498271942139
+          ],
+          "yaw": -3.082352068021181,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.8749345541000366,
+            -1.6757843494415283
+          ],
+          "yaw": -2.3527176914083117,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              2,
+              92,
+              21,
+              134
+            ]
+          ],
+          "position": [
+            -0.874581515789032,
+            -1.6767938137054443
+          ],
+          "yaw": -1.572051595342277,
+          "score": 0.016616085544228554,
+          "box": [
+            2,
+            92,
+            21,
+            134
+          ],
+          "grounded": [
+            -0.25119428603635263,
+            0.8639137955693759,
+            -0.9665191104328416
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.9284014225006103,
+        -1.4726068019866942
+      ],
+      "requested_yaw_rad": 0.0,
+      "camera_start_yaw_rad": 0.0,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": true,
+      "target_error_m": 0.006428538396615966,
+      "goal_error_m": 0.002629184859134562,
+      "final_screen_distance_m": 0.7475309769734279,
+      "final_position": [
+        -0.930674135684967,
+        -1.473928689956665
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 144,
+          "positive_impulse_reports": 144,
+          "max_impulse_ns": 0.8923311829566956
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 144,
+          "positive_impulse_reports": 144,
+          "max_impulse_ns": 0.9259794354438782
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 144,
+          "positive_impulse_reports": 118,
+          "max_impulse_ns": 0.09799089282751083
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 144,
+          "positive_impulse_reports": 118,
+          "max_impulse_ns": 0.08649270981550217
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [
+            [
+              230,
+              79,
+              298,
+              140
+            ]
+          ],
+          "position": [
+            -0.9284014225006103,
+            -1.4726068019866942
+          ],
+          "yaw": 0.0,
+          "score": 0.02752803824841976,
+          "box": [
+            230,
+            79,
+            298,
+            140
+          ],
+          "grounded": [
+            -0.28987867672689005,
+            0.8855495887980739,
+            -1.0780769959968677
+          ]
+        }
+      ]
+    },
+    {
+      "start": [
+        -0.9284014225006103,
+        -1.4726068019866942
+      ],
+      "requested_yaw_rad": 3.141592653589793,
+      "camera_start_yaw_rad": -3.0860063279109293,
+      "detected": true,
+      "correctly_localized": true,
+      "reached": true,
+      "initial_hit": false,
+      "target_error_m": 0.032118355053744566,
+      "goal_error_m": 0.007944159037872768,
+      "final_screen_distance_m": 0.7378338442602952,
+      "final_position": [
+        -0.9204867482185364,
+        -1.4719229936599731
+      ],
+      "obstacle_contact_onsets": 0,
+      "obstacle_contact_ticks": 0,
+      "fault": null,
+      "contacts": [
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "right_wheel"
+          ],
+          "reports": 1044,
+          "positive_impulse_reports": 1043,
+          "max_impulse_ns": 0.9735696911811829
+        },
+        {
+          "kind": "wheel_floor",
+          "entities": [
+            "ground",
+            "left_wheel"
+          ],
+          "reports": 1044,
+          "positive_impulse_reports": 1043,
+          "max_impulse_ns": 0.9854955077171326
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "ground",
+            "rear_caster"
+          ],
+          "reports": 1044,
+          "positive_impulse_reports": 820,
+          "max_impulse_ns": 0.12673301994800568
+        },
+        {
+          "kind": "other_floor",
+          "entities": [
+            "front_caster",
+            "ground"
+          ],
+          "reports": 1044,
+          "positive_impulse_reports": 777,
+          "max_impulse_ns": 0.13864243030548096
+        }
+      ],
+      "probes": [
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.9237269759178162,
+            -1.4748132228851318
+          ],
+          "yaw": -3.0860063279109293,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.9212123155593872,
+            -1.4758321046829224
+          ],
+          "yaw": -2.351606995518977,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [],
+          "position": [
+            -0.9166475534439087,
+            -1.4723896980285645
+          ],
+          "yaw": -1.567724137712402,
+          "score": 0,
+          "box": null,
+          "grounded": null
+        },
+        {
+          "blue_proposals": [
+            [
+              86,
+              81,
+              143,
+              138
+            ]
+          ],
+          "position": [
+            -0.9219365119934082,
+            -1.4733895063400269
+          ],
+          "yaw": -0.7945682972884438,
+          "score": 0.1267268806695938,
+          "box": [
+            86,
+            81,
+            143,
+            138
+          ],
+          "grounded": [
+            -0.30534898692608736,
+            0.8800159658323957,
+            -1.1093157942560006
+          ]
+        }
+      ]
+    }
+  ]
+}
