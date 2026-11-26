@@ -257,13 +257,27 @@ def _object_items(k, box_m, use_meshes=True):
     return it
 
 
-def static_items(lay: W.Layout, use_meshes: bool = True):
+def _wood_planks():
+    colors = [(154, 115, 81), (172, 132, 97), (160, 122, 87), (182, 143, 104), (166, 127, 91)]
+    width, length, gap = 0.25, 2.0, 0.008
+    for row in range(round(W.HEIGHT_M / width)):
+        cy = (row + 0.5) * width
+        for column, start in enumerate(np.arange(-length / 2 * (row % 2), W.WIDTH_M, length)):
+            left, right = max(0, start), min(W.WIDTH_M, start + length)
+            color = colors[(3 * row + 2 * column + row // 5) % len(colors)]
+            yield box((left + right) / 2, cy, -0.015, right - left - gap, width - gap, 0.017, color, rough=0.65)
+
+
+def static_items(lay: W.Layout, use_meshes: bool = True, *, wood_floor: bool = False):
     items = [box(W.WIDTH_M / 2, W.HEIGHT_M / 2, -0.02, W.WIDTH_M + 0.4, W.HEIGHT_M + 0.4, 0.02, (120, 100, 85), rough=0.8)]
-    # floor tiles for depth cues
-    for i in range(16):
-        for j in range(12):
-            if (i + j) % 2 == 0:
-                items.append(box(0.25 + 0.5 * i, 0.25 + 0.5 * j, -0.015, 0.5, 0.5, 0.017, (138, 116, 98), rough=0.8))
+    if wood_floor:
+        items.extend(_wood_planks())
+    else:
+        for i in range(16):
+            for j in range(12):
+                if (i + j) % 2 == 0:
+                    items.append(box(0.25 + 0.5 * i, 0.25 + 0.5 * j, -0.015, 0.5, 0.5, 0.017,
+                                     (138, 116, 98), rough=0.8))
     res = W.RES_M
     for i0, j0, i1, j1 in _rects(lay.grid == W.WALL):
         sx, sy = (i1 - i0 + 1) * res, (j1 - j0 + 1) * res
@@ -351,7 +365,7 @@ def fpv_view(pose, out):
     return dict(out=out, fov_y_rad=float(vfov), eye_m=eye, rot=look_rot(eye, target), **FPV)
 
 
-def render_episode(lay, target_box, kind, accent, records, out_dir: Path):
+def render_episode(lay, target_box, kind, accent, records, out_dir: Path, *, wood_floor=False):
     """records: list of dicts with pose, viz, path.  Writes ov_XXX.png / fpv_XXX.png in out_dir."""
     out_dir.mkdir(parents=True, exist_ok=True)
     frames = []
@@ -361,7 +375,8 @@ def render_episode(lay, target_box, kind, accent, records, out_dir: Path):
         frames.append(dict(items=robot + overlay, views=[overview_view(f"ov_{i:04d}.png")]))
         # the egocentric camera sees the world only (plans are drawn in the overview)
         frames.append(dict(items=robot, views=[fpv_view(r["pose"], f"fpv_{i:04d}.png")]))
-    script = dict(clear_rgba=[0.07, 0.08, 0.1, 1.0], static_items=static_items(lay), frames=frames)
+    script = dict(clear_rgba=[0.07, 0.08, 0.1, 1.0],
+                  static_items=static_items(lay, wood_floor=wood_floor), frames=frames)
     path = out_dir / "script.json"
     path.write_text(json.dumps(script))
     subprocess.run([str(rne_binary()), str(path), str(out_dir)], check=True, stdout=subprocess.DEVNULL)

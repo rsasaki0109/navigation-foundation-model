@@ -175,7 +175,7 @@ def draw_robot(d, pose, colour, r_px=None):
         d.line([cx, cy, cx + np.cos(a) * 34, cy - np.sin(a) * 34], fill=colour + (110,), width=1)
 
 
-def render_panel(env, agent, obs, pose, base: Image.Image, status: str = "", ov_img=None, fpv_img=None) -> Image.Image:
+def render_panel(env, agent, obs, pose, base: Image.Image, status: str = "", ov_img=None, fpv_img=None, *, renderer_label="rendered by RNE (wgpu)") -> Image.Image:
     """Compose one panel.  `ov_img` / `fpv_img` are RNE-rendered views; without them a 2D map and a
     ray-cast first-person view are drawn instead."""
     name = agent.name
@@ -250,7 +250,7 @@ def render_panel(env, agent, obs, pose, base: Image.Image, status: str = "", ov_
         img.paste(inset, (MAP_X + 4, MAP_Y + 4))
         d = ImageDraw.Draw(img, "RGBA")
         d.rectangle([MAP_X + 4, MAP_Y + 4, MAP_X + 4 + 111, MAP_Y + 4 + 83], outline=acc + (200,))
-        d.text((MAP_X + MAP_W - 5, MAP_Y + MAP_H - 5), "rendered by RNE (wgpu)", fill=(230, 230, 235, 190), font=F10, anchor="rd")
+        d.text((MAP_X + MAP_W - 5, MAP_Y + MAP_H - 5), renderer_label, fill=(230, 230, 235, 190), font=F10, anchor="rd")
 
     # status line under map
     sy = MAP_Y + MAP_H + 6

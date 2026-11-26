@@ -1,0 +1,42 @@
+{
+ "vlm": {
+  "seed": 53,
+  "success": true,
+  "steps": 34,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)",
+  "layout": "house",
+  "physics": "rne"
+ },
+ "vla": {
+  "seed": 53,
+  "success": true,
+  "steps": 33,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)",
+  "layout": "house",
+  "physics": "rne"
+ },
+ "wm": {
+  "seed": 53,
+  "success": true,
+  "steps": 37,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)",
+  "layout": "house",
+  "physics": "rne"
+ },
+ "wam": {
+  "seed": 53,
+  "success": true,
+  "steps": 34,
+  "collisions": 0,
+  "instruction": "go to the cyan tv",
+  "renderer": "RNE wgpu (examples/150_scene_replay_render)",
+  "layout": "house",
+  "physics": "rne"
+ }
+}

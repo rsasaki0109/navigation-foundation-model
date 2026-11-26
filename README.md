@@ -76,6 +76,130 @@ Getting four learners to work on one simulator mostly meant fixing the data rath
 
 ## Harder layout, and real physics
 
+### House and physics replays
+
+| Multi-room house (seed 53) | RNE Rapier physics (seed 17) |
+| --- | --- |
+| ![Four navigation methods reaching the same target in a multi-room house](docs/media/hero_house.gif) | ![Four navigation methods running on the RNE physics engine](docs/media/hero_rne.gif) |
+
+All four agents reach the cyan TV, which is out of view at the start of the house episode. Both replays use the built-in ray caster for the camera views. The physics replay takes its poses from Rapier.
+
+```bash
+NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --raycast
+python scripts/make_gifs.py 17 --physics rne --raycast
+```
+
+#### Multi-room house on Rapier, rendered in 3D
+
+![Four agents navigating a furnished multi-room house with Rapier physics and RNE 3D rendering](docs/media/hero_house_rne.gif)
+
+On seed 53, all four agents use the house checkpoints to reach the initially hidden cyan TV with zero collisions. RNE's wgpu renderer adds Poly Haven furniture meshes, plank flooring, lighting, and shadows. The agents use the simulator's ray-cast panoramas for observations.
+
+```bash
+# Build the RNE renderer as shown in Quickstart.
+NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --physics rne
+```
+
+#### 3D Gaussian Splatting replay
+
+![The four Rapier trajectories rendered with mesh-derived 3D Gaussian splats](docs/media/hero_house_rne_3dgs.gif)
+
+The 3DGS view samples the room and furniture surfaces into oriented Gaussians, projects their covariances into each camera, and composites the splats in depth order. Robot poses come from the same seed-53 Rapier episodes. The model uses the simulation geometry and baked colors.
+
+```bash
+# On Linux, install a C++17 compiler and the optional mesh loader.
+pip install trimesh==4.11.3
+NAVFM_CKPT=checkpoints/house python scripts/make_gifs.py 53 --layout house --physics rne --3dgs
+```
+
+#### 3DGS from real RGB-D measurements
+
+![Desk reconstructed from the TUM RGB-D Freiburg 1 desk capture](docs/media/tum_desk_3dgs.gif)
+
+The desk reconstruction fuses Kinect RGB and metric depth using the benchmark's time-stamped motion-capture poses. Surface normals orient the Gaussians and the RGB frames supply their colors. Replay cameras use alternating poses reserved from fusion. The PLY contains depth-fused Gaussians with degree-zero color and is suitable as an initialization for photometric optimization. This capture replay follows the recorded sensor poses.
+
+Source data and derived PLY and GIF are attributed to Jürgen Sturm, Nikolas Engelhard, Felix Endres, Wolfram Burgard, and Daniel Cremers, *A Benchmark for the Evaluation of RGB-D SLAM Systems* (IROS 2012). The source data is [TUM RGB-D Freiburg 1 desk](https://cvg.cit.tum.de/data/datasets/rgbd-dataset) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+```bash
+# Requires the core Python dependencies and a C++17 compiler.
+curl -fLO https://cvg.cit.tum.de/rgbd/dataset/freiburg1/rgbd_dataset_freiburg1_desk.tgz
+python scripts/rgbd_splat.py rgbd_dataset_freiburg1_desk.tgz docs/media/tum_desk_3dgs.gif
+```
+
+The script writes the GIF, an uncompressed Gaussian PLY, and reconstruction metadata. The [committed PLY](docs/media/tum_desk_3dgs.ply.gz) is gzip-compressed.
+
+#### Rapier simulation in the reconstructed desk scene
+
+![A Rapier robot driving through the measured TUM desk scene alongside the collision map](docs/media/tum_desk_rapier.gif)
+
+The same Gaussian PLY supplies a fitted floor and 5 cm obstacle cells. The route uses observed floor with at least 13 cm of map clearance. A joint-driven differential-drive robot follows it in Rapier. The map shows obstacle cells in red, surveyed free floor in grey, the robot in yellow, and the goal in green. The camera shows the registered reconstruction and the simulated robot.
+
+The replay uses 55% of the original Gaussian width. On eight camera views reserved from fusion, measured at 320 × 240 over valid Kinect depths of 0.45–4.5 m, this increased mean RGB PSNR from 12.84 to 13.49 dB and luminance-gradient magnitude correlation from 0.228 to 0.247. Narrower splats leave more gaps where scan coverage is sparse.
+
+```bash
+pip install trimesh==4.11.3
+python scripts/simulate_rgbd.py docs/media/tum_desk_3dgs.ply.gz docs/media/tum_desk_rapier.gif
+```
+
+This command also requires the RNE Python wheel. The accompanying JSON records the registration, Rapier trajectory, and final goal error. The scan and derived visualization use the TUM RGB-D attribution above.
+
+#### Find the blue screen from the robot camera
+
+![The Rapier robot searches and approaches a screen in the real RGB-D reconstruction](docs/media/tum_desk_visual_nav.gif)
+
+The instruction is to approach the blue computer screen. The robot turns to search, then explores reachable surveyed floor if its first sweep comes up empty. Color proposes blue regions, and the pretrained OWLv2 detector checks whether they resemble a screen. Depth from the rendered splats back-projects the detected region into the registered map. A four-connected grid planner chooses and follows a reachable floor approach point. The episode uses the simulated robot pose and the surveyed obstacle map. The screen coordinates are estimated during the episode.
+
+This is one scene-specific proof of concept. The color rule, score threshold, camera mast height, and start location are configured for this scene. The JSON logs each camera probe and control step, the estimated screen position, and the final approach error. The native contact count includes wheel contacts with the ground. The replay's first eight camera probes found no usable target. Probe nine localized the screen. The robot reduced its horizontal distance to that estimate from 0.92 m to 0.76 m and ended 1.9 cm from the floor approach point. The closest distance from the robot center to a collider was 9.9 cm. The 10 cm circular footprint check flagged 80 physics ticks, so the run records those as possible overlaps. The native contact count does not separate floor contacts from obstacle contacts.
+
+```bash
+# For the CPU PyTorch 2.8.0 setup in Quickstart.
+pip install torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cpu
+pip install transformers==4.55.4
+python scripts/navigate_rgbd.py docs/media/tum_desk_3dgs.ply.gz docs/media/tum_desk_visual_nav.gif
+```
+
+The command also needs the RNE Python wheel and C++17 compiler. The pretrained detector is fetched on first use. The scan and derived visualization use the TUM RGB-D attribution above.
+
+#### Ten-start evaluation
+
+The same detector, threshold, map and controller were run at five surveyed floor locations with yaw 0 and π at each location. A run counted as a correct localization if the estimated screen was within 25 cm of the visually checked reference from the original replay. Reaching required a correct localization, under 5 cm of final error to the computed approach point, and a final base-to-screen distance no greater than 85 cm. These are repeatability checks in one capture.
+
+| Result | Count |
+| --- | ---: |
+| Screen candidate grounded | 10 / 10 |
+| Correct screen localized | 8 / 10 |
+| Approach completed | 8 / 10 |
+| Run with a positive-impulse obstacle contact | 0 / 10 |
+
+Runs 3 and 4 share the same starting location and accepted a small blue patch about 1.27 m from the screen reference. Run 4 also had a view of the actual screen at probe 3. OWLv2 scored that proposal 0.008, below the 0.012 acceptance threshold. The later false region scored 0.017. This failure involves target discrimination and the policy accepting the first qualifying view.
+
+The [run log](docs/results_rgbd_navigation.json) includes the contact entities, normal impulses, and each camera probe. The [probe sheet](docs/results_rgbd_navigation.jpg) shows each initial view and the strongest candidates, with amber proposals and a green accepted region. Wheel–floor contacts were observed in every run. Obstacle onsets count positive normal impulses between a robot body and a named scan collider after a tick without that same pair.
+
+```bash
+# Use an RNE Python wheel with DiffDriveSim.contact_pairs.
+python scripts/evaluate_rgbd_navigation.py docs/media/tum_desk_3dgs.ply.gz docs/results_rgbd_navigation.json
+```
+
+#### Two-view confirmation
+
+The optional policy prefers a lateral move to a reachable floor cell 12–25 cm away. It checks that the robot actually moved at least 10 cm, points the camera at the candidate, and reruns the same detector. It accepts the mean of the two 3D estimates when their separation is at most 15 cm. A missing or inconsistent second observation sends the robot back to its search.
+
+| Start conditions | Policy | Reached | Wrong accepted target | Runs with obstacle contact | Mean simulated time |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Original ten | Single view | 8 / 10 | 2 | 0 | 28.8 s |
+| Original ten | Two views | 7 / 10 | 0 | 1 | 62.5 s |
+| Ten unused poses | Single view | 9 / 10 | 1 | 0 | 30.6 s |
+| Ten unused poses | Two views | 7 / 10 | 0 | 0 | 86.5 s |
+
+The unused poses are five different floor cells in the same scan, each tested at headings −90° and +90°. Times include the entire simulated episode and exclude inference and rendering latency. Confirmation moves and turns averaged 13.9 s and 22.5 s per run on the original and unused poses, respectively. The original set recovered run 3 and retained six of eight baseline successes. Its five rejected confirmations all lacked an above-threshold second detection. Run 6 recorded a positive-impulse contact between the base and a scan collider and ended on a turn timeout. Single-view navigation remains the default in this scene.
+
+```bash
+python scripts/evaluate_rgbd_navigation.py docs/media/tum_desk_3dgs.ply.gz docs/results_rgbd_two_view.json --confirm-views
+python scripts/evaluate_rgbd_navigation.py docs/media/tum_desk_3dgs.ply.gz docs/results_rgbd_held_out.json --confirm-views --unseen
+```
+
+Remove `--confirm-views` to reproduce the single-view controls. Trial data and probe sheets are available for the [original starts](docs/results_rgbd_two_view.json), [original probes](docs/results_rgbd_two_view.jpg), [unused starts](docs/results_rgbd_held_out.json), and [unused probes](docs/results_rgbd_held_out.jpg). The timed controls are recorded for the [original starts](docs/results_rgbd_baseline.json) and [unused starts](docs/results_rgbd_held_out_baseline.json).
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:
@@ -124,7 +248,9 @@ The 3D views in the GIFs are for humans. The overview shows the plans as glowing
 ## Quickstart
 
 ```bash
-pip install -r requirements.txt          # numpy, scipy, pillow, torch (CPU is fine)
+# Python 3.12, CPU
+pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt pytest
 
 python -m pytest -q tests                # simulator, expert, scene export; shipped checkpoints reproduce docs/results.json on the hero seeds
 python scripts/evaluate.py 20            # evaluate the shipped checkpoints
@@ -136,6 +262,11 @@ python scripts/make_gifs.py 35           # or RNE_REPLAY_BIN=/path/to/150_scene_
 python scripts/collect.py 2500 data/expert.npz
 python scripts/train.py vlm wm vla wam
 ```
+
+### Optional dependencies
+
+- Install `transformers` with `pip install transformers` for the CLIP agents (`clip_raycast` and `clip`). The pretrained ViT-B/32 weights are downloaded on first use.
+- Install an `rne_py` wheel exposing `DiffDriveSim.from_scene` for Rapier physics (`--physics rne`). Build it from [Robot Native Engine](https://github.com/rsasaki0109/RobotNativeEngine/tree/eab0161edc7090bb83b5a956afc24ac5c699acdb) with `maturin build --release --locked -m crates/rne_py/Cargo.toml` and install the resulting wheel with pip.
 
 ## Layout
 

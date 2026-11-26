@@ -1,0 +1,42 @@
+{
+ "vlm": {
+  "seed": 17,
+  "success": true,
+  "steps": 25,
+  "collisions": 0,
+  "instruction": "navigate to the purple bed",
+  "renderer": "built-in ray caster",
+  "layout": "apartment",
+  "physics": "rne"
+ },
+ "vla": {
+  "seed": 17,
+  "success": true,
+  "steps": 23,
+  "collisions": 0,
+  "instruction": "navigate to the purple bed",
+  "renderer": "built-in ray caster",
+  "layout": "apartment",
+  "physics": "rne"
+ },
+ "wm": {
+  "seed": 17,
+  "success": true,
+  "steps": 23,
+  "collisions": 0,
+  "instruction": "navigate to the purple bed",
+  "renderer": "built-in ray caster",
+  "layout": "apartment",
+  "physics": "rne"
+ },
+ "wam": {
+  "seed": 17,
+  "success": true,
+  "steps": 24,
+  "collisions": 0,
+  "instruction": "navigate to the purple bed",
+  "renderer": "built-in ray caster",
+  "layout": "apartment",
+  "physics": "rne"
+ }
+}
