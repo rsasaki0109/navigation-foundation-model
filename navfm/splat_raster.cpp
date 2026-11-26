@@ -10,7 +10,7 @@ struct Splat {
 }
 
 extern "C" void splat_raster(const float* cloud, int count, const float* view,
-                            const float* intrinsics, int w, int h, float* pixels) {
+                            const float* intrinsics, int w, int h, float* pixels, float* depth) {
     const float fx = intrinsics[0], fy = intrinsics[1], cx = intrinsics[2], cy = intrinsics[3];
     std::vector<Splat> splats;
     splats.reserve(count);
@@ -58,6 +58,7 @@ extern "C" void splat_raster(const float* cloud, int count, const float* view,
                 float weight = transmittance[i] * opacity;
                 for (int k = 0; k < 3; ++k) pixels[i * 3 + k] += weight * s.rgb[k];
                 transmittance[i] *= 1 - opacity;
+                if (depth && !depth[i] && transmittance[i] <= .5f) depth[i] = s.z;
             }
         }
     }

@@ -143,6 +143,23 @@ python scripts/simulate_rgbd.py docs/media/tum_desk_3dgs.ply.gz docs/media/tum_d
 
 This command also requires the RNE Python wheel. The accompanying JSON records the registration, Rapier trajectory, and final goal error. The scan and derived visualization use the TUM RGB-D attribution above.
 
+#### Find the blue screen from the robot camera
+
+![The Rapier robot searches and approaches a screen in the real RGB-D reconstruction](docs/media/tum_desk_visual_nav.gif)
+
+The instruction is to approach the blue computer screen. The robot turns to search, then explores reachable surveyed floor if its first sweep comes up empty. Color proposes blue regions, and the pretrained OWLv2 detector checks whether they resemble a screen. Depth from the rendered splats back-projects the detected region into the registered map. A four-connected grid planner chooses and follows a reachable floor approach point. The episode uses the simulated robot pose and the surveyed obstacle map. The screen coordinates are estimated during the episode.
+
+This is one scene-specific proof of concept. The color rule, score threshold, camera mast height, and start location are configured for this scene. The JSON logs each camera probe and control step, the estimated screen position, and the final approach error. The native contact count includes wheel contacts with the ground. The replay's first eight camera probes found no usable target. Probe nine localized the screen. The robot reduced its horizontal distance to that estimate from 0.92 m to 0.76 m and ended 1.9 cm from the floor approach point. The closest distance from the robot center to a collider was 9.9 cm. The 10 cm circular footprint check flagged 80 physics ticks, so the run records those as possible overlaps. The native contact count does not separate floor contacts from obstacle contacts.
+
+```bash
+# For the CPU PyTorch 2.8.0 setup in Quickstart.
+pip install torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cpu
+pip install transformers==4.55.4
+python scripts/navigate_rgbd.py docs/media/tum_desk_3dgs.ply.gz docs/media/tum_desk_visual_nav.gif
+```
+
+The command also needs the RNE Python wheel and C++17 compiler. The pretrained detector is fetched on first use. The scan and derived visualization use the TUM RGB-D attribution above.
+
 ### A multi-room house
 
 `NavEnv(seed, "house")` builds three or four rooms. They are separated by full walls with 0.9 m doors, and every start is at least 4 m from the goal along the path. The target is in view at the start in 12.5% of episodes, against 33% in the apartment. Success rate over 100 held-out episodes in each setting:

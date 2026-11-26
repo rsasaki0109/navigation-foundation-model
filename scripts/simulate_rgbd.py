@@ -94,7 +94,7 @@ def route(free, origin):
     raise RuntimeError("No collision-free route on surveyed floor")
 
 
-def drive(directory, free, obstacles, origin, start, goal):
+def create_sim(directory, obstacles, origin, start):
     import rne_py
 
     robot = f"""kind = "diff_drive"
@@ -118,7 +118,11 @@ drive_mode = "joint_driven"
                       f'translation_m = [{x}, 0.12, {z}]\n'
                       f'half_extents_m = [{CELL*(k-i+1)/2}, 0.12, {CELL*(l-j+1)/2}]')
     scene.write_text("\n\n".join(chunks))
-    sim = rne_py.DiffDriveSim.from_scene(str(scene))
+    return rne_py.DiffDriveSim.from_scene(str(scene))
+
+
+def drive(directory, free, obstacles, origin, start, goal):
+    sim = create_sim(directory, obstacles, origin, start)
     obs = sim.reset()
     path = []
     max_contacts = 0

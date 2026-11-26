@@ -77,15 +77,18 @@ class SplatRaster:
         self.library = ctypes.CDLL(str(library))
         self.raster = self.library.splat_raster
         fp32 = np.ctypeslib.ndpointer(dtype=np.float32, flags="C_CONTIGUOUS")
-        self.raster.argtypes = [fp32, ctypes.c_int, fp32, fp32, ctypes.c_int, ctypes.c_int, fp32]
+        self.raster.argtypes = [fp32, ctypes.c_int, fp32, fp32, ctypes.c_int, ctypes.c_int, fp32, ctypes.c_void_p]
         self.raster.restype = None
-    def render(self, cloud, eye, basis, intrinsics, size):
+    def render(self, cloud, eye, basis, intrinsics, size, *, with_depth=False):
         w, h = size
         camera = np.array([*eye, *basis.ravel()], dtype=np.float32)
         intrinsics = np.asarray(intrinsics, dtype=np.float32)
         pixels = np.zeros((h, w, 3), dtype=np.float32)
-        self.raster(cloud, len(cloud), camera, intrinsics, w, h, pixels)
-        return Image.fromarray(np.uint8(np.clip(pixels, 0, 1) * 255))
+        depth = np.zeros((h, w), dtype=np.float32) if with_depth else None
+        self.raster(cloud, len(cloud), camera, intrinsics, w, h, pixels,
+                    None if depth is None else depth.ctypes.data)
+        image = Image.fromarray(np.uint8(np.clip(pixels, 0, 1) * 255))
+        return (image, depth) if with_depth else image
 
 
 class SplatRenderer(SplatRaster):
